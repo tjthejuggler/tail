@@ -1,3 +1,18 @@
-makes a story out of current things that ive been studying, stuff going on the world, my dreams
+makes a story out of current things 
+
+stuff going on the world, 
+
+my dreams (maybe give it all my past dreams)
 
 use the recent contents from clipboard.md
+    it could pull out some recent ideas(more heavily weighted on the present, but also some from the past)
+
+it can search on the internet for recent information on anything
+
+maybe there should be somewhere that i can see everything that the story was pulled from
+
+
+
+
+eventually
+maybe there is a framework that is a story that i actually create, and all of the stories sort of come from that framework, the whole idea being the sim stuff stuff. occasionally new sims get created, stories take place in it, rules get made, and then new sims can be visited and the memory stays tied to them. this way we can have callbacks to previous stories, and the stories can be more connected.
