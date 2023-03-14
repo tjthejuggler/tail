@@ -1,0 +1,125 @@
+FLOW
+    if there is no character, we should make one
+    decide if this will be a standard day or a special day(based on scoring rewards)
+
+CHARACTER CREATION
+    create a folder of data for this character
+    choose random name from copies or other input
+    make a rough outline of 5 or 10 stories for them, when their outline finishes, make a longer one based on it
+
+DAILY ROUTINE
+    choose a character to make a story about
+    choose a day/days from the past
+        maybe a guarenteed recent one, and then one that is from any time, or maybe even just one from any time
+    based on the chosen day/days 
+        get some clipboard data from around that day
+        get some habits data from around that day
+        get some diary data from around that day
+        get some todo data from around that day - this only works if todo items are dated
+        get some dream data from around that day - this only works if dreams are dated
+        get a tail story from around that day
+    write the story 
+        it should have a lot to do with the summaries of the last few stories about this character
+
+    present the story
+    write a summary of the story to be saved with the date and used when making later stories
+
+QUESTIONS
+    can user provide a goodness rating for the story?
+    should the story come out once per day?
+        probably in the morning
+    should story length be connected to the number of habits that I did the previous day/today/week/month?
+
+use the recent contents from clipboard.md
+    it could pull out some recent ideas(more heavily weighted on the present, but also some from the past)
+
+when a story goes to get generated, we should first clean up the clipboard file
+    remove duplicate pastes
+    remove urls?
+    remove code copies? maybe just make a note that indicates how much coding was done, maybe get variable names out of it to be used randomly/out of context in the story
+
+DIARY
+    a place to input random unusual events that happen in a day, i could give events a number based on how big of a deal they are
+
+IMPROVED HABITS SYSTEM
+    hook up to garmin data somehow
+    track amount of time that VSCode is the active window
+        an alternative to this would be to have a hotkey that tells it when I am coding, although best to just have it automatically detect it
+    move away from tasker and into a standalone app
+
+STRATEGY
+    Maybe we should not include anything from the last few days in the story
+        However, maybe there is some affect that immediately affect it, like the chances that something rare happens is increased by recent stats (rewards for doing lots of a thing in a day or something)
+    Have all the things that can be included in the consideration of the story, each with their own weights
+        some stuff should always be included, other things are only sometimes a part of it
+        maybe there should be somewhere that i can see everything that the story was pulled from
+            somethings i think i definetly want to see (like the todo item referenced in the story)
+            other things I may not want to know about so that the story is more of a surprise
+
+MISC
+    A seperate instance of the bot could be shown all of my clipboard items for a day and be asked to give a summary of what kinds of things I did that day.
+    it can search on the internet for recent information on anything
+
+
+EVENTUALLY
+    -maybe there is a framework that is a story that i actually create, and all of the stories sort of come from that framework, the whole idea being the sim stuff stuff. occasionally new sims get created, stories take place in it, rules get made, and then new sims can be visited and the memory stays tied to them. this way we can have callbacks to previous stories, and the stories can be more connected.
+    -color themes can be involved in tail
+    -Story maker should do callbacks to stories that happened last time or previous times I did similar large amounts of habits. When new habits are added, stories should comment on the newcomer. When I do a habit that I have not done in a long time, the story should mention things from the last time i did that habit. If I don't do a habit for quite awhile, then it should encourage me to do it by mentioning stuff from stories that were around back when i was doing that thing alot. There should be some sort of continuity from day to day.
+
+THINGS IN A TAiL
+    todo(inbox) items
+    copied text
+    current habits streaks
+        long streak
+        streak that ended
+    daily diary
+    dreams
+        transcribe old dreams
+        notes about daily dreams
+        other peoples databases of dreams?
+    past TAiLs
+        yesterdays/past few days
+        distant callbacks
+    ---------------maybe-------------
+    current news items with some sort of automated search
+
+INTERFACE
+    a control panel that allows me to alter the weights of different things
+
+CONTINUITY
+    there can be several different characters that each have their own databases
+        usually only one character is used per story, but sometimes characters can be mixed together
+    a vague summary can be made for a chapter of a character, and we keep track of which part of the summary we are in for a character
+        this can be extended as time goes on as well
+
+SCORING
+    POSSIBLE SCORING TYPES
+        daily score that is like a number of tickets into a lottery,
+            and the lottery that you are even involved in is based on the score teir
+                these teirs could be baesd on daily, weekly, or monthly
+        ongoing score that occasionally reaches a point of a guarenteed reward
+    score goes up when i do lots of habits, score goes down when i dont do habits
+    something like a looping scoring system where when you make it around, you get rewarded with something rare/random, 
+        new character is added, (the reader may not know right away if this is a new main character or a fleeting side character - this is more so the case if new characters are introduced alongside current characters)
+        characters are mixed together in the same story
+        characters can have various rarities, and even just having one appear could be a reward
+
+the reward can be based on relative scoring
+
+one thing to be rewarded for is the number of habits i do
+    as well as the number of the habits that i am currently streaking on
+    there can be punishment for being currently on the longest haitus ever for a habit
+
+THOUGHTS
+    It could have to do with my current location
+        maybe this is just a "main character" things
+        characters could have their own locations that are kept track of in a sort of biography file (this bio could even keep track of where they have been)
+
+QUOTE
+    "I think that the best way to get a story is to have a bunch of different 
+
+     -----
+     
+     “Those who dream by day are cognizant of many things which escape those who dream only by night.”
+
+― Edgar Allan Poe, Eleonora 

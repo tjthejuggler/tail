@@ -6,3 +6,7 @@ It is used in conjunction with a story creation app that takes into account in t
 HOW TO SET IT UP?
 hook up a hotkey to the toggle script
 put the monitor script in the startup folder
+
+HOW DO I STOP THIS SCRIPT?
+$: ps aux | grep clipboard_monitor.sh   
+$: kill **PID** 
