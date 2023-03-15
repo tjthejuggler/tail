@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#this script watches my clipboard and saves anything i copy thaat is more than 1 word to a file with the date as the filename
+#this script watches my clipboard and saves anything i copy that is more than 1 word to a file with the date as the filename
 
 # Initialize variable to store the current clipboard contents
 current_contents=""
@@ -26,8 +26,14 @@ while true; do
             # Get the current date in the format yyyyMMdd
             current_date=$(date +"%Y%m%d")
 
-            # Save the clipboard contents to a file with the current date as the filename
-            echo -e "$new_contents\n" | cat - ~/Documents/obsidian_note_vault/noteVault/clipboard/comp/$current_date.md > temp && mv temp ~/Documents/obsidian_note_vault/noteVault/clipboard/comp/$current_date.md 
+            # Set the file path
+            file_path=~/Documents/obsidian_note_vault/noteVault/clipboard/comp/$current_date.md
+
+            # Create the file if it doesn't exist
+            touch "$file_path"
+
+            # Save the clipboard contents to the file
+            echo -e "$new_contents\n" | cat - "$file_path" > temp && mv temp "$file_path"
 
             current_contents="$new_contents"
         fi
