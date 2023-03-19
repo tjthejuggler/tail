@@ -1,3 +1,8 @@
+
+
+
+Tail could randomly choose an old todo item and incorporate it into a story and give it as a mission.
+
 FLOW
     if there is no character, we should make one
     decide if this will be a standard day or a special day(based on scoring rewards)
@@ -29,6 +34,10 @@ QUESTIONS
     should the story come out once per day?
         probably in the morning
     should story length be connected to the number of habits that I did the previous day/today/week/month?
+    how can i seperate bigger deal events from smaller ones, like new 5k record, if i put it in with unusual events then it wont stick out, if i put it in broken records then it also wont stick out..
+        I have the other 'events' list, but i was thinking that that would go away because i have unusual events.
+            OPTION: give unusual events importance weights
+            OPTION: make a seperate special events list with/without importance weights
 
 use the recent contents from clipboard.md
     it could pull out some recent ideas(more heavily weighted on the present, but also some from the past)
@@ -59,6 +68,9 @@ STRATEGY
 MISC
     A seperate instance of the bot could be shown all of my clipboard items for a day and be asked to give a summary of what kinds of things I did that day.
     it can search on the internet for recent information on anything
+
+    feeling of knowing what will happen, being right, and not knowing why. This may be able to be induced by incorporating stuff from around the same day in the story without necessarily telling the user what day it is that is being used. This feeling could be rated and tracked in tails.
+        if gpt can search then in addition to using my stuff from a certain day/s then it could also do some searching to find the big news stories from around that time
 
 
 EVENTUALLY
