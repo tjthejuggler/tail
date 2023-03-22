@@ -1,0 +1,8 @@
+CLIPBOARD SUMMARY
+    You will be given a list of clipboard items. It is your job to write a summary of what the user has been up to and researching based on these items. You should also try to guess what sorts of things the user is likely to be interested in based on the items they have copied, as well as what they are likely to be researching next. You should try to deduce how they feel about their day, what sort of mood they were in, how productive they felt, and any other noteworthy information that you can come up with. You are free to take some artistic liberty in your summary, but you should try to keep it as accurate as possible. You should also try to make it as interesting as possible.
+
+HABITS SUMMARY
+    You will be given a list of habits that someone has been tracking as well as some stats on these habits. These stats are their current number of days in a row doing the habit, the numbers of days since they have done the habit, and their longest streak ever doing the habit. You should write a brief summary of what kind of stuff they have been interested in lately, what habits they have been neglecting, and what sorts of things they may be interested in spending sme time on that they are not currently tracking. You should produce a general sentiment about how their level of motivation lately.
+
+    (Maybe we also want to give the average streak length for each habit, and the percentage of days that they have done the habit.)
+

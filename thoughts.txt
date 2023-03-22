@@ -1,5 +1,16 @@
+A long streak ending can also be taken into account with tail
 
+maybe involve anki cards created around certain dates in tail
 
+Instead of just using some clipboard items in story, give all the clipboard items (and dates/times) to a seperate ai and have it give a paragraph on what kind of a person would have such a clipboard history, and what kind of day they might have had, then use that as the audience we are writing for if trying to give them a trippy experience without them knowing that their clipboard was being used. 
+    when i give clipboard items i can just tell it how many of duplicates
+
+-similarly, tell all habit stats(as well as weekly and monthly averages) and receive back a couple sentences on how the person is probably feeling about their day based on that. Possibly all this can be done together, or maybe seperate and then use the descriptions from each when making the story.
+
+SPLIT PERSONALITIES
+    Maybe the story can be greater if there are seperate character instances. There can be a narator/gm that makes world decisions, and seperate characters each with their own memory. There can also be an observer/writer that takes notes and keeps track of the most important/interesting bits.
+
+    Basically set up the AI to have a backstory, a personality, goals, and then put it into a sort of a text based role playing game. The situations and atmosphere can be made by another AI, but the characters should not have complete information, they should just be told what stuff they would actually know. Multiple characters can have genuine interactions and can each be born out of different time periods of the users life. After the character plays the game for a bit, then the log from its game can be passed of to another AI that dresses it up and turns it into a story.
 
 Tail could randomly choose an old todo item and incorporate it into a story and give it as a mission.
 
@@ -7,10 +18,26 @@ FLOW
     if there is no character, we should make one
     decide if this will be a standard day or a special day(based on scoring rewards)
 
+STORY PROMPT
+    THINGS TO ASK FOR:
+        summary
+        list of characters involved in the story
+
+
 CHARACTER CREATION
     create a folder of data for this character
     choose random name from copies or other input
-    make a rough outline of 5 or 10 stories for them, when their outline finishes, make a longer one based on it
+    randomly choose an age from 0 to 100
+        time will be incremented at some sort of constant accelerated rate
+    when a character is made they can be birthed out of a certain period of time of the users history, this way in order for the user to get a varied, interesting story they need to have a varied, interesting life
+    when we search around a certain period of time to make a new character we can look to see if there is any actual person mentioned in the clipboard or todos from around then, 
+        if there is then we can use that real persons life as a model, maybe even take a couple people and make a hybrid of their lives as a model
+    Whenever a name is mentioned in a story, start a file on that new character so we have characters to use later when we want to add more
+    A character can take into themselves the top habit streaks and top anti-streaks from when theyre made, and then these habits can be off limits from the other future characters.
+        !A probably better variation on this might be that a few habits are randomly chosen(maybe randomly choose a couple streaks and anti-streaks), and then based on how extreme those streaks are compared to other streaks, that is how into the given things those characters are
+        -Maybe insted of even giving chatgpt all the habits we could just randomly pick some or pick some in some way and then pick stats about them and give these stats to chatgpt.
+            it can also include information about how many of each thing i am doing in a day, not only streaks
+
 
 DAILY ROUTINE
     choose a character to make a story about
@@ -28,6 +55,13 @@ DAILY ROUTINE
 
     present the story
     write a summary of the story to be saved with the date and used when making later stories
+
+NEW STORYLINE
+    take a whole bunch of random days from around the recent time period to make a new character with their own new storyline, maybe have some chance that they will interact with other characters.
+
+    Maybe the outline doesn't always need to be adhered to, there can be a random chance that we return to the main story line, but allow ourselves to drift from place to place based on user actions.
+
+    when a story just happens to involve a character, we could have it choose from a list of characters that already exist, based on descriptions/summaries of each of the characters 
 
 QUESTIONS
     can user provide a goodness rating for the story?
@@ -72,6 +106,19 @@ MISC
     feeling of knowing what will happen, being right, and not knowing why. This may be able to be induced by incorporating stuff from around the same day in the story without necessarily telling the user what day it is that is being used. This feeling could be rated and tracked in tails.
         if gpt can search then in addition to using my stuff from a certain day/s then it could also do some searching to find the big news stories from around that time
 
+    I only need to get a few people interested enough to want to work on it. If some start, then maybe more will.
+
+    Maybe put all related files into a single db? 
+
+    How is it possible to have everything locally encrypted and then backed up online?
+
+    The more interesting unique things you give it, the better your tails will be. There can be insentives as well to accomplish many habits because it can increase the chances of a more interesting prompt being used to generate the days Story(as well as even using a better model).
+
+    Instead of a new experience, maybe an "out of fishbowl" Experience because sometimes just unusual experiences are great
+
+    I could use stuff from my gallery somehow in tail, maybe with a combination of sd and image to text with some of the things from around the target date
+
+    Maybe make a new github for tail?
 
 EVENTUALLY
     -maybe there is a framework that is a story that i actually create, and all of the stories sort of come from that framework, the whole idea being the sim stuff stuff. occasionally new sims get created, stories take place in it, rules get made, and then new sims can be visited and the memory stays tied to them. this way we can have callbacks to previous stories, and the stories can be more connected.
