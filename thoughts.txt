@@ -38,6 +38,7 @@ CHARACTER CREATION
         -Maybe insted of even giving chatgpt all the habits we could just randomly pick some or pick some in some way and then pick stats about them and give these stats to chatgpt.
             it can also include information about how many of each thing i am doing in a day, not only streaks  
     in tail when using habits to make a new character, it should take some heavy artistic liberty to make something from whatever the habit is, a super power or a maybe a special skill or something that is tangentally related to the habits chosen
+    Even new habits being added should be taken into account when creating characters. there should be some spectrum of how good or bad a character is maybe.
 
 DAILY ROUTINE
     choose a character to make a story about
