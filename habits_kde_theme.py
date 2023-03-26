@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+import json
 
 total_habit_count_location = '~/Documents/obsidian_note_vault/noteVault/habitCounters/totalHabitCount.txt'
 total_habit_count_location = os.path.expanduser(total_habit_count_location)
@@ -10,8 +11,48 @@ total_habit_count_location = os.path.expanduser(total_habit_count_location)
 #     json_obj = json.load(f)
 
 #open this normal text file
-with open(total_habit_count_location, "r") as f:
-    total_habit_count = int(f.read())
+# with open(total_habit_count_location, "r") as f:
+#     total_habit_count = int(f.read())
+
+def get_total_habit_count():
+    habitsdb_dir = '~/Documents/obsidian_note_vault/noteVault/habitsdb.txt'
+    habitsdb_dir = os.path.expanduser(habitsdb_dir)
+    with open(habitsdb_dir, 'r') as f:
+        habitsdb = json.load(f)
+
+    habitsdb_final_only = {}
+
+    for key, value in habitsdb.items():
+        habitsdb_final_only[key] = list(value.values())[-1]
+
+    habitsdb_to_add_dir = '~/Documents/obsidian_note_vault/noteVault/habitsdb_to_add.txt'
+    habitsdb_to_add_dir = os.path.expanduser(habitsdb_to_add_dir)
+    with open(habitsdb_to_add_dir, 'r') as f:
+        habitsdb_to_add = json.load(f)
+
+    total_habit_count = 0
+
+    for this_dict in [habitsdb_final_only, habitsdb_to_add]:
+        for key, value in this_dict.items():
+
+            if "Pushups" in key:
+                value = round(value/30)
+            elif "Situps" in key:
+                print(value)
+                value = round(value/50)
+            elif "Squats" in key:
+                value = round(value/30)
+                print(value)
+            elif "Cold Shower" in key:
+                if value > 0 and value < 3:
+                    value = 3
+                value = round(value/3)
+            
+            total_habit_count += value
+
+    return total_habit_count
+
+
 
 def set_kde_color_theme(theme):
     theme_package = {
@@ -19,7 +60,7 @@ def set_kde_color_theme(theme):
         "orange": "E5150-Orange",
         "green": "spectrum-mawsitsit",
         "blue": "Shadows-Global",
-        "light_blue": "Glassy"
+        "pink": "spectrum-strawberryquartz"
     }
 
     if theme not in theme_package:
@@ -41,6 +82,16 @@ def set_kde_color_theme(theme):
     except Exception as e:
         print(f"Failed to set KDE global theme to {theme}: {e}")
 
+
+
+#instead of just taking total habit count, i should just figure the total from the habits completed as well as from the ones in the queue
+    #this also needs to take into account the high number widgets
+    #also, i will want to change the watchdog to also include the to_add file, or just run this automatically when the to_add file gets updated by the widgets scipt
+
+total_habit_count = get_total_habit_count()
+
+print(total_habit_count)
+
 if total_habit_count < 14:
     set_kde_color_theme("red")
 elif 14 <= total_habit_count < 21:
@@ -50,7 +101,7 @@ elif 21 <= total_habit_count < 31:
 elif 31 <= total_habit_count < 42:
     set_kde_color_theme("blue")
 elif 42 <= total_habit_count:
-    set_kde_color_theme("light_blue")
+    set_kde_color_theme("pink")
 
 print(total_habit_count)
 
