@@ -1,0 +1,4 @@
+make a narrator/game master that affects the story
+
+make something that automatically creates histories from each story that gets run
+    it should include the backups(these need renamed, prompt_logs)
