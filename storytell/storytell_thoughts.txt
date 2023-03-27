@@ -1,0 +1,5 @@
+eventually we could have a setup where characters from a distance can see actions, but you must be close to hear someone talk
+
+there could be an attention amount for bots to have on other bots (and players - not sure if there will be anything like a player in tail or not..) and if you are paying enough attention to someone then you are more likely to notice their actions at a distance, and maybe even be able to hear what they say 
+
+Wow, what if you did occasionally have a player in tail, like sometimes you get lucky and have an interactive session. You could decide what happens and maybe even be able to find a character in the story. This could be really cool if it doesn't happen very often maybe.

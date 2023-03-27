@@ -4,7 +4,7 @@ echo "Script started at $(date)" >> /home/lunkwill/logs/logfile.log
 
 sleep 10
 
-file_to_watch="$HOME/Documents/obsidian_note_vault/noteVault/habitCounters/totalHabitCount.txt"
+file_to_watch="$HOME/Documents/obsidian_note_vault/noteVault/habitsdb.txt"
 python_script="$HOME/projects/tail/habits_kde_theme.py"
 
 while true; do

@@ -4,8 +4,8 @@ import os
 import subprocess
 import json
 
-total_habit_count_location = '~/Documents/obsidian_note_vault/noteVault/habitCounters/totalHabitCount.txt'
-total_habit_count_location = os.path.expanduser(total_habit_count_location)
+#total_habit_count_location = '~/Documents/obsidian_note_vault/noteVault/habitCounters/totalHabitCount.txt'
+#total_habit_count_location = os.path.expanduser(total_habit_count_location)
 
 # with open(json_location, "r") as f:
 #     json_obj = json.load(f)
@@ -13,6 +13,11 @@ total_habit_count_location = os.path.expanduser(total_habit_count_location)
 #open this normal text file
 # with open(total_habit_count_location, "r") as f:
 #     total_habit_count = int(f.read())
+
+def notify(text):
+    print('text')    
+    msg = "notify-send ' ' '"+text+"'"
+    os.system(msg)
 
 def get_total_habit_count():
     habitsdb_dir = '~/Documents/obsidian_note_vault/noteVault/habitsdb.txt'
@@ -104,6 +109,7 @@ elif 42 <= total_habit_count:
     set_kde_color_theme("pink")
 
 print(total_habit_count)
+notify(total_habit_count)
 
 
 
