@@ -109,7 +109,7 @@ elif 42 <= total_habit_count:
     set_kde_color_theme("pink")
 
 print(total_habit_count)
-notify(total_habit_count)
+#notify(str(total_habit_count))
 
 
 
