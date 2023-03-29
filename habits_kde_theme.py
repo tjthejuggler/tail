@@ -4,16 +4,6 @@ import os
 import subprocess
 import json
 
-#total_habit_count_location = '~/Documents/obsidian_note_vault/noteVault/habitCounters/totalHabitCount.txt'
-#total_habit_count_location = os.path.expanduser(total_habit_count_location)
-
-# with open(json_location, "r") as f:
-#     json_obj = json.load(f)
-
-#open this normal text file
-# with open(total_habit_count_location, "r") as f:
-#     total_habit_count = int(f.read())
-
 def notify(text):
     print('text')    
     msg = "notify-send ' ' '"+text+"'"
@@ -59,13 +49,49 @@ def get_total_habit_count():
 
 
 
+# def set_kde_color_theme(theme):
+#     theme_package = {
+#         "red": "spectrum-garnet",
+#         "orange": "E5150-Orange",
+#         "green": "spectrum-mawsitsit",
+#         "blue": "Shadows-Global",
+#         "pink": "spectrum-strawberryquartz"
+#     }
+
+#     if theme not in theme_package:
+#         print(f"Invalid theme name: {theme}")
+#         return
+
+#     try:
+#         prev_theme = '~/projects/tail/kde_theme.txt'
+#         prev_theme = os.path.expanduser(prev_theme)
+#         #only set the theme if it's not already the one set in kde_theme.txt
+#         with open(prev_theme, "r") as f:
+#             if f.read() == theme_package[theme]:
+#                 print(f"KDE global theme is already set to {theme}")
+#             else:    
+#                 subprocess.run(["lookandfeeltool", "-a", theme_package[theme]])
+#                 #save the theme_package[theme] to a file
+#                 with open(prev_theme, "w") as f:
+#                     f.write(theme_package[theme])
+#     except Exception as e:
+#         print(f"Failed to set KDE global theme to {theme}: {e}")
+
 def set_kde_color_theme(theme):
     theme_package = {
-        "red": "spectrum-garnet",
+        "red": "org.kde.breezedark.desktop",
         "orange": "E5150-Orange",
         "green": "spectrum-mawsitsit",
         "blue": "Shadows-Global",
         "pink": "spectrum-strawberryquartz"
+    }
+
+    color_schemes = {
+        "red": "spectrum-garnet.colors",
+        "orange": "E5150-Orange.colors",
+        "green": "spectrum-mawsitsit.colors",
+        "blue": "Shadows.colors",
+        "pink": "spectrum-strawberryquartz.colors"
     }
 
     if theme not in theme_package:
@@ -75,23 +101,24 @@ def set_kde_color_theme(theme):
     try:
         prev_theme = '~/projects/tail/kde_theme.txt'
         prev_theme = os.path.expanduser(prev_theme)
+
         #only set the theme if it's not already the one set in kde_theme.txt
         with open(prev_theme, "r") as f:
             if f.read() == theme_package[theme]:
                 print(f"KDE global theme is already set to {theme}")
-            else:    
+            else:
                 subprocess.run(["lookandfeeltool", "-a", theme_package[theme]])
+
+                # Set the color scheme
+                color_scheme = os.path.join("/usr/share/plasma/desktoptheme/BreezeDark/colors", color_schemes[theme])
+                subprocess.run(["kwriteconfig5", "--file", os.path.join("/usr/share/plasma/desktoptheme/BreezeDark", "metadata.desktop"), "--group", "Theme", "--key", "colors", "--type", "string", color_scheme])
+
                 #save the theme_package[theme] to a file
                 with open(prev_theme, "w") as f:
                     f.write(theme_package[theme])
     except Exception as e:
         print(f"Failed to set KDE global theme to {theme}: {e}")
 
-
-
-#instead of just taking total habit count, i should just figure the total from the habits completed as well as from the ones in the queue
-    #this also needs to take into account the high number widgets
-    #also, i will want to change the watchdog to also include the to_add file, or just run this automatically when the to_add file gets updated by the widgets scipt
 
 total_habit_count = get_total_habit_count()
 
@@ -112,8 +139,5 @@ print(total_habit_count)
 #notify(str(total_habit_count))
 
 
-
-
-
-
+#TRY THIS FUNCTION TO SET COLOR SCHEME
 
