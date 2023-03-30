@@ -13,11 +13,19 @@ class BotMemory:
     def __init__(self, index, summary=None):
         self.debugging = True
         self.index = index
+        self.gender = ""
+        self.other_character_labels = {}
         #self.voice = get_random_voice()
         if summary is None:
             self.summary = []
         else:
             self.summary = summary
+
+    # def set_other_character_labels(self, new_label, character_number):
+    #     self.other_character_labels[character_number] = new_label
+
+    # def get_other_character_labels(self, character_number):
+    #     return self.other_character_labels[character_number]
    
     def read(self):        
         if self.debugging:

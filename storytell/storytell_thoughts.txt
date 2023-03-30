@@ -1,3 +1,10 @@
+GAME MASTER:
+    the game master only has access to actions. when a player does an action, the game master decides what the result of the action is and tells the player.
+
+NARRATOR:
+    the narrator has access to everything, even inner dialog, and it puts everything together into story format.
+
+
 eventually we could have a setup where characters from a distance can see actions, but you must be close to hear someone talk
 
 there could be an attention amount for bots to have on other bots (and players - not sure if there will be anything like a player in tail or not..) and if you are paying enough attention to someone then you are more likely to notice their actions at a distance, and maybe even be able to hear what they say 

@@ -1,3 +1,9 @@
+we can have a physical description as well as a mental model(currenty called description)
+    the physical description can be what other people use as your title until they learn your name
+        they have another option which is "set title" that they can do to set your title to something else as they learn more about you
+
+we need a way to keep track of names that the reader knows
+
 there should be occasional big events in stories, characters die, people have babies, murders, etc.. it would be good if there was foreshadowing as well somehow
 
 A long streak ending can also be taken into account with tail
@@ -76,6 +82,9 @@ NEW STORYLINE
     Maybe the outline doesn't always need to be adhered to, there can be a random chance that we return to the main story line, but allow ourselves to drift from place to place based on user actions.
 
     when a story just happens to involve a character, we could have it choose from a list of characters that already exist, based on descriptions/summaries of each of the characters 
+
+SONGS
+    If I had a way to know what songs the user has been listening to lately, then stories could occasionally have songs cleverly integrated into them, like the final line of a story could be a main line from the song, or there could be things that happen throughout the story that are various lines from the song
 
 QUESTIONS
     can user provide a goodness rating for the story?
