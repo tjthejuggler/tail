@@ -20,7 +20,7 @@ while true; do
         else
             status="off"
         fi
-
+            
         # If the status is off, exit the script
         if [ "$status" != "off" ]; then
             # Get the current date in the format yyyyMMdd
@@ -43,6 +43,8 @@ while true; do
             echo -e "$timestamp\n$new_contents_no_empty_lines\n" | cat - "$file_path" > temp && mv temp "$file_path"
 
             current_contents="$new_contents"
+
+            notify-send "Clipboard saved."
         fi
 
     fi

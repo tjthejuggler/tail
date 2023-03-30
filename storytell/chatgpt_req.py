@@ -1,5 +1,13 @@
 import openai
 
+def tell_bot(memory, request_message):
+    if request_message:
+        memory.append(["user",request_message+"\nRespond with a single JSON object."])
+    print("memory.read()", memory.read())
+    response, tokens = send_request(memory.read())
+    memory.append(["assistant",response])
+    return(memory, memory.read()[-1]['content'], tokens)
+
 def send_request(request_message):
     with open('api_key.txt', 'r') as f:
         api_key = f.read().strip()
@@ -12,6 +20,7 @@ def send_request(request_message):
     bot_says = response["choices"][0]["message"]["content"]
     tokens = response["usage"]["total_tokens"]
     return(bot_says, tokens)
+
 
 # print(send_request([
 #             {"role": "system", "content": "You are a helpful assistant."},
