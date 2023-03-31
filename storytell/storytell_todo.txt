@@ -1,5 +1,8 @@
-#TEST
-# see if bots know names of each other and names get automatically put in
+#LABEL needs set up
+        #this needs set up, maybe tell the bot to put (the current label, the new label)
+        # we may need some AI to distinguish which one it is, or maybe even make a follow up question to the bot the clarify
+
+
 
     #make readers names list that keeps track of which names the reader knows
         #if a character learns a name then the reader gets the name as well

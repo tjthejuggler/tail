@@ -1,4 +1,5 @@
 import chatgpt_req
+import datetime
 
 def replace_bot_known_labels(outer_information_bot_format, bot_memory):
     for label in bot_memory.other_character_labels.keys():
@@ -31,4 +32,6 @@ def is_null_or_empty(string):
     return not string or string.isspace()
 
 def create_history_file():
-    
+    #get todays date and time and use it to create a unique file name
+    now = datetime.now()
+    dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")

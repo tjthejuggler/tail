@@ -1,112 +1,57 @@
-from bot_memory import BotMemory
+from bot_memory import *
 import chatgpt_req
 import json
 import tkinter as tk
-from tkinter import scrolledtext
 from utilities import *
 import os
+from tkinter import ttk, filedialog, scrolledtext
+from story_helper import *
 
 story_seed_file = 'dinner_date2c0.txt'
 
-def initialize_character_memories(characters_user_knows, character_seed):
-    character_memories = []
-    user_character_labels = []
-    for bot in character_seed["individuals"].keys():
-        indiv_sum = BotMemory(bot)
-        character_memories.append(indiv_sum)
-        self_gender = character_seed["individuals"][bot]["gender"]
-        character_memories[int(bot)].append([
-            "system", 
-            character_seed["instruction"] + 
-            "Your name is " + character_seed["individuals"][bot]["name"] + ". " +
-            "Your gender is " + self_gender + ". " +
-            "Your physical description is " + character_seed["individuals"][bot]["physical_description"] + ". " +
-            character_seed["individuals"][bot]["mentality"]])
-        character_memories[int(bot)].gender = self_gender
-        for other_bot in character_seed["individuals"].keys():
-            if bot != other_bot:
-                if int(other_bot) in character_seed["individuals"][bot]["known_character_names"]:
-                    label_to_use = character_seed["individuals"][other_bot]["name"]
-                else:
-                    label_to_use = character_seed["individuals"][other_bot]["physical_description"]
-                character_memories[int(bot)].other_character_labels["Character"+other_bot] = label_to_use
-            #character_memories[int(bot)]["other_character_labels"] = character_seed["individuals"][bot]["name"], other_bot
-        if int(bot) in characters_user_knows:
-            user_character_labels.append(character_seed["individuals"][bot]["name"])
-        else:
-            user_character_labels.append(character_seed["individuals"][bot]["physical_description"])
-    return character_memories, user_character_labels
+def get_story_seed_files():
+    story_seed_path = os.path.expanduser('~/projects/tail/storytell/story_seeds/')
+    return [f for f in os.listdir(story_seed_path) if os.path.isfile(os.path.join(story_seed_path, f))]
 
-def initialize_universe_memory(universe_seed):
-    print('universe seed', universe_seed)
-    universe_history = BotMemory(99)
-    universe_history.append(["system", universe_seed])
+def on_dropdown_selected(event):
+    global story_seed_file
+    story_seed_file = event.widget.get()
 
-def parse_character_response(bot, response, user_character_labels, gender):
-    print("response", response)
-    response = json.loads(response)
-    print("parse_character_response1")
-    inner_dialog = ""
-    outer_information_bot_format = ""
-    outer_information_user_format = ""
-    if 'inner' in response:
-        print("parse_character_response2")
-        inner_dialog = response['inner']
-    if 'speak' in response and not is_null_or_empty(response['speak']):
-        print("parse_character_response3")
-        speak_response = response['speak'].replace('"','')
-        outer_information_bot_format = 'character'+str(bot)+' says, "'+speak_response+ '".'
-        print("parse_character_response4")
-        outer_information_user_format = user_character_labels[bot]+' says: "'+speak_response + '"\n'
-    if 'action' in response and not is_null_or_empty(response['action']):
-        print("parse_character_response5")
-        third_person_action, tokens = convert_to_third_person("character"+str(bot), gender, response['action'])
-        print("third person action", third_person_action)
-        outer_information_bot_format += third_person_action
-        print("parse_character_response6")
-        outer_information_user_format += case_insensitive_replace(third_person_action, "character"+str(bot), user_character_labels[bot]) +"\n"
-    if 'label' in response:
-        print(response["label"])
-        #this needs set up, maybe tell the bot to put (the current label, the new label)
-        # we may need some AI to distinguish which one it is, or maybe even make a follow up question to the bot the clarify
-    if outer_information_bot_format == "":
-        print("parse_character_response7")
-        outer_information_bot_format, outer_information_user_format = "A small amount of time goes by."
-    return inner_dialog, outer_information_bot_format, outer_information_user_format, tokens
+def start_story(root, text_boxes, outer_text_box, token_label):
+    character_memories, universe_memory, user_character_labels = initialize_story(story_seed_file)
+    run_loop(root, text_boxes, outer_text_box, token_label, character_memories, universe_memory, user_character_labels)
 
 def setup_gui(num_bots):
     root = tk.Tk()
     root.title("ChatGPT Terminal")
     inner_frame = tk.Frame(root)
-    inner_frame.pack(side=tk.LEFT)
-    
+    inner_frame.pack(side=tk.LEFT)    
     outer_frame = tk.Frame(root)
     outer_frame.pack(side=tk.RIGHT)
-
+    label = tk.Label(outer_frame, text="Select a story seed:")
+    label.pack(padx=5, pady=5)    
+    combo_var = tk.StringVar()
+    combo_var.set(story_seed_file)
+    combo = ttk.Combobox(outer_frame, textvariable=combo_var)
+    combo["values"] = get_story_seed_files()
+    combo.bind("<<ComboboxSelected>>", on_dropdown_selected)
+    combo.pack(padx=5, pady=5)
+    start_button = tk.Button(outer_frame, text="Start", command=lambda: start_story(root, text_boxes, outer_text_box, token_label))
+    start_button.pack(padx=5, pady=5)
     text_boxes = []
     for i in range(num_bots):
         text_box = scrolledtext.ScrolledText(inner_frame, wrap=tk.WORD, width=40, height=20)
         text_box.grid(row=i, column=0, padx=5, pady=5)
         text_boxes.append(text_box)
-
     outer_text_box = scrolledtext.ScrolledText(outer_frame, wrap=tk.WORD, width=80, height=40)
     outer_text_box.pack(padx=5, pady=5)
-
     token_label = tk.Label(outer_frame, text="Total tokens: 0")
     token_label.pack(padx=5, pady=5)
-
     return root, text_boxes, outer_text_box, token_label
 
 def quit(root):
     root.quit()
     root.destroy()
-
-def handle_tokens(tokens, total_tokens, token_label):
-    if tokens > 0:
-        total_tokens += tokens
-        token_label.config(text=f"Total tokens: {total_tokens} ${total_tokens*0.000002:.2f}")
-        print("total tokens", total_tokens, '$'+str(total_tokens*0.000002))
-    return total_tokens, token_label
 
 def run_loop(root, text_boxes, outer_text_box, token_label, character_memories, universe_memory, user_character_labels):
     print(character_memories, universe_memory)
@@ -140,11 +85,13 @@ def run_loop(root, text_boxes, outer_text_box, token_label, character_memories, 
                 print("Error:", e)
                 break
 
-    create_narrative_story()
+    #create_narrative_story()
 
-    create_history_file()
+    create_history_file(story_seed_file, character_memories, universe_memory, user_character_labels)
 
 def main():
+    global story_seed_file
+    story_seed_file = 'dinner_date2c0.txt'
     story_seed_dir = '~/projects/tail/storytell/story_seeds/'+story_seed_file
     story_seed_dir = os.path.expanduser(story_seed_dir)
     with open(story_seed_dir, 'r') as f:
@@ -155,9 +102,9 @@ def main():
         print("universe", story_seed["universe"].lower())
         universe_memory = initialize_universe_memory(story_seed["universe"])
     root, text_boxes, outer_text_box, token_label = setup_gui(len(character_memories))
-    run_loop(root, text_boxes, outer_text_box, token_label, character_memories, universe_memory, user_character_labels)
     root.mainloop()
 
 if __name__ == "__main__":
     main()
+
 
