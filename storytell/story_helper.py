@@ -21,12 +21,13 @@ def initialize_story(story_seed_file):
     return character_memories, universe_memory, user_character_labels
 
 def parse_character_response(bot, response, user_character_labels, gender):
-    print("response", response)
+    print("parse_character_response response", response)
     response = json.loads(response)
     print("parse_character_response1")
     inner_dialog = ""
     outer_information_bot_format = ""
     outer_information_user_format = ""
+    tokens = 0
     if 'inner' in response:
         print("parse_character_response2")
         inner_dialog = response['inner']
