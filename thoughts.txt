@@ -83,6 +83,8 @@ NEW STORYLINE
 
     when a story just happens to involve a character, we could have it choose from a list of characters that already exist, based on descriptions/summaries of each of the characters 
 
+    tail can sort of obviously make stuff about a certain day when creating a character, but then when making their story, use stuff from the following(and maybe preceding) days
+
 SONGS
     If I had a way to know what songs the user has been listening to lately, then stories could occasionally have songs cleverly integrated into them, like the final line of a story could be a main line from the song, or there could be things that happen throughout the story that are various lines from the song
 

@@ -1,11 +1,4 @@
-#LABEL needs set up
-        #this needs set up, maybe tell the bot to put (the current label, the new label)
-        # we may need some AI to distinguish which one it is, or maybe even make a follow up question to the bot the clarify
 
-
-
-    #make readers names list that keeps track of which names the reader knows
-        #if a character learns a name then the reader gets the name as well
 
 make a universe that affects the story
 
@@ -17,16 +10,16 @@ when program runs,
     show a list of previous stories that could be continued
 
 
-histories:
-    save a record of 
-        initial prompts
-        bot backups
-        pre-narrated story
-        narrated story
-    there should be a way to load a history into the storygen with option to continue it
+
+    there should be a way to load a history into the storygen with option to 
+        view it with colors
+        continue it
 
 
 make something that automatically creates histories from each story that gets run
     it should include the backups(these need renamed, prompt_logs)
 
 When two characters first interact there should be an introduction function that gives them each others descriptions
+
+LOCATIONS:
+    characters, items, should have a physical locations. There could be multiple locations going at the same time with different characters. The narrator could receive both at the end to make the completed story.
