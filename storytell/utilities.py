@@ -2,7 +2,7 @@ import chatgpt_req
 import json
 from datetime import datetime
 import os
-
+cwd = os.getcwd()
 
 def replace_bot_known_labels(outer_information_bot_format, bot_memory):
     print("other_bot_num2", bot_memory)
@@ -44,6 +44,11 @@ def get_color_tag(bot_num):
     else:
         color_tag = 'gray'
     return color_tag
+
+def update_full_text_record(text):
+    with open(cwd+'/storytell/backups/full_text.txt', 'a') as file:
+        file.write('\n')
+        file.write(text)
 
 
 def create_history_file(story_seed_file, character_memories, universe_memory, user_character_labels):

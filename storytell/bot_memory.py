@@ -45,17 +45,17 @@ class BotMemory:
             print("append_to_last_user", self.summary)
 
     # def save_to_file(self):
-    #     with open(cwd+'/backups/convo.json', 'w') as file:
+    #     with open(cwd+'/backups/character.json', 'w') as file:
     #         json.dump(self, file)
 
     def save_to_file(self):
         print("saving to file", str(self.index), self.summary)
-        with open(cwd+'/storytell/backups/convo'+str(self.index)+'.json', 'w') as file:
+        with open(cwd+'/storytell/backups/character'+str(self.index)+'.json', 'w') as file:
             json.dump(self.summary, file)
 
     def load_from_file(self):
         try:
-            with open(cwd+'/storytell/backups/convo'+str(self.index)+'.json', 'r') as file:
+            with open(cwd+'/storytell/backups/character'+str(self.index)+'.json', 'r') as file:
                 data = json.load(file)
             self.summary = data
         except FileNotFoundError:

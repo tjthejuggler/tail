@@ -1,4 +1,24 @@
+DEBUGGING 1 char room
+I keep getting this error:
+    debug1
+    parse_character_response response As you approach the man, he grabs you by the arm and leads you out of the room and down a long hallway. You can hear the sound of footsteps echoing in the distance.
+    {
+        "inner": "What's going on? Where is he taking me?",
+        "speak": "Can you tell me what's happening? Why did you bring me here?",
+        "action": "Try to assess your surroundings and figure out if there is any way to escape or defend yourself if things turn sour." 
+    }
+    Error: Expecting value: line 1 column 1 (char 0)
+it is saving very little to to backups/full_text.txt
+the history is not getting anything from the universe
+nothing is going into the text box  
+    find out if this is the case now due to code changes or if it is just with the universe. Maybe multi character is broken now as well.
 
+
+See if the universe is able to do something like host a hand by hand poker game. Maybe gpt4 would be better for this.
+
+maybe the universe should not be able to introduce new characters? not sure, maybe it should be able to..
+
+save number of tokens in history
 
 make a universe that affects the story
 

@@ -20,14 +20,22 @@ def initialize_story(story_seed_file):
         universe_memory = initialize_universe_memory(story_seed["universe"])
     return character_memories, universe_memory, user_character_labels
 
-def parse_character_response(bot, response, user_character_labels, gender):
+def check_for_universe_response(third_person_action, universe_memory, total_tokens):
+    universe_memory, universe_response, new_tokens = chatgpt_req.tell_bot(universe_memory, third_person_action)
+    total_tokens = total_tokens + new_tokens
+    if "PASS" in universe_response:
+        universe_response = None
+    return universe_memory, universe_response, total_tokens
+
+def parse_character_response(bot, response, user_character_labels, gender, universe_memory):
     print("parse_character_response response", response)
     response = json.loads(response)
     print("parse_character_response1")
     inner_dialog = ""
     outer_information_bot_format = ""
     outer_information_user_format = ""
-    tokens = 0
+    total_tokens = 0
+    universe_response = None
     if 'inner' in response:
         print("parse_character_response2")
         inner_dialog = response['inner']
@@ -39,9 +47,15 @@ def parse_character_response(bot, response, user_character_labels, gender):
         outer_information_user_format = user_character_labels[bot]+' says: "'+speak_response + '"\n'
     if 'action' in response and not is_null_or_empty(response['action']):
         print("parse_character_response5")
-        third_person_action, tokens = convert_to_third_person("character"+str(bot), gender, response['action'])
+        third_person_action, total_tokens = convert_to_third_person("character"+str(bot), gender, response['action'])
+        #we may want to tell the character if they go beyond their rights so far as consequences of their actions goes
+        if universe_memory: 
+            universe_memory, universe_response, total_tokens = check_for_universe_response(third_person_action, universe_memory, total_tokens)
         print("third person action", third_person_action)
-        outer_information_bot_format += third_person_action
+        if universe_response:
+            outer_information_bot_format += third_person_action + universe_response
+        else:
+            outer_information_bot_format += third_person_action 
         print("parse_character_response6")
         outer_information_user_format += case_insensitive_replace(third_person_action, "character"+str(bot), user_character_labels[bot]) +"\n"
     if 'label' in response:
@@ -49,4 +63,4 @@ def parse_character_response(bot, response, user_character_labels, gender):
     if outer_information_bot_format == "":
         print("parse_character_response7")
         outer_information_bot_format, outer_information_user_format = "A small amount of time goes by."
-    return inner_dialog, outer_information_bot_format, outer_information_user_format, tokens
+    return inner_dialog, outer_information_bot_format, outer_information_user_format, total_tokens, universe_response, universe_memory
