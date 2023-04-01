@@ -12,7 +12,7 @@ it is saving very little to to backups/full_text.txt
 the history is not getting anything from the universe
 nothing is going into the text box  
     find out if this is the case now due to code changes or if it is just with the universe. Maybe multi character is broken now as well.
-
+    -that error that is being printed is from the catch e , i think something is crashing inside of the parse_character_response, and that is making the rest of the main loop from running
 
 See if the universe is able to do something like host a hand by hand poker game. Maybe gpt4 would be better for this.
 
