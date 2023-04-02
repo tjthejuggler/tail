@@ -1,4 +1,6 @@
-
+CREATE CUSTOM CHARACTER:
+    make a plan on how to create a character given a specific date
+    
 
 CLIPBOARD
     computer python clipboard monitor gets turned off somehow

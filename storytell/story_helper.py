@@ -70,6 +70,6 @@ def parse_character_response(bot, response, user_character_labels, gender, unive
         print(response["label"])
     if outer_information_bot_format == "":
         print("parse_character_response7")
-        outer_information_bot_format = outer_information_user_format = "A small amount of time goes by."
+        outer_information_bot_format = outer_information_user_format = "A small amount of time goes by.\n"
         bot_memory.append_to_last_user("A small amount of time goes by.")
     return inner_dialog, outer_information_bot_format, outer_information_user_format, total_tokens, universe_response, universe_memory, bot_memory

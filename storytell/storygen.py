@@ -63,7 +63,7 @@ def run_loop(root, outer_text_box, token_label, character_memories, universe_mem
     print("run_loop", character_memories, universe_memory)
     inner_dialog, outer_information_bot_format, outer_information_user_format = "","",""
     total_tokens = 0
-    for cycle in range(3):
+    for cycle in range(8):
         for bot_num, bot_memory in enumerate(character_memories):
             try:                
                 if cycle == 0 and bot_num == 0:
@@ -112,10 +112,11 @@ def run_loop(root, outer_text_box, token_label, character_memories, universe_mem
 
     #create_narrative_story()
 
-    create_history_file(story_seed_file, character_memories, universe_memory, user_character_labels)
+    create_history_file(total_tokens, story_seed_file, character_memories, universe_memory, user_character_labels)
 
 def main():
     global story_seed_file
+    empty_full_text_record()
     story_seed_file = 'dinner_date2c0.txt'
     story_seed_dir = '~/projects/tail/storytell/story_seeds/'+story_seed_file
     story_seed_dir = os.path.expanduser(story_seed_dir)

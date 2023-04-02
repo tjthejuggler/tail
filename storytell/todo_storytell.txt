@@ -1,0 +1,35 @@
+make the text slightly bigger and the textbox longer
+
+we need a dummy bot that checks to see if the universe breaks the rules.
+
+The universe can probably have a simplified script, it will save on tokens, and maybe get it to try to inject fewer thoughts and feelings.
+    maybe try telling it that it is a Dungeons and Dragons game master.
+
+put possible_universes into json format so that they can be loaded into the universe
+
+test multi char with universe
+    See if the universe is able to do something like host a hand by hand poker game. Maybe gpt4 would be better for this.
+
+it is saving very little to to backups/full_text.txt
+    still the case?
+
+ADD ITEMS:
+    in the story seed
+
+AUTO STORY_SEED GENERATION:
+    input:
+        at least one character (maybe? is it possible to create a story with no characters?)
+            the current place in their storyline
+
+when program runs, show a list of previous stories that could be continued
+
+when program ends, ends make a way for it to continue
+
+there should be a way to load a history into the storygen with option to 
+    view it with colors
+
+When two characters first interact there should be an introduction function that gives them each others descriptions
+
+LOCATIONS:
+    characters, items, should have a physical locations. There could be multiple locations going at the same time with different characters. The narrator could receive both at the end to make the completed story.
+    even inside of a room, a character can have a location, maybe locations could be done like a file system, earth/europe/italy/rome/Luigi's house/bedroom/bed

@@ -50,8 +50,11 @@ def update_full_text_record(text):
         file.write('\n')
         file.write(text)
 
+def empty_full_text_record():
+    with open(cwd+'/storytell/backups/full_text.txt', 'w') as file:
+        file.write('')
 
-def create_history_file(story_seed_file, character_memories, universe_memory, user_character_labels):
+def create_history_file(total_tokens, story_seed_file, character_memories, universe_memory, user_character_labels):
     # create a dictionary containing all the necessary data
     history_data = {
         **{f"{user_character_labels[i]}_memory": memory.read() for i, memory in enumerate(character_memories)},
@@ -72,6 +75,15 @@ def create_history_file(story_seed_file, character_memories, universe_memory, us
     # write the data to a file in the histories folder
     with open(os.path.join(path, filename), "w") as f:
         json.dump(history_data, f, indent=4)
+
+    #read full_text_record
+    with open(cwd+'/storytell/backups/full_text.txt', 'r') as file:
+        full_text_record = file.read()
+
+    with open(os.path.join(path, filename), 'a') as file:
+        file.write("\nFull Text Record:\n")
+        file.write(full_text_record)
+        file.write(f"Total tokens: {total_tokens} ${total_tokens*0.000002:.2f}")
 
     print(f"History file created: {os.path.join(path, filename)}")
 

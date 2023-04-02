@@ -4,6 +4,8 @@ If the game master creates any items, they should also send a list of all create
 
 game master should never say what a person does if that person already exists, if they are introducing a character then they can say what they do, but they must also create that character, write a short biography for them, and then add them to the list of characters
 
+UNIVERSE ADDING CHARACTERS:
+    if the universe wants to add a character then maybe it should have to create a character file for that character
 
 AME MASTER:
     the game master only has access to actions. when a player does an action, the game master decides what the result of the action is and tells the player.
