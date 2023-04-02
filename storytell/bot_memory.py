@@ -92,5 +92,6 @@ def initialize_character_memories(characters_user_knows, character_seed):
 
 def initialize_universe_memory(universe_seed):
     print('universe seed', universe_seed)
-    universe_history = BotMemory(99)
-    universe_history.append(["system", universe_seed])
+    universe_memory = BotMemory(99)
+    universe_memory.append(["system", universe_seed])
+    return universe_memory

@@ -1,4 +1,11 @@
-GAME MASTER:
+a referee of some sort that determines if a character has done something illegal may be good. This goes along with characters being able to have their own items. We need to make sure that characters only take things that were included in the original story, or things that the universe has created.
+
+If the game master creates any items, they should also send a list of all created items
+
+game master should never say what a person does if that person already exists, if they are introducing a character then they can say what they do, but they must also create that character, write a short biography for them, and then add them to the list of characters
+
+
+AME MASTER:
     the game master only has access to actions. when a player does an action, the game master decides what the result of the action is and tells the player.
 
 NARRATOR:
@@ -13,3 +20,14 @@ Wow, what if you did occasionally have a player in tail, like sometimes you get 
 
 with the current setup, the character has to speak and then act, in that order, it would be nice to give the bot the freedome to do it in any order,
     we could possible not require them to respond in json, and then have a seperate instance parse their entire response for them in whatever order they present it
+
+in the actual tail story, the user could initially input ratings for things
+    magic
+    mystery
+    sex
+    violence
+    historical
+OR
+    they could write a short description of the overall type of story that will be told
+OR
+    they could leave the story/stories entirely up to the bots

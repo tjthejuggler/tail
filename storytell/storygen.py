@@ -20,6 +20,7 @@ def on_dropdown_selected(event):
 #def start_story(root, text_boxes, outer_text_box, token_label):
 def start_story(root, outer_text_box, token_label):    
     character_memories, universe_memory, user_character_labels = initialize_story(story_seed_file)
+    print('start_story universe_memory', universe_memory)
     #run_loop(root, text_boxes, outer_text_box, token_label, character_memories, universe_memory, user_character_labels)
     run_loop(root, outer_text_box, token_label, character_memories, universe_memory, user_character_labels)
 
@@ -62,15 +63,15 @@ def run_loop(root, outer_text_box, token_label, character_memories, universe_mem
     print("run_loop", character_memories, universe_memory)
     inner_dialog, outer_information_bot_format, outer_information_user_format = "","",""
     total_tokens = 0
-    for cycle in range(5):
+    for cycle in range(3):
         for bot_num, bot_memory in enumerate(character_memories):
             try:                
                 if cycle == 0 and bot_num == 0:
-                    bot_memory, response, new_tokens = chatgpt_req.tell_bot(bot_memory, "Begin role-playing")
+                    bot_memory, response, new_tokens = chatgpt_req.tell_character(bot_memory, "Begin role-playing")
                 else:
-                    bot_memory, response, new_tokens = chatgpt_req.tell_bot(bot_memory, None)
+                    bot_memory, response, new_tokens = chatgpt_req.tell_character(bot_memory, None)
                 print("debug1")             
-                inner_dialog, outer_information_bot_format, outer_information_user_format, parse_tokens, universe_response, universe_memory = parse_character_response(bot_num, response, user_character_labels, bot_memory.gender, universe_memory)
+                inner_dialog, outer_information_bot_format, outer_information_user_format, parse_tokens, universe_response, universe_memory, bot_memory = parse_character_response(bot_num, response, user_character_labels, bot_memory.gender, universe_memory, bot_memory)
                 #WE WANT TO CHECK TO SEE IF THERE IS AN ACTION, THEN WE WANT TO ASK A DUMMY AI IF THIS IS SOMETHONE THE GAME MASTER SHOULD RESPOND TO
                 for other_bot_num, other_bot_memory in enumerate(character_memories):
                     if other_bot_num != bot_num:
@@ -82,7 +83,10 @@ def run_loop(root, outer_text_box, token_label, character_memories, universe_mem
                 print("debug3")             
                 # text_boxes[bot_num].insert(tk.END, inner_dialog + "\n")
                 # text_boxes[bot_num].see(tk.END)
-                update_full_text_record(outer_information_user_format + universe_response)
+                if universe_response is None:
+                    update_full_text_record(outer_information_user_format)
+                else:
+                    update_full_text_record(outer_information_user_format + universe_response)
                 position = outer_text_box.index(tk.END + "-1c")
                 outer_text_box.insert(tk.END, inner_dialog + "\n")
                 color_tag = get_color_tag(bot_num)
@@ -90,10 +94,15 @@ def run_loop(root, outer_text_box, token_label, character_memories, universe_mem
                 outer_text_box.tag_config(color_tag, foreground=color_tag)
                 outer_text_box.insert(tk.END, outer_information_user_format)
                 outer_text_box.see(tk.END)
+                # root.update_idletasks()
+                # root.update()
+                print('green universe response', universe_response)
                 if universe_response is not None:
-                    outer_text_box.tag_add("brown", position, outer_text_box.index(tk.END + "-1c"))
-                    outer_text_box.tag_config("brown", foreground="brown")
+                    position = outer_text_box.index(tk.END + "-1c")
                     outer_text_box.insert(tk.END, universe_response)
+                    outer_text_box.tag_add("green", position, outer_text_box.index(tk.END + "-1c"))
+                    outer_text_box.tag_config("green", foreground="green")
+                    
                     outer_text_box.see(tk.END)
                 root.update_idletasks()
                 root.update()

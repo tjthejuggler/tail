@@ -1,3 +1,7 @@
+put possible_universes into json format so that they can be loaded into the universe
+
+the universe needs to be told to never say what an already existing character decides to do
+
 DEBUGGING 1 char room
 I keep getting this error:
     debug1

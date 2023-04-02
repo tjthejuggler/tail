@@ -38,7 +38,7 @@ def is_null_or_empty(string):
     return not string or string.isspace()
 
 def get_color_tag(bot_num):
-    colors = ['blue', 'red', 'green', 'purple', 'orange', 'pink']
+    colors = ['blue', 'red', 'orange', 'purple', 'brown', 'pink']
     if bot_num >= 0 and bot_num <= len(colors):
         color_tag = colors[bot_num]
     else:

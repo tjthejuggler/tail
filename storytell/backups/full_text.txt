@@ -4,3 +4,83 @@ John approaches the wooden box and checks if it's sturdy enough to stand on. The
 John slowly approaches the wooden box and examines it for any signs of locks or traps. If it appears to be safe, he opens it up and sees what's inside.
 
 John picks up the rusty key, small flashlight, and folded piece of paper, pockets those items, but continues to leave everything else in the box. They close the lid of the box and turn towards the door.
+
+"John approaches the closed door and examines the deadbolt. Is there any way they can open it or break it?"
+
+John says: "Hello? Is anyone there?"
+John approaches the door and tries to open it.
+
+John says: "I wonder if there's anything inside this box?"
+John approaches the box and examines its contents.
+
+John says: "What could 'the red herring' mean?"
+John looks around the room to see if there are any clues.
+
+John approaches the box and inspects it for anything useful. Then, he moves towards the door and tries to turn the handle. If it's locked, he tries to force it open with his shoulder.
+
+John picks up the rope and tries to tie it to the heavy box. If he can't lift the box with the rope, he'll try and use the rope to pick the lock on the door.
+
+John approaches the door and inspects the deadbolt to see if it's possible to unlock it from this side.
+
+John inspects the large wooden box to see if there's anything inside that could be useful to escape.
+
+John will approach the box and see if they can open it.
+
+John says: "Hello? Is anyone out there?"
+John walks towards the door and tries to open it.
+
+John approaches the wooden box and examines it closely for any clues as to what's happening. If it's locked, they attempt to open it using anything nearby that could help them pick the lock. If it opens, they carefully lift the lid to see what's inside.
+
+John grabs the note and reads it over a few times, trying to make sense of what's happening. After a moment, he pulls himself together and focuses on finding a way out. He scans the room again, this time searching for any hidden compartments or clues that might help him escape.
+
+John says: "Hello? Is anyone out there? Can anyone hear me?"
+John takes the pile of rope and starts unraveling it to see how much he has to work with.
+
+A small amount of time goes by.
+John says: "Hello? Is anyone there?"
+John walks towards the box and opens it to see if there is anything useful inside.
+{
+  "response": "The man opens the box with relative ease, revealing a set of tools and a flashlight. There's also a hand-drawn map of the surrounding area, with a circled location indicating a possible shelter. The man takes the tools and map, leaving the flashlight behind. As he closes the box, he notices a small rolled-up piece of paper tucked in the hinge. Without hesitation, he takes it with him.",
+  "items": ["tools", "map", "paper"]
+}
+John says: "Hello? Is anyone there?"
+John stands up and walks towards the wooden box to inspect it.
+The man finds that the wooden box is unlocked and decides to open it. Inside he finds a small key.
+John attempts to untie the ropes and searches through the pile for any useful items.
+
+John investigates the large wooden box in hopes of finding a tool to cut or loosen the ropes.
+As Character0 investigates the wooden box, they find that it is unlocked and upon opening it, they see that there are a variety of tools inside. Their initial hope of finding something to easily cut the ropes is dashed but they do notice a small crowbar that may be useful for loosening the ropes.
+John searches the room for something to use to open the box or pick the lock on the door.
+
+A small amount of time goes by.
+John cautiously approaches the wooden box in the corner and tries to lift the lid to see what's inside.
+As Character0 lifts the lid of the wooden box, they reveal a collection of old books and papers, some of them appear to be in languages they don't understand. There is also a small, intricately carved wooden box nestled in the corner of the large wooden box. Inside the small box, they find a rusted key.
+John walks over to the door and tries to open it to see if it's locked.
+As Character0 tries to turn the doorknob, they find that the door is indeed locked with the heavy looking deadbolt.
+John says: "Hello? Is anyone there?"
+John approaches the wooden box and tries to open it.
+The box creaks slightly as it opens, revealing an assortment of tools and supplies inside. There are several lengths of rope, a hammer and nails, a saw, and a few pieces of wood. Additionally, there is a map with an X marked on it, and a note that reads: "Beware the darkness within."
+
+John says: "Hello? Can anyone hear me?"
+John will grab the rope and take it with him as he approaches the door.
+As Character0 picks up the rope, he notices that it is particularly thick and strong. It will likely be useful for a variety of tasks. As he approaches the door, he sees that the deadbolt is particularly sturdy and will likely require a significant amount of force to unlock. However, there doesn't seem to be any immediate danger in the room.
+
+A small amount of time goes by.
+John makes his way towards the wooden box and examines it for any signs of traps or danger. If it looks safe, he tries to open it.
+As John approaches the wooden box, he sees that there are no visible signs of traps or danger. The box looks sturdy and well-constructed. As he attempts to open the box, he finds that it is indeed hinged at the top and with a little effort, it creaks open, revealing a stack of old, moth-eaten clothes.
+
+John makes his way towards the wooden box and examines it for any signs of traps or danger. If it looks safe, he tries to open it.
+
+A small amount of time goes by.
+John walks over to the door and tries to open it. If it's locked, he'll see if he can unlock it with his hands or any items around him.
+As John tries to open the door, they find that it is indeed locked. There is no visible keyhole or knob from this side of the door to unlock it with their hands. However, upon closer inspection, they notice a small keyhole near the bottom of the door. There are no other items in the room besides the wooden box and the pile of rope.
+
+John walks over to the door and tries to open it. If it's locked, he'll see if he can unlock it with his hands or any items around him.
+As John tries to open the door, they find that it is indeed locked. There is no visible keyhole or knob from this side of the door to unlock it with their hands. However, upon closer inspection, they notice a small keyhole near the bottom of the door. There are no other items in the room besides the wooden box and the pile of rope.
+
+John walks towards the box to investigate it. They try to open it and see what's inside.
+
+John searches every inch of the box, looking for any hidden compartments, switches or clues.
+As John searches the box, they notice that it is made of solid wood and there are no visible compartments or switches. However, upon close inspection, they notice that the hinges look newer than the rest of the box, as if they have been replaced recently. Moreover, they find a small scrap of paper wedged between the hinges. It appears to be a torn page from a diary or a journal. It reads, "I have hidden the key in the place where nobody will ever look. Let's see if they can solve my riddle." The rest of the page is missing.
+
+John approaches the door and examines the deadbolt. They try to jiggle it to see if it's loose. They also check the hinges to see if they can remove the door.
