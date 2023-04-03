@@ -2,12 +2,20 @@ from bot_memory import *
 import json
 from utilities import *
 
-def handle_tokens(tokens, total_tokens, token_label):
+# def handle_tokens(tokens, total_tokens, token_label):
+#     if tokens > 0:
+#         total_tokens += tokens
+#         token_label.config(text=f"Total tokens: {total_tokens} ${total_tokens*0.000002:.2f}")
+#         print("total tokens", total_tokens, '$'+str(total_tokens*0.000002))
+#     return total_tokens, token_label
+
+def handle_tokens(tokens, total_tokens, token_label_var):
     if tokens > 0:
         total_tokens += tokens
-        token_label.config(text=f"Total tokens: {total_tokens} ${total_tokens*0.000002:.2f}")
-        print("total tokens", total_tokens, '$'+str(total_tokens*0.000002))
-    return total_tokens, token_label
+        token_label_var.set(f"Total tokens: {total_tokens} ${total_tokens * 0.000002:.2f}")
+        print("total tokens", total_tokens, '$'+str(total_tokens * 0.000002))
+    return total_tokens
+
 
 def initialize_story(story_seed_file):
     story_seed_dir = os.path.expanduser('~/projects/tail/storytell/story_seeds/' + story_seed_file)
@@ -23,14 +31,14 @@ def initialize_story(story_seed_file):
     print("initialize_story uni_mem", universe_memory)
     return character_memories, universe_memory, user_character_labels
 
-def check_for_universe_response(third_person_action, universe_memory, total_tokens):
-    universe_memory, universe_response, new_tokens = chatgpt_req.tell_universe(universe_memory, third_person_action)
+def check_for_universe_response(third_person_action, universe_memory, total_tokens, story_seed_file):
+    universe_memory, universe_response, new_tokens = chatgpt_req.tell_universe(universe_memory, third_person_action, story_seed_file)
     total_tokens = total_tokens + new_tokens
     if "PASS" in universe_response:
         universe_response = None
     return universe_memory, universe_response, total_tokens
 
-def parse_character_response(bot, response, user_character_labels, gender, universe_memory, bot_memory):
+def parse_character_response(bot, response, user_character_labels, gender, universe_memory, bot_memory, story_seed_file):
     if not isinstance(response, dict):
         response = json.loads(response)
     print("parse_character_response response", response)
@@ -56,7 +64,7 @@ def parse_character_response(bot, response, user_character_labels, gender, unive
         print("universe memory_before", universe_memory)
         if universe_memory:
             print("universe memory", universe_memory.read())
-            universe_memory, universe_response, total_tokens = check_for_universe_response(third_person_action, universe_memory, total_tokens)
+            universe_memory, universe_response, total_tokens = check_for_universe_response(third_person_action, universe_memory, total_tokens, story_seed_file)
         print("third person action", third_person_action)
         if universe_response:
             print("if universe response", universe_response)

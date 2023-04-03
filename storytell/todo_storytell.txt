@@ -1,4 +1,6 @@
-make the text slightly bigger and the textbox longer
+make a script that gets chatgpt to make a story_seed given certain requirements
+
+dont fully leave the loop and make the history until a button is clicked, also have a way to add more cycles froom inside the application
 
 we need a dummy bot that checks to see if the universe breaks the rules.
 

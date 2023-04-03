@@ -1,27 +1,45 @@
 
-A small amount of time goes by.
+John says: "Uh... hello? Can you tell me what's going on?"
+John walks over to the woman, trying to appear non-threatening, and asks if she knows what's going on and if she can help him figure out how to get out of there.
 
-John approaches the wooden box cautiously and tries to open it carefully to not make any loud noises. Then, they inspect the door for any weaknesses or ways to unlock it.
-As John carefully opens the wooden box, they notice that it is empty save for a few stray wood chips. Upon closer inspection of the door, they see that it is solid and well-made, with no apparent weaknesses or ways to unlock it from this side.
+Lisa says: "I'm sorry, I don't know what's happening either. I just woke up here."
+Lisa slowly stands up and moves away from him, keeping her distance.
 
-John gathers the rope and ties it around their waist, making sure it's secure before turning their attention back to the box and door.
-As John gathers the rope and ties it around their waist, they feel the rough texture of the thick, tangled rope in their hands. It seems secure, but they can feel the weight of it tugging slightly against their waist. The wooden box remains empty, and the door remains solid with no discernable way to unlock it from this side.
+John says: "Hey, it's okay. My name is John, and I'm just as lost as you are. Is there anything you remember that could help us figure this out?"
+John takes a few steps forward but stops when he sees her move away. He raises his hands in a calming gesture and stays where he is, waiting for her response.
 
-John closes the box quietly and moves on to the door. They examine the hinges closely, looking for any weak points or signs that they may have been tampered with. Then, they try to turn the deadbolt and see if there's any give to it.
-As John closes the box quietly, the hinges creaked slightly, but not enough to make any significant noise. Upon closer inspection of the hinges, they appear to be rusted but sturdy. There are no signs of tampering.
+Lisa says: "My name is Lisa. I don't remember anything before waking up here. Maybe if we look around, we can find something that will help us."
+Lisa cautiously approaches the wooden box and tries to open it to see what's inside.
+As Lisa approaches the wooden box, she notices that the box is securely fastened with a sturdy padlock, making it impossible to open it without a key.
 
-As John tries to turn the deadbolt, they feel the weight of it in their hand. It is solidly in place, and there is no give to it. It seems like it hasn't been opened in quite some time.
+John says: "Okay, let's split up and see if we can find anything that might be helpful. Maybe we can find a key to that box or a tool to help us open it."
+John starts the search by checking around the room for any clues or objects that might be useful, occasionally engaging in conversation with Lisa to gain insight into their situation.
+It appears that the room is well-furnished, but the only other visible objects that could be useful are the pile of thick, tangled rope and the heavy-looking deadbolt on the closed door. Upon closer inspection of the door, John notices that there are scratch marks around its lock and hinges, suggesting someone might have tried to force their way out or in.
 
-John starts to search the room, looking for any clues or items that could help him escape. He checks under the bed, behind the dresser, and in any other nooks and crannies that he can find.
-As John searches the room, they find nothing of note, save for a few cobwebs in the corners of the room. Under the bed is empty, and behind the dresser does not reveal anything out of the ordinary. In their search, they notice that the room itself is sparsely furnished, with nothing beyond the box, the rope, and the door to indicate any previous occupants.
+Lisa says: "Hey John, check out these scratch marks on the door. Maybe we can use the rope to make a makeshift lock pick and try to break out of here?"
+Lisa is going to start braiding the rope together and try to make a lock pick to open the door.
+As Lisa starts to braid the rope, she realizes that the thickness and tangle of the rope make it impossible to create a strong and functional tool. However, she notices that one of the strands of the rope is frayed, and she decides to use it to make a smaller and more precise lockpick. As she works on the lockpick, she hears a faint sound coming from the wooden box. It sounds like something is scratching at the inside of the box.
 
-"John sits down and takes a deep breath, trying to calm himself and think clearly. Perhaps there's something he missed before, or perhaps there's a way to signal for help from outside."
-As John sits down and takes a deep breath, they feel the weight of their predicament bearing down on them. They take a moment to gather their thoughts and steel their resolve. Looking around the room once more, they notice a small ventilation grate on the ceiling, just above the door. It seems to be screwed in place, but it could be a potential way to signal for help or gather more information about their current location.
+John says: "Hey Lisa, I don't think we should be wasting our time on that door. I just heard something scratching inside the box. Maybe we should try to open it instead."
+John walks over to the wooden box and looks for any tools or objects that could help them open it. If they can't find anything useful, they will try to use brute force to break it open.
+John searches the room again but couldn't find any tools or objects that could help them open the box. As they attempt to use brute force by pushing and tugging at the lid of the wooden box, they notice that the hinges of the box are very rusty, and the wood looks like it has been weakened over time. Eventually, with enough force, the lid of the box snaps open, revealing a small, terrified creature huddled inside. The creature scampers out and hides under the bed, whimpering quietly.
 
-John stands up and begins to knock on the door in a specific pattern: three short knocks, two long knocks, and one short knock. Then, John pauses and waits for a response.
-As John stands up and begins to knock on the door, they notice the faint sound of their knuckles hitting the thick surface. After completing the pattern of three short knocks, two long knocks, and one short knock, they wait in silence for a few moments. Unfortunately, there is no response from the other side of the door.
+Lisa says: "What... is that thing? Did we just rescue a small animal or something?"
+Lisa is going to slowly approach the creature and try to coax it out from under the bed with some food or water.
+Lisa slowly approaches the creature and retrieves a small piece of bread from their pocket. They lay it on the floor near the bed and back away slowly to give the creature some space to come out. As the creature starts to nibble on the bread, Lisa reaches out and pets it gently, trying to soothe it. The creature seems to be responding well to the kindness, and it starts to relax, wagging its tail slightly.
 
-John resumes his search of the room, this time focusing on the windows and any other possible escape routes, hoping to find a hidden key or a loose brick that he can use to break free.
-As John resumes their search of the room, they notice that there is a small window, but it is located high up near the ceiling and quite narrow, big enough only for a small breeze to come through. There is no apparent way to open it, and it appears to be too high to reach from the ground.
+John says: "Hey Lisa, do you recognize this animal? It seems friendly, maybe it belongs to someone we know."
+John carefully picks up the animal, making sure to hold it gently, and examines it for any clues that might help figure out where it came from or why it's here.
+As John examines the creature, they notice that it's a small dog, with matted fur and dirty paws. It doesn't seem to have a collar or any other identifying marks that could reveal where it came from. However, as they inspect it more closely, they notice that the dog's paws and mouth are stained with a dark red substance that looks like blood.
 
-As John inspects the walls around the window, they see that they are made of solid concrete, with no gaps or loose bricks. There is no keyhole or any other indication of a hidden escape route.
+Lisa says: "It's a dog, but... it has blood on its paws and mouth. We need to figure out what happened here."
+"Lisa is going to examine the room more closely, looking for any signs of what might have happened there. They need to find a way out of there and get some help."
+As Lisa examines the room again, she notices that the ventilation grids are rusty and damaged, and it looks like someone might have tried to pry them open before. Additionally, the scratch marks on the door suggest that someone might have been trying to escape the room. As Lisa looks out of the window, she notices that they are several stories high in a large building, and there is no easy way out. She can hear distant sirens in the background, suggesting that help might be on the way.
+
+John says: "Lisa, I found some scratch marks on the door as well as some damage to the ventilation grids. It looks like someone was trying to escape from here before. We need to find a way out before whoever put us here comes back."
+John starts looking through the room once more, this time more carefully, observing every nook and cranny for any potential item or clue that might help them in their situation. They keep their ears open for any sign of the distant sirens getting louder.
+As John searches the room more meticulously, they discover a small notebook hidden within the stack of books on the shelf. The notebook seems to belong to someone who used to inhabit the room and is filled with notes about their daily life, including sketches of the dog and a few pieces of information about the building they are in. The notes suggest that the person has been trapped in the room for a few days, with no food or water. There are a few scribbled pages that contain incoherent rants and ravings about being watched and hunted, and pictures of bloodied footprints leading to the door. As John continues to search the room, they hear the sirens getting closer, and the sound of a key turning in the heavy door.
+
+Lisa says: "John, I found a notebook that belonged to someone who was trapped here before us. There are some sketches of the dog and some information about this place. But we need to figure out fast, whoever opened that door is coming."
+Lisa is going to grab the notebook and the dog and hide behind the bed, waiting to see who is coming through the door.
+As Lisa grabs the notebook and dog, they hear the door creaking open slowly. As the door opens, a group of uniformed police officers with flashlights pour into the room, their weapons drawn and aimed forward. They shout for everyone to put their hands up, and they start to survey the room quickly, making sure it is secure. The dog seems to recognize the police officers and starts to bark happily, wagging its tail.

@@ -1,5 +1,6 @@
 import openai
 import regex
+from utilities import *
 
 def verify_jsonness(input_string):
     json_pattern = r'\{(?:[^{}]|(?R))*\}'
@@ -24,7 +25,9 @@ def jsonify_response(response):
     print("tokens", tokens)
     return(jsonified_response, tokens)
 
-def tell_universe(memory, request_message):
+def tell_universe(memory, request_message, story_seed_file):
+    request_message = replace_names_with_character_numbers(request_message, story_seed_file)
+    print("request_message after new replace", request_message) #this is the problem
     if request_message:
         memory.append(["user",request_message])
     print("tell_universe memory.read()", memory.read())

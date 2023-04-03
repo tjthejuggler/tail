@@ -12,6 +12,19 @@ def replace_bot_known_labels(outer_information_bot_format, bot_memory):
         outer_information_bot_format = case_insensitive_replace(outer_information_bot_format, label, bot_memory.other_character_labels[label])
     return outer_information_bot_format
 
+def replace_names_with_character_numbers(text, story_seed_file):
+    print("replace_names_with_character_numbers1", text)
+    story_seed_dir = os.path.expanduser('~/projects/tail/storytell/story_seeds/' + story_seed_file)
+    print("story_seed_dir", story_seed_dir)
+    with open(story_seed_dir, 'r') as f:
+        story_seed = json.load(f)
+    print('story_seed', story_seed)
+    for bot in story_seed["characters"]["individuals"].keys():
+        print('bot', bot)
+        text = case_insensitive_replace(text, story_seed["characters"]["individuals"][bot]["name"], "Character"+bot)
+    print("replace_names_with_character_numbers2", text)
+    return text
+
 def case_insensitive_replace(my_string, target, replacement):
     s_lower = my_string.lower()
     target_lower = target.lower()    
@@ -38,12 +51,46 @@ def is_null_or_empty(string):
     return not string or string.isspace()
 
 def get_color_tag(bot_num):
-    colors = ['blue', 'red', 'orange', 'purple', 'brown', 'pink']
+    colors = ['crimson', 'coral', 'dodger blue', 'pink', 'goldenrod', 'peach', 'khaki', 'olive', 'turquoise', 'orchid' ]
     if bot_num >= 0 and bot_num <= len(colors):
-        color_tag = colors[bot_num]
+        color_tag = get_color_code(colors[bot_num]) #SET UP THIS WITH THE NEW FUNCTION BELOW, ALSO CHANGE GREEN IN THE MAIN FUNCTION
     else:
-        color_tag = 'gray'
+        color_tag = get_color_code("gray")
     return color_tag
+
+def get_color_code(color_name):
+    switcher = {
+        "white": "#FFFFFF",
+        "yellow": "#FFFF00",
+        "orange": "#FFA500",
+        "pink": "#FF69B4",
+        "lime green": "#00FF00",
+        "cyan": "#00FFFF",
+        "green yellow": "#ADFF2F",
+        "blue violet": "#8A2BE2",
+        "magenta": "#FF00FF",
+        "dodger blue": "#1E90FF",
+        "gray": "#808080",
+        "silver": "#C0C0C0",
+        "maroon": "#800000",
+        "olive": "#808000",
+        "yellow": "#FFFF00",
+        "green": "#008000",
+        "teal": "#008080",
+        "navy blue": "#000080",
+        "blue": "#0000FF",
+        "purple": "#800080",
+        "peach": "#FFDAB9",
+        "coral": "#FF7F50",
+        "turquoise": "#40E0D0",
+        "khaki": "#F0E68C",
+        "goldenrod": "#DAA520",
+        "indigo": "#4B0082",
+        "orchid": "#DA70D6",
+        "salmon": "#FA8072",
+        "crimson": "#DC143C"
+    }
+    return switcher.get(color_name.lower(), "#FFFFFF")
 
 def update_full_text_record(text):
     with open(cwd+'/storytell/backups/full_text.txt', 'a') as file:
