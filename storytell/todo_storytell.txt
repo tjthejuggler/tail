@@ -1,15 +1,17 @@
-maybe a dummy checks to see if the universe is needed to make an insertion, this way we are not sending everything to the universe just to get a pass
+CRITIC AI:
+    Instead of reading everything, I should have a helper AI that reads the story, and rates it or goes through and points out anything that doesnt make sense.
 
 make a script that gets chatgpt to make a story_seed given certain requirements
-    this would be temorary since we eventually want to have the character be made from habits/personal history/search etc..
+    this would be temporary since we eventually want to have the character be made from habits/personal history/search etc..
 
-dont fully leave the loop and make the history until a button is clicked, also have a way to add more cycles froom inside the application
+make a way to load a previous story and continue It
+    this can be done by selecting a history file and loading it into the storygen
+        to do this we probably want the full story put into a json file
+            i think we want to give the characters the narrated version of the story, tell them who they are and tell them any inner information that only they know, and let them go from there. this is because there will probably be new information added in the narration. Actually, maybe we could tell the narrator to not add anything that is beyond the facts that way we can give the character exactly what they had when the story ended last, everything in their history.
 
 UNIVERSE:
-    we need a dummy bot that checks to see if the universe breaks the rules.
+    maybe the universes prompt could be even simpler?    
 
-    The universe can probably have a simplified script, it will save on tokens, and maybe get it to try to inject fewer thoughts and feelings.
-        maybe try telling it that it is a Dungeons and Dragons game master.
 
 AUTOMATIC CHARACTER CREATION:
     access to everything I have about myself with dates

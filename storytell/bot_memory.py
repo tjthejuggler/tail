@@ -11,7 +11,7 @@ cwd = os.getcwd()
 
 class BotMemory:
     def __init__(self, index, summary=None):
-        self.debugging = True
+        self.debugging = False
         self.index = index
         self.gender = ""
         self.other_character_labels = {}
@@ -34,8 +34,8 @@ class BotMemory:
             print("append", self.summary)        
 
     def append_to_last_user(self, new_entry):
-        print('index', self.index)
-        print('summary', self.summary)
+        #print('index', self.index)
+        #print('summary', self.summary)
         if self.summary[-1]["role"] == "user":
             self.summary[-1]["content"] += "\n"+new_entry
         else:

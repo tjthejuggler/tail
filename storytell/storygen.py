@@ -17,10 +17,10 @@ def on_dropdown_selected(event):
     global story_seed_file
     story_seed_file = event.widget.get()
 
-def start_story(root, outer_text_box, token_label_var):    
+def start_story(root, outer_text_box, token_label_var, cycles):    
     character_memories, universe_memory, user_character_labels = initialize_story(story_seed_file)
     print('start_story universe_memory', universe_memory)
-    run_loop(root, outer_text_box, token_label_var, character_memories, universe_memory, user_character_labels)
+    run_loop(root, outer_text_box, token_label_var, character_memories, universe_memory, user_character_labels, cycles)
 
 def setup_gui():
     root = tk.Tk()
@@ -31,26 +31,34 @@ def setup_gui():
     outer_frame.pack(side=tk.RIGHT)
     
     label = tk.Label(outer_frame, text="Select a story seed:")
-    label.grid(row=0, column=1, padx=5, pady=5)
+    label.grid(row=0, column=0, padx=5, pady=5)
     
     combo_var = tk.StringVar()
     combo_var.set(story_seed_file)
     combo = ttk.Combobox(outer_frame, textvariable=combo_var)
     combo["values"] = get_story_seed_files()
     combo.bind("<<ComboboxSelected>>", on_dropdown_selected)
-    combo.grid(row=1, column=1, padx=5, pady=5)
-    
-    start_button = tk.Button(outer_frame, text="Start", command=lambda: start_story(root, outer_text_box, token_label_var))
-    start_button.grid(row=2, column=1, padx=5, pady=5)
+    combo.grid(row=1, column=0, padx=5, pady=5)
+
+    cycles_label = tk.Label(outer_frame, text="Number of cycles:")
+    cycles_label.grid(row=2, column=0, padx=5, pady=5, sticky=tk.E)
+
+    cycles_var = tk.StringVar()
+    cycles_var.set("3")  # Set default value
+    cycles_spinner = tk.Spinbox(outer_frame, from_=1, to=10, textvariable=cycles_var, width=5)
+    cycles_spinner.grid(row=2, column=1, padx=5, pady=5, sticky=tk.W)
+
+    start_button = tk.Button(outer_frame, text="Start", command=lambda: start_story(root, outer_text_box, token_label_var, int(cycles_var.get())))
+    start_button.grid(row=3, column=0, padx=5, pady=5, columnspan=2)
 
     outer_text_box = scrolledtext.ScrolledText(outer_frame, wrap=tk.WORD, width=80, height=50, font=("Monospace", 14))
     outer_text_box.configure(bg="black")
-    outer_text_box.grid(row=3, column=1, padx=5, pady=5)
+    outer_text_box.grid(row=4, column=0, padx=5, pady=5, columnspan=2)
 
     token_label_var = tk.StringVar()
     token_label_var.set("Total tokens: 0")
     token_label = tk.Label(outer_frame, textvariable=token_label_var)
-    token_label.grid(row=0, column=2, padx=5, pady=5, sticky=tk.NE)
+    token_label.grid(row=0, column=1, padx=5, pady=5, sticky=tk.NE)
 
     return root
 
@@ -74,11 +82,11 @@ def insert_color_text(outer_text_box, inner_dialog, bot_num, outer_information_u
         lime_green = get_color_code("lime green")
         insert_text_with_color(outer_text_box, universe_response, lime_green)
 
-def run_loop(root, outer_text_box, token_label_var, character_memories, universe_memory, user_character_labels):
+def run_loop(root, outer_text_box, token_label_var, character_memories, universe_memory, user_character_labels, cycles):
     print("run_loop", character_memories, universe_memory)
     inner_dialog, outer_information_bot_format, outer_information_user_format = "","",""
     total_tokens = 0
-    for cycle in range(3):
+    for cycle in range(cycles):
         for bot_num, bot_memory in enumerate(character_memories):
             try:                
                 if cycle == 0 and bot_num == 0:
@@ -93,14 +101,15 @@ def run_loop(root, outer_text_box, token_label_var, character_memories, universe
                         outer_information_bot_format_for_this_other_bot = replace_bot_known_labels(outer_information_bot_format, other_bot_memory)
                         other_bot_memory.append_to_last_user(outer_information_bot_format_for_this_other_bot)
                 total_tokens = handle_tokens(new_tokens + parse_tokens, total_tokens, token_label_var)
-                update_full_text_record(outer_information_user_format + (universe_response if universe_response is not None else ''))
+                update_full_text_record(inner_dialog + outer_information_user_format + (universe_response if universe_response is not None else ''))
                 insert_color_text(outer_text_box, inner_dialog, bot_num, outer_information_user_format, universe_response)
                 root.update_idletasks()
                 root.update()
             except Exception as e:
                 print("Error:", e)
                 break
-    create_history_file(total_tokens, story_seed_file, character_memories, universe_memory, user_character_labels)
+        create_history_file(total_tokens, story_seed_file, character_memories, universe_memory, user_character_labels)
+    print("Story complete.")
 
 def main():
     empty_full_text_record()
@@ -108,4 +117,4 @@ def main():
     root.mainloop()
 
 if __name__ == "__main__":
-    main()
+    main() 

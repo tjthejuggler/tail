@@ -1,3 +1,6 @@
+LOTTERY SYSTEM:
+    doing lots of habits can be like buying lots of lottery tickets, they can be weighted towards doing a wide range of habits, for instance maybe the first time doing a habit is 5 tickets, then 4, then 3... there can be bonus for doing a habit that hasn't been done in awhile, and/or punishment(costs tickets) for building up a large anti-streak
+
 the narrator could randomly choose from a list of popular authors and write in their style. or i could just use douglas admas all the time :)
 
 in storytell there can be a global world state that includes the time. it can jump forward and back maybe, but everyone uses it to stay in sync.. rough idea.

@@ -137,9 +137,11 @@ def create_history_file(total_tokens, story_seed_file, character_memories, unive
     with open(os.path.join(path, filename), 'a') as file:
         file.write("\nFull Text Record:\n")
         file.write(full_text_record)
+        file.write("Total characters in full_text_record: ", len(full_text_record))
         file.write(f"Total tokens: {total_tokens} ${total_tokens*0.000002:.2f}")
+        file.write("tokens per character: ", total_tokens/len(full_text_record))
+    #print(f"History file created: {os.path.join(path, filename)}")
 
-    print(f"History file created: {os.path.join(path, filename)}")
 
 
 

@@ -34,6 +34,7 @@ def check_for_universe_response(third_person_action, universe_memory, total_toke
     universe_response, universe_tokens = None, 0
     universe_assistants_response, assistant_tokens = chatgpt_req.ask_universe_assistant(third_person_action)
     if "yes" in universe_assistants_response.lower():
+        print("universe_assistants_response", universe_assistants_response)
         universe_memory, universe_response, universe_tokens = chatgpt_req.tell_universe(universe_memory, third_person_action, story_seed_file)
     total_tokens = total_tokens + assistant_tokens + universe_tokens        
     return universe_memory, universe_response, total_tokens
