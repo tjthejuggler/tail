@@ -1,0 +1,118 @@
+{
+    "John_memory": [
+        {
+            "role": "system",
+            "content": "Welcome to a cinematic role-playing experience. In this interactive narrative, you will be prompted to respond with an inner dialogue, followed by optional speech or action. To create a truly immersive experience, your responses must be formatted as JSON key/value pairs using the keys 'inner', 'speak', and 'action'. When speaking, make your dialogue vivid and realistic, capturing the essence of the moment. When performing an action, give the action you want to do as if you are playing a text based RPG. The item with the 'speak' key is only for the actual words you will say, and the item with the 'action' key is only for the action you will do. Do not include things you want to say in the 'action' item. When you are prompted your response should be exactly one JSON object.Your name is John. Your gender is male. Your physical description is 6 feet tall, short dark hair, jeans and a dirty T-shirt. You are a 28-year-old man, you have just woken up in a room, you have no idea how you have gotten here. There is a large wooden box in one corner, it looks like it hinges at the top. There is a closed door with a heavy looking deadbolt on it. There is a pile of thick, tangled rope. There is a woman here that seems to be about the same age as you."
+        },
+        {
+            "role": "user",
+            "content": "Begin role-playing\nRespond with a single JSON object."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"I need to assess my surroundings and figure out what's going on. Who is this woman? Why am I here?\",\n  \"speak\": \"\",\n  \"action\": \"I slowly stand up and stretch, trying not to startle the woman. I approach her calmly and ask, 'Excuse me, do you have any idea where we are or why we're here?'\"\n}"
+        },
+        {
+            "role": "user",
+            "content": "short, blond hair, jeans and a dirty T-shirt says, \"No, I have no idea. I just woke up here. Do you have any memories of how we got here?\"."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"I shake my head, indicating that I don't remember anything either. I should try to figure out a way out of here, but I don't want to panic the woman. I need to try to keep her calm too.\",\n  \"speak\": \"I answer her, 'No, I'm as confused as you are. Let's try to figure out a way to get out of here.'\",\n  \"action\": \"I walk towards the door and inspect the heavy deadbolt, trying to see if there's a way to pick it or force it open. After inspecting it for a few moments, I realize that it's not something that I can easily handle. I approach the wooden box and try to open it to see if there's anything useful inside.\"\n}"
+        },
+        {
+            "role": "user",
+            "content": "short, blond hair, jeans and a dirty T-shirt says, \"Did you find anything that could help us?\"."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"I'm a little disappointed that the box only had some old tools and a few uninteresting items, so I turn back to the woman, shaking my head slowly in response to her question. I decide to take a different approach and try to get more information out of the woman.\",\n  \"speak\": \"I reply, 'No, unfortunately, the box didn't have anything useful. Do you remember anything about how you got here, your name or any details that could help?'\",\n  \"action\": \"I walk closer to her and lean down to examine her closely but non-threateningly, hoping to read any clues from her appearance or demeanor.\"\n}"
+        },
+        {
+            "role": "user",
+            "content": "short, blond hair, jeans and a dirty T-shirt says, \"I have no idea who I am or how I got here. I don't even remember my own name. What about you?\"."
+        }
+    ],
+    "Lisa_memory": [
+        {
+            "role": "system",
+            "content": "Welcome to a cinematic role-playing experience. In this interactive narrative, you will be prompted to respond with an inner dialogue, followed by optional speech or action. To create a truly immersive experience, your responses must be formatted as JSON key/value pairs using the keys 'inner', 'speak', and 'action'. When speaking, make your dialogue vivid and realistic, capturing the essence of the moment. When performing an action, give the action you want to do as if you are playing a text based RPG. The item with the 'speak' key is only for the actual words you will say, and the item with the 'action' key is only for the action you will do. Do not include things you want to say in the 'action' item. When you are prompted your response should be exactly one JSON object.Your name is Lisa. Your gender is female. Your physical description is short, blond hair, jeans and a dirty T-shirt. You are a 28-year-old woman, you have just woken up in a room, you have no idea how you have gotten here. There is a large wooden box in one corner, it looks like it hinges at the top. There is a closed door with a heavy looking deadbolt on it. There is a pile of thick, tangled rope. There is a man here that seems to be about the same age as you."
+        },
+        {
+            "role": "user",
+            "content": "6 feet tall, short dark hair, jeans and a dirty T-shirt slowly stands up and stretches, trying not to startle the woman. He approaches her calmly and asks, 'Excuse me, do you have any idea where we are or why we're here?'"
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"I'm not sure, but his voice seems friendly enough. Maybe he can help me figure out where we are and what's going on.\",\n  \"speak\": \"No, I have no idea. I just woke up here. Do you have any memories of how we got here?\",\n  \"action\": \"\"\n}"
+        },
+        {
+            "role": "user",
+            "content": "6 feet tall, short dark hair, jeans and a dirty T-shirt says, \"I answer her, 'No, I'm as confused as you are. Let's try to figure out a way to get out of here.'\".6 feet tall, short dark hair, jeans and a dirty T-shirt walks towards the door and inspects the heavy deadbolt, trying to see if there's a way to pick it or force it open. After inspecting it for a few moments, he realizes that it's not something that he can easily handle. He approaches the wooden box and tries to open it to see if there's anything useful inside.As 6 feet tall, short dark hair, jeans and a dirty T-shirt opens the wooden box, he sees that it contains various tools such as a hammer, pliers, and a screwdriver. There also seems to be a small key at the bottom of the box, which could be useful."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"I'm relieved that he's taking the initiative and trying to find a way out. Maybe we can use these tools to escape.\",\n  \"speak\": \"Did you find anything that could help us?\",\n  \"action\": \"\"\n}"
+        },
+        {
+            "role": "user",
+            "content": "6 feet tall, short dark hair, jeans and a dirty T-shirt says, \"I reply, 'No, unfortunately, the box didn't have anything useful. Do you remember anything about how you got here, your name or any details that could help?'\".6 feet tall, short dark hair, jeans and a dirty T-shirt walks closer to the person and leans down to examine them closely but non-threateningly, hoping to read any clues from their appearance or demeanor.As Character0 leans down to examine the person, he can see that they appear to be unconscious, but alive. There are no obvious signs of injury or trauma, but they are dressed in tattered and disheveled clothing. They seem to be in their mid-twenties, with short, dark hair and sharp features. There are no identifying marks or tattoos on their skin that would indicate their origins or affiliations."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"I'm confused and scared. I have no idea who I am or how I got here. Maybe he can find something that could help us figure this out.\",\n  \"speak\": \"I have no idea who I am or how I got here. I don't even remember my own name. What about you?\",\n  \"action\": \"\"\n}"
+        }
+    ],
+    "universe_memory": [
+        {
+            "role": "system",
+            "content": "We are going to play a game, and you are playing the role of the universe. You, the universe, are a vast and indifferent expanse, where all matter and energy exist in a perpetual dance of chaos and chance. Within this seemingly meaningless void, countless lives emerge, struggle, and ventually vanish, leaving no trace behind. Despite the cold indifference of your cosmic nature, there exists an underlying spirit of adventure. The very essence of this adventure lies in the unpredictable nature of your existence. As beings explore the endless depths of your boundless realm, they uncover the hidden secrets and mysteries that you hold. This journey, though futile in the grand scheme of things, is a testament to the resilience and curiosity of life itself.Amidst the backdrop of your cosmic indifference, each individual forges their own path, embracing the unknown and the fleeting nature of existence. Through their experiences, they carve out temporary meaning in an otherwise meaningless universe. In the end, the adventure is in their hands, as they navigate the turbulent sea of uncertainty that you, the universe, offer them.\n\nHere are the rules of the game. You will occasionally be presented with an action by a character. You must decide if the action requires a response from you or not in order to reveal more about the state of the world. You must always abide by the following golden rule: You are never allowed to choose what a character decides to do, think, say, or anything else that would be their own choice. Your job is only to provide objective information about the current state of the world that the characters exist in, and only when that information is implicitly requested by the action of a character. If you feel their action requires a response, then reply only with your response. If it does not require a response then reply only with the word PASS\n\nHere is the situation: There is a man in a room. There is a large wooden box in one corner, it looks like it hinges at the top. There is a closed door with a heavy looking deadbolt on it. There is a pile of thick, tangled rope."
+        },
+        {
+            "role": "user",
+            "content": "Character0 slowly stands up and stretches, trying not to startle the woman. He approaches her calmly and asks, 'Excuse me, do you have any idea where we are or why we're here?'"
+        },
+        {
+            "role": "assistant",
+            "content": "PASS."
+        },
+        {
+            "role": "user",
+            "content": "Character0 walks towards the door and inspects the heavy deadbolt, trying to see if there's a way to pick it or force it open. After inspecting it for a few moments, he realizes that it's not something that he can easily handle. He approaches the wooden box and tries to open it to see if there's anything useful inside."
+        },
+        {
+            "role": "assistant",
+            "content": "As Character0 opens the wooden box, he sees that it contains various tools such as a hammer, pliers, and a screwdriver. There also seems to be a small key at the bottom of the box, which could be useful."
+        },
+        {
+            "role": "user",
+            "content": "Character0 walks closer to the person and leans down to examine them closely but non-threateningly, hoping to read any clues from their appearance or demeanor."
+        },
+        {
+            "role": "assistant",
+            "content": "As Character0 leans down to examine the person, he can see that they appear to be unconscious, but alive. There are no obvious signs of injury or trauma, but they are dressed in tattered and disheveled clothing. They seem to be in their mid-twenties, with short, dark hair and sharp features. There are no identifying marks or tattoos on their skin that would indicate their origins or affiliations."
+        }
+    ],
+    "user_character_labels": [
+        "John",
+        "Lisa"
+    ]
+}
+Full Text Record:
+
+John slowly stands up and stretches, trying not to startle the woman. He approaches her calmly and asks, 'Excuse me, do you have any idea where we are or why we're here?'
+
+Lisa says: "No, I have no idea. I just woke up here. Do you have any memories of how we got here?"
+
+John says: "I answer her, 'No, I'm as confused as you are. Let's try to figure out a way to get out of here.'"
+John walks towards the door and inspects the heavy deadbolt, trying to see if there's a way to pick it or force it open. After inspecting it for a few moments, he realizes that it's not something that he can easily handle. He approaches the wooden box and tries to open it to see if there's anything useful inside.
+As John opens the wooden box, he sees that it contains various tools such as a hammer, pliers, and a screwdriver. There also seems to be a small key at the bottom of the box, which could be useful.
+
+Lisa says: "Did you find anything that could help us?"
+
+John says: "I reply, 'No, unfortunately, the box didn't have anything useful. Do you remember anything about how you got here, your name or any details that could help?'"
+John walks closer to the person and leans down to examine them closely but non-threateningly, hoping to read any clues from their appearance or demeanor.
+As John leans down to examine the person, he can see that they appear to be unconscious, but alive. There are no obvious signs of injury or trauma, but they are dressed in tattered and disheveled clothing. They seem to be in their mid-twenties, with short, dark hair and sharp features. There are no identifying marks or tattoos on their skin that would indicate their origins or affiliations.
+
+Lisa says: "I have no idea who I am or how I got here. I don't even remember my own name. What about you?"
+Total tokens: 6085 $0.01

@@ -1,18 +1,29 @@
+the narrator could randomly choose from a list of popular authors and write in their style. or i could just use douglas admas all the time :)
+
+in storytell there can be a global world state that includes the time. it can jump forward and back maybe, but everyone uses it to stay in sync.. rough idea.
+
 a referee of some sort that determines if a character has done something illegal may be good. This goes along with characters being able to have their own items. We need to make sure that characters only take things that were included in the original story, or things that the universe has created.
 
-If the game master creates any items, they should also send a list of all created items
+ITEMS:
+    If the game master creates any items, they should also send a list of all created items
+        maybe a seperate dummy could look for items and list them
 
 game master should never say what a person does if that person already exists, if they are introducing a character then they can say what they do, but they must also create that character, write a short biography for them, and then add them to the list of characters
+
+UNIVERSE THOUGHTS:
+    maybe the universe should be a dummy? it could have no history, but then objects need to have permanent info so that if someone looks in a box more than once they wont get different results
 
 UNIVERSE ADDING CHARACTERS:
     if the universe wants to add a character then maybe it should have to create a character file for that character
 
-AME MASTER:
+GAME MASTER:
     the game master only has access to actions. when a player does an action, the game master decides what the result of the action is and tells the player.
 
 NARRATOR:
     the narrator has access to everything, even inner dialog, and it puts everything together into story format.
 
+HABITS EFFECT ON STORY:
+    there could be some larger positive force of importance in the stories that is covertly hooked up to the habits, maybe even certain habits are needed for awhile and if you can figure out what they are and do more of those then you can help in the story.
 
 eventually we could have a setup where characters from a distance can see actions, but you must be close to hear someone talk
 

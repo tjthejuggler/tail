@@ -1,11 +1,22 @@
+maybe a dummy checks to see if the universe is needed to make an insertion, this way we are not sending everything to the universe just to get a pass
+
 make a script that gets chatgpt to make a story_seed given certain requirements
+    this would be temorary since we eventually want to have the character be made from habits/personal history/search etc..
 
 dont fully leave the loop and make the history until a button is clicked, also have a way to add more cycles froom inside the application
 
-we need a dummy bot that checks to see if the universe breaks the rules.
+UNIVERSE:
+    we need a dummy bot that checks to see if the universe breaks the rules.
 
-The universe can probably have a simplified script, it will save on tokens, and maybe get it to try to inject fewer thoughts and feelings.
-    maybe try telling it that it is a Dungeons and Dragons game master.
+    The universe can probably have a simplified script, it will save on tokens, and maybe get it to try to inject fewer thoughts and feelings.
+        maybe try telling it that it is a Dungeons and Dragons game master.
+
+AUTOMATIC CHARACTER CREATION:
+    access to everything I have about myself with dates
+        these things all need cleaned
+        these should have priorities
+        things like habits need explanations
+
 
 put possible_universes into json format so that they can be loaded into the universe
 

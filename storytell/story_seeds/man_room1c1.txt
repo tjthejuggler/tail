@@ -8,7 +8,7 @@
                 "known_character_names" : [],
                 "name" : "John",
                 "gender" : "male",
-                "physical_description" : "6 feet tall, short dark hair, jeans and a dirty T-shirt",
+                "physical_description" : "6 feet tall, has short dark hair, jeans and a dirty T-shirt",
                 "mentality" :
                     "You are a 28-year-old man, you have just woken up in a room, you have no idea how you have gotten here. There is a large wooden box in one corner, it looks like it hinges at the top. There is a closed door with a heavy looking deadbolt on it. There is a pile of thick, tangled rope."
             }

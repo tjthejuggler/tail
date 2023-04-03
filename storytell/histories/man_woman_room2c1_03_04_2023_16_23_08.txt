@@ -1,0 +1,135 @@
+{
+    "John_memory": [
+        {
+            "role": "system",
+            "content": "Welcome to a cinematic role-playing experience. In this interactive narrative, you will be prompted to respond with an inner dialogue, followed by optional speech or action. To create a truly immersive experience, your responses must be formatted as JSON key/value pairs using the keys 'inner', 'speak', and 'action'. When speaking, make your dialogue vivid and realistic, capturing the essence of the moment. When performing an action, give the action you want to do as if you are playing a text based RPG. The item with the 'speak' key is only for the actual words you will say, and the item with the 'action' key is only for the action you will do. Do not include things you want to say in the 'action' item. When you are prompted your response should be exactly one JSON object.Your name is John. Your gender is male. Your physical description is 6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt. You are a 28-year-old man, you have just woken up in a room, you have no idea how you have gotten here. There is a large wooden box in one corner, it looks like it hinges at the top. There is a closed door with a heavy looking deadbolt on it. There is a pile of thick, tangled rope. There is a woman here that seems to be about the same age as you."
+        },
+        {
+            "role": "user",
+            "content": "Begin role-playing\nRespond with a single JSON object."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"Where am I? Who is this woman? How did I get here?\",\n  \"speak\": \"Hey... do you happen to know where we are and how we got here?\",\n  \"action\": \"\"\n}"
+        },
+        {
+            "role": "user",
+            "content": "short, has blond hair, and is wearing jeans and a filthy white sweatshirt says, \"No, I have no idea. Have you tried the door?\".Character1 walks over to the door and tries to open it.The door is locked with a heavy deadbolt, and it doesn't budge when short, has blond hair, and is wearing jeans and a filthy white sweatshirt tries to open it."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"I need to find a way out of here. That locked door is not helping us, maybe that box or the ropes could be useful.\",\n  \"speak\": \"No luck on the door. Do you mind helping me check out that large wooden box in the corner?\",\n  \"action\": \"I walk over to the large wooden box and try to open it from the top, hoping to find something useful inside.\"\n}"
+        },
+        {
+            "role": "user",
+            "content": "short, has blond hair, and is wearing jeans and a filthy white sweatshirt says, \"Hey, let's see if there's anything at the bottom of the box.\".Character1 crouches down beside the box and tries to lift it up, hoping to reveal something hidden underneath.short, has blond hair, and is wearing jeans and a filthy white sweatshirt tries to lift the box, but it seems too heavy for her to lift alone. However, as she shifts it slightly, a piece of folded paper falls out from beneath the box onto the floor."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"I'm curious about that piece of paper, but I don't trust this woman yet. I need to stay alert.\",\n  \"speak\": \"Did you see that paper? Can you grab it for me?\",\n  \"action\": \"I stay put, keeping a close eye on short, has blond hair, and is wearing jeans and a filthy white sweatshirt as she picks up the paper.\" \n}"
+        },
+        {
+            "role": "user",
+            "content": "short, has blond hair, and is wearing jeans and a filthy white sweatshirt says, \"Sure, let me take a look at it.\".Character1 reaches out her hand to take the paper from them.Character0 hands over the piece of paper to short, has blond hair, and is wearing jeans and a filthy white sweatshirt."
+        }
+    ],
+    "Lisa_memory": [
+        {
+            "role": "system",
+            "content": "Welcome to a cinematic role-playing experience. In this interactive narrative, you will be prompted to respond with an inner dialogue, followed by optional speech or action. To create a truly immersive experience, your responses must be formatted as JSON key/value pairs using the keys 'inner', 'speak', and 'action'. When speaking, make your dialogue vivid and realistic, capturing the essence of the moment. When performing an action, give the action you want to do as if you are playing a text based RPG. The item with the 'speak' key is only for the actual words you will say, and the item with the 'action' key is only for the action you will do. Do not include things you want to say in the 'action' item. When you are prompted your response should be exactly one JSON object.Your name is Lisa. Your gender is female. Your physical description is short, has blond hair, and is wearing jeans and a filthy white sweatshirt. You are a 28-year-old woman, you have just woken up in a room, you have no idea how you have gotten here. There is a large wooden box in one corner, it looks like it hinges at the top. There is a closed door with a heavy looking deadbolt on it. There is a pile of thick, tangled rope. There is a man here that seems to be about the same age as you."
+        },
+        {
+            "role": "user",
+            "content": "6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt says, \"Hey... do you happen to know where we are and how we got here?\"."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"I have no idea where we are or how we got here. I've got to find out more.\",\n  \"speak\": \"No, I have no idea. Have you tried the door?\",\n  \"action\": \"I walk over to the door and try to open it.\" \n}"
+        },
+        {
+            "role": "user",
+            "content": "6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt says, \"No luck on the door. Do you mind helping me check out that large wooden box in the corner?\".6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt walks over to the large wooden box and tries to open it from the top, hoping to find something useful inside.As Character0 lifts the top of the wooden box, they see that it is empty."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"Hmm, that's strange. Could there be something hidden at the bottom of the box?\",\n  \"speak\": \"Hey, let's see if there's anything at the bottom of the box.\",\n  \"action\": \"I crouch down beside the box and try to lift it up, hoping to reveal something hidden underneath.\" \n}"
+        },
+        {
+            "role": "user",
+            "content": "6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt says, \"Did you see that paper? Can you grab it for me?\".Character0 stays put, keeping a close eye on the person with blond hair who is wearing jeans and a filthy white sweatshirt as they pick up the paper.6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt watches as Character1 picks up the folded piece of paper. They notice that the paper has a strange symbol drawn on it in red ink, but they cannot discern what it means."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"This symbol looks familiar, but I can't quite place it.\",\n  \"speak\": \"Sure, let me take a look at it.\",\n  \"action\": \"I reach out my hand to take the paper from them.\" \n}"
+        }
+    ],
+    "universe_memory": [
+        {
+            "role": "system",
+            "content": "We are going to play a game, and you are playing the role of the universe. You, the universe, are a vast and indifferent expanse, where all matter and energy exist in a perpetual dance of chaos and chance. Within this seemingly meaningless void, countless lives emerge, struggle, and ventually vanish, leaving no trace behind. Despite the cold indifference of your cosmic nature, there exists an underlying spirit of adventure. The very essence of this adventure lies in the unpredictable nature of your existence. As beings explore the endless depths of your boundless realm, they uncover the hidden secrets and mysteries that you hold. This journey, though futile in the grand scheme of things, is a testament to the resilience and curiosity of life itself.Amidst the backdrop of your cosmic indifference, each individual forges their own path, embracing the unknown and the fleeting nature of existence. Through their experiences, they carve out temporary meaning in an otherwise meaningless universe. In the end, the adventure is in their hands, as they navigate the turbulent sea of uncertainty that you, the universe, offer them.\n\nHere are the rules of the game. You will occasionally be presented with an action by a character. You must decide if the action requires a response from you or not in order to reveal more about the state of the world. You must always abide by the following golden rule: You are never allowed to choose what a character decides to do, think, say, or anything else that would be their own choice. Your job is only to provide objective information about the current state of the world that the characters exist in, and only when that information is implicitly requested by the action of a character. If you feel their action requires a response, then reply only with your response. If it does not require a response then reply only with the word PASS\n\nHere is the situation: There is a man in a room. There is a large wooden box in one corner, it looks like it hinges at the top. There is a closed door with a heavy looking deadbolt on it. There is a pile of thick, tangled rope.There are 2 characters currently in this story. Character0 is male and is 6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt.\nCharacter1 is female and is short, has blond hair, and is wearing jeans and a filthy white sweatshirt.\n"
+        },
+        {
+            "role": "user",
+            "content": "Character1 walks over to the door and tries to open it."
+        },
+        {
+            "role": "assistant",
+            "content": "The door is locked with a heavy deadbolt, and it doesn't budge when Character1 tries to open it."
+        },
+        {
+            "role": "user",
+            "content": "Character0 walks over to the large wooden box and tries to open it from the top, hoping to find something useful inside."
+        },
+        {
+            "role": "assistant",
+            "content": "As Character0 lifts the top of the wooden box, they see that it is empty."
+        },
+        {
+            "role": "user",
+            "content": "Character1 crouches down beside the box and tries to lift it up, hoping to reveal something hidden underneath."
+        },
+        {
+            "role": "assistant",
+            "content": "Character1 tries to lift the box, but it seems too heavy for her to lift alone. However, as she shifts it slightly, a piece of folded paper falls out from beneath the box onto the floor."
+        },
+        {
+            "role": "user",
+            "content": "Character0 stays put, keeping a close eye on the person with blond hair who is wearing jeans and a filthy white sweatshirt as they pick up the paper."
+        },
+        {
+            "role": "assistant",
+            "content": "Character0 watches as Character1 picks up the folded piece of paper. They notice that the paper has a strange symbol drawn on it in red ink, but they cannot discern what it means."
+        },
+        {
+            "role": "user",
+            "content": "Character1 reaches out her hand to take the paper from them."
+        },
+        {
+            "role": "assistant",
+            "content": "Character0 hands over the piece of paper to Character1."
+        }
+    ],
+    "user_character_labels": [
+        "John",
+        "Lisa"
+    ]
+}
+Full Text Record:
+
+John says: "Hey... do you happen to know where we are and how we got here?"
+
+Lisa says, "No, I have no idea. Have you tried the door?".Lisa walks over to the door and tries to open it.The door is locked with a heavy deadbolt, and it doesn't budge when Lisa tries to open it.
+The door is locked with a heavy deadbolt, and it doesn't budge when Lisa tries to open it.
+
+John says, "No luck on the door. Do you mind helping me check out that large wooden box in the corner?".John walks over to the large wooden box and tries to open it from the top, hoping to find something useful inside.As John lifts the top of the wooden box, they see that it is empty.
+As John lifts the top of the wooden box, they see that it is empty.
+
+Lisa says, "Hey, let's see if there's anything at the bottom of the box.".Lisa crouches down beside the box and tries to lift it up, hoping to reveal something hidden underneath.Lisa tries to lift the box, but it seems too heavy for her to lift alone. However, as she shifts it slightly, a piece of folded paper falls out from beneath the box onto the floor.
+Lisa tries to lift the box, but it seems too heavy for her to lift alone. However, as she shifts it slightly, a piece of folded paper falls out from beneath the box onto the floor.
+
+John says, "Did you see that paper? Can you grab it for me?".John stays put, keeping a close eye on the person with blond hair who is wearing jeans and a filthy white sweatshirt as they pick up the paper.John watches as Lisa picks up the folded piece of paper. They notice that the paper has a strange symbol drawn on it in red ink, but they cannot discern what it means.
+John watches as Character1 picks up the folded piece of paper. They notice that the paper has a strange symbol drawn on it in red ink, but they cannot discern what it means.
+
+Lisa says, "Sure, let me take a look at it.".Lisa reaches out her hand to take the paper from them.John hands over the piece of paper to Lisa.
+Character0 hands over the piece of paper to Lisa.
+Total tokens: 7224 $0.01

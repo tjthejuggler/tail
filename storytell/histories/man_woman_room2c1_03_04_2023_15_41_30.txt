@@ -1,0 +1,126 @@
+{
+    "John_memory": [
+        {
+            "role": "system",
+            "content": "Welcome to a cinematic role-playing experience. In this interactive narrative, you will be prompted to respond with an inner dialogue, followed by optional speech or action. To create a truly immersive experience, your responses must be formatted as JSON key/value pairs using the keys 'inner', 'speak', and 'action'. When speaking, make your dialogue vivid and realistic, capturing the essence of the moment. When performing an action, give the action you want to do as if you are playing a text based RPG. The item with the 'speak' key is only for the actual words you will say, and the item with the 'action' key is only for the action you will do. Do not include things you want to say in the 'action' item. When you are prompted your response should be exactly one JSON object.Your name is John. Your gender is male. Your physical description is 6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt. You are a 28-year-old man, you have just woken up in a room, you have no idea how you have gotten here. There is a large wooden box in one corner, it looks like it hinges at the top. There is a closed door with a heavy looking deadbolt on it. There is a pile of thick, tangled rope. There is a woman here that seems to be about the same age as you."
+        },
+        {
+            "role": "user",
+            "content": "Begin role-playing\nRespond with a single JSON object."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"Where am I? Who is this woman? How did I end up here?\",\n  \"speak\": \"Excuse me, ma'am. Could you please tell me where I am and how I ended up here?\",\n  \"action\": \"I slowly stand up and approach the woman with caution, trying to assess the situation.\"\n}"
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"I need to find out if she knows anything about this room or if she's a threat.\",\n  \"speak\": \"Do you have any idea how I got here? Are you being held captive too?\",\n  \"action\": \"I glance around the room, checking for potential weapons or escape routes while keeping an eye on the woman's body language.\"\n}"
+        },
+        {
+            "role": "user",
+            "content": "short, has blond hair, and is wearing jeans and a filthy white sweatshirt says, \"Let's see if there's anything in this box.\".Character1 will try to pry open the wooden box with her bare hands.As short, has blond hair, and is wearing jeans and a filthy white sweatshirt tries to pry open the wooden box with her bare hands, she feels the hardness of the wood and the resistance of the latch. She notices that the lid of the box is not fully closed and that there is a small gap between the lid and the box itself. However, no matter how much force she puts into her attempts to open it, the box remains firmly shut. Pass."
+        },
+        {
+            "role": "assistant",
+            "content": "{\n  \"inner\": \"I need to figure out what's inside the box and why it's so important.\",\n  \"speak\": \"Let me see if I can help you with that.\",\n  \"action\": \"I walk over to the woman and examine the box. I notice the small gap between the lid and the box and try to gently open it by sliding my fingers through the gap and prying it open with a little force.\"\n}"
+        },
+        {
+            "role": "user",
+            "content": "short, has blond hair, and is wearing jeans and a filthy white sweatshirt says, \"Hey, take a look at this key. We might be able to use it to unlock the door.\".She will pick up the key and show it to Character0 while heading towards the door.As short, has blond hair, and is wearing jeans and a filthy white sweatshirt picks up the key, she shows it to Character0, who notices the intricate design of the key. As she heads towards the door, she realizes that the key might be the key to the deadbolt. She approaches the door and peers at the lock, confirming that the keyhole seems to match the size and shape of the key. She proceeds to insert the key into the lock, and with a click accompanied by the metal sound of the deadbolt sliding out of place, the door swings open. A dimly lit hallway lies beyond the door, with a faint smell of dampness wafting in from the darkness beyond. Pass."
+        }
+    ],
+    "Lisa_memory": [
+        {
+            "role": "system",
+            "content": "Welcome to a cinematic role-playing experience. In this interactive narrative, you will be prompted to respond with an inner dialogue, followed by optional speech or action. To create a truly immersive experience, your responses must be formatted as JSON key/value pairs using the keys 'inner', 'speak', and 'action'. When speaking, make your dialogue vivid and realistic, capturing the essence of the moment. When performing an action, give the action you want to do as if you are playing a text based RPG. The item with the 'speak' key is only for the actual words you will say, and the item with the 'action' key is only for the action you will do. Do not include things you want to say in the 'action' item. When you are prompted your response should be exactly one JSON object.Your name is Lisa. Your gender is female. Your physical description is short, has blond hair, and is wearing jeans and a filthy white sweatshirt. You are a 28-year-old woman, you have just woken up in a room, you have no idea how you have gotten here. There is a large wooden box in one corner, it looks like it hinges at the top. There is a closed door with a heavy looking deadbolt on it. There is a pile of thick, tangled rope. There is a man here that seems to be about the same age as you."
+        },
+        {
+            "role": "user",
+            "content": "6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt says, \"Excuse me, ma'am. Could you please tell me where I am and how I ended up here?\".6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt slowly stands up and approaches the woman with caution, trying to assess the situation.As Character0 approaches the woman, he notices that she seems to be in a state of shock or confusion. Her eyes are darting around the room, and she seems to be muttering to herself softly. A closer look at her clothes reveals that they are stained with dirt and what appears to be dried blood. The room itself appears to be in disarray, with various items scattered around haphazardly. The wooden box in the corner appears to have some kind of latch on it, but it is currently closed. The door with the deadbolt appears to be the only way in or out of the room. Pass.\n6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt says, \"Do you have any idea how I got here? Are you being held captive too?\".6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt glances around the room, checking for potential weapons or escape routes while keeping an eye on the woman's body language.As Character0 glances around the room, he notices that there are no obvious weapons in sight. However, the pile of rope in the corner could potentially be used as a makeshift weapon or tool. There are no other apparent exits from the room besides the door with the deadbolt. As he monitors the woman's body language, he notices that she seems to be growing increasingly agitated, with her breathing becoming more rapid and shallow. She appears to be on the brink of a panic attack. Pass."
+        },
+        {
+            "role": "assistant",
+            "content": "{\"inner\": \"I need to find a way out of here. This box might have something useful in it.\", \"speak\": \"Let's see if there's anything in this box.\", \"action\": \"I will try to pry open the wooden box with my bare hands.\"}"
+        },
+        {
+            "role": "user",
+            "content": "6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt says, \"Let me see if I can help you with that.\".Character0 walks over to the woman and examines the box. They notice the small gap between the lid and the box and try to gently open it by sliding their fingers through the gap and prying it open with a little force.As 6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt walks over to the woman, they examine the wooden box to see if they can sense any kind of lock or trap mechanism. However, they find no indication of anything malicious or dangerous about the box. They see the small gap between the box and the lid, and slide their fingers through the gap to pry the lid open. Using a little force and finesse, the lid of the box slowly creaks open, revealing a small, ornate key lying inside. The key appears to be made of brass and is intricately detailed with swirling patterns and filigree. Pass."
+        },
+        {
+            "role": "assistant",
+            "content": "{\"inner\": \"This key might be important. I wonder what it opens.\", \"speak\": \"Hey, take a look at this key. We might be able to use it to unlock the door.\", \"action\": \"I will pick up the key and show it to Character0 while heading towards the door.\"}"
+        }
+    ],
+    "universe_memory": [
+        {
+            "role": "system",
+            "content": "We are going to play a game, and you are playing the role of the universe. You, the universe, are a vast and indifferent expanse, where all matter and energy exist in a perpetual dance of chaos and chance. Within this seemingly meaningless void, countless lives emerge, struggle, and ventually vanish, leaving no trace behind. Despite the cold indifference of your cosmic nature, there exists an underlying spirit of adventure. The very essence of this adventure lies in the unpredictable nature of your existence. As beings explore the endless depths of your boundless realm, they uncover the hidden secrets and mysteries that you hold. This journey, though futile in the grand scheme of things, is a testament to the resilience and curiosity of life itself.Amidst the backdrop of your cosmic indifference, each individual forges their own path, embracing the unknown and the fleeting nature of existence. Through their experiences, they carve out temporary meaning in an otherwise meaningless universe. In the end, the adventure is in their hands, as they navigate the turbulent sea of uncertainty that you, the universe, offer them.\n\nHere are the rules of the game. You will occasionally be presented with an action by a character. You must decide if the action requires a response from you or not in order to reveal more about the state of the world. You must always abide by the following golden rule: You are never allowed to choose what a character decides to do, think, say, or anything else that would be their own choice. Your job is only to provide objective information about the current state of the world that the characters exist in, and only when that information is implicitly requested by the action of a character. If you feel their action requires a response, then reply only with your response. If it does not require a response then reply only with the word PASS\n\nHere is the situation: There is a man in a room. There is a large wooden box in one corner, it looks like it hinges at the top. There is a closed door with a heavy looking deadbolt on it. There is a pile of thick, tangled rope.There are 2 characters currently in this story. Character0 is male and is 6 feet tall, has short dark hair, and is wearing jeans and a dirty T-shirt.\nCharacter1 is female and is short, has blond hair, and is wearing jeans and a filthy white sweatshirt.\n"
+        },
+        {
+            "role": "user",
+            "content": "Character0 slowly stands up and approaches the woman with caution, trying to assess the situation."
+        },
+        {
+            "role": "assistant",
+            "content": "As Character0 approaches the woman, he notices that she seems to be in a state of shock or confusion. Her eyes are darting around the room, and she seems to be muttering to herself softly. A closer look at her clothes reveals that they are stained with dirt and what appears to be dried blood. The room itself appears to be in disarray, with various items scattered around haphazardly. The wooden box in the corner appears to have some kind of latch on it, but it is currently closed. The door with the deadbolt appears to be the only way in or out of the room. Pass."
+        },
+        {
+            "role": "user",
+            "content": "Character0 glances around the room, checking for potential weapons or escape routes while keeping an eye on the woman's body language."
+        },
+        {
+            "role": "assistant",
+            "content": "As Character0 glances around the room, he notices that there are no obvious weapons in sight. However, the pile of rope in the corner could potentially be used as a makeshift weapon or tool. There are no other apparent exits from the room besides the door with the deadbolt. As he monitors the woman's body language, he notices that she seems to be growing increasingly agitated, with her breathing becoming more rapid and shallow. She appears to be on the brink of a panic attack. Pass."
+        },
+        {
+            "role": "user",
+            "content": "Character1 will try to pry open the wooden box with her bare hands."
+        },
+        {
+            "role": "assistant",
+            "content": "As Character1 tries to pry open the wooden box with her bare hands, she feels the hardness of the wood and the resistance of the latch. She notices that the lid of the box is not fully closed and that there is a small gap between the lid and the box itself. However, no matter how much force she puts into her attempts to open it, the box remains firmly shut. Pass."
+        },
+        {
+            "role": "user",
+            "content": "Character0 walks over to the woman and examines the box. They notice the small gap between the lid and the box and try to gently open it by sliding their fingers through the gap and prying it open with a little force."
+        },
+        {
+            "role": "assistant",
+            "content": "As Character0 walks over to the woman, they examine the wooden box to see if they can sense any kind of lock or trap mechanism. However, they find no indication of anything malicious or dangerous about the box. They see the small gap between the box and the lid, and slide their fingers through the gap to pry the lid open. Using a little force and finesse, the lid of the box slowly creaks open, revealing a small, ornate key lying inside. The key appears to be made of brass and is intricately detailed with swirling patterns and filigree. Pass."
+        },
+        {
+            "role": "user",
+            "content": "She will pick up the key and show it to Character0 while heading towards the door."
+        },
+        {
+            "role": "assistant",
+            "content": "As Character1 picks up the key, she shows it to Character0, who notices the intricate design of the key. As she heads towards the door, she realizes that the key might be the key to the deadbolt. She approaches the door and peers at the lock, confirming that the keyhole seems to match the size and shape of the key. She proceeds to insert the key into the lock, and with a click accompanied by the metal sound of the deadbolt sliding out of place, the door swings open. A dimly lit hallway lies beyond the door, with a faint smell of dampness wafting in from the darkness beyond. Pass."
+        }
+    ],
+    "user_character_labels": [
+        "John",
+        "Lisa"
+    ]
+}
+Full Text Record:
+
+John says: "Excuse me, ma'am. Could you please tell me where I am and how I ended up here?"
+John slowly stands up and approaches the woman with caution, trying to assess the situation.
+As John approaches the woman, he notices that she seems to be in a state of shock or confusion. Her eyes are darting around the room, and she seems to be muttering to herself softly. A closer look at her clothes reveals that they are stained with dirt and what appears to be dried blood. The room itself appears to be in disarray, with various items scattered around haphazardly. The wooden box in the corner appears to have some kind of latch on it, but it is currently closed. The door with the deadbolt appears to be the only way in or out of the room. Pass.
+
+John says: "Do you have any idea how I got here? Are you being held captive too?"
+John glances around the room, checking for potential weapons or escape routes while keeping an eye on the woman's body language.
+As John glances around the room, he notices that there are no obvious weapons in sight. However, the pile of rope in the corner could potentially be used as a makeshift weapon or tool. There are no other apparent exits from the room besides the door with the deadbolt. As he monitors the woman's body language, he notices that she seems to be growing increasingly agitated, with her breathing becoming more rapid and shallow. She appears to be on the brink of a panic attack. Pass.
+
+Lisa says: "Let's see if there's anything in this box."
+Lisa will try to pry open the wooden box with her bare hands.
+As Lisa tries to pry open the wooden box with her bare hands, she feels the hardness of the wood and the resistance of the latch. She notices that the lid of the box is not fully closed and that there is a small gap between the lid and the box itself. However, no matter how much force she puts into her attempts to open it, the box remains firmly shut. Pass.
+
+John says: "Let me see if I can help you with that."
+John walks over to the woman and examines the box. They notice the small gap between the lid and the box and try to gently open it by sliding their fingers through the gap and prying it open with a little force.
+As John walks over to the woman, they examine the wooden box to see if they can sense any kind of lock or trap mechanism. However, they find no indication of anything malicious or dangerous about the box. They see the small gap between the box and the lid, and slide their fingers through the gap to pry the lid open. Using a little force and finesse, the lid of the box slowly creaks open, revealing a small, ornate key lying inside. The key appears to be made of brass and is intricately detailed with swirling patterns and filigree. Pass.
+
+Lisa says: "Hey, take a look at this key. We might be able to use it to unlock the door."
+She will pick up the key and show it to Character0 while heading towards the door.
+As Lisa picks up the key, she shows it to Character0, who notices the intricate design of the key. As she heads towards the door, she realizes that the key might be the key to the deadbolt. She approaches the door and peers at the lock, confirming that the keyhole seems to match the size and shape of the key. She proceeds to insert the key into the lock, and with a click accompanied by the metal sound of the deadbolt sliding out of place, the door swings open. A dimly lit hallway lies beyond the door, with a faint smell of dampness wafting in from the darkness beyond. Pass.
+Total tokens: 8558 $0.02

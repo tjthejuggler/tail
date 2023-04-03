@@ -16,7 +16,6 @@ def handle_tokens(tokens, total_tokens, token_label_var):
         print("total tokens", total_tokens, '$'+str(total_tokens * 0.000002))
     return total_tokens
 
-
 def initialize_story(story_seed_file):
     story_seed_dir = os.path.expanduser('~/projects/tail/storytell/story_seeds/' + story_seed_file)
     with open(story_seed_dir, 'r') as f:
@@ -26,16 +25,17 @@ def initialize_story(story_seed_file):
     print('story_seed["universe"].lower()', story_seed["universe"].lower())
     if story_seed["universe"].lower() != "none":
         print("universe", story_seed["universe"].lower())
-        universe_memory = initialize_universe_memory(story_seed["universe"])
+        universe_memory = initialize_universe_memory(story_seed)
     print("initialize_story char_mem", character_memories)
     print("initialize_story uni_mem", universe_memory)
     return character_memories, universe_memory, user_character_labels
 
 def check_for_universe_response(third_person_action, universe_memory, total_tokens, story_seed_file):
-    universe_memory, universe_response, new_tokens = chatgpt_req.tell_universe(universe_memory, third_person_action, story_seed_file)
-    total_tokens = total_tokens + new_tokens
-    if "PASS" in universe_response:
-        universe_response = None
+    universe_response, universe_tokens = None, 0
+    universe_assistants_response, assistant_tokens = chatgpt_req.ask_universe_assistant(third_person_action)
+    if "yes" in universe_assistants_response.lower():
+        universe_memory, universe_response, universe_tokens = chatgpt_req.tell_universe(universe_memory, third_person_action, story_seed_file)
+    total_tokens = total_tokens + assistant_tokens + universe_tokens        
     return universe_memory, universe_response, total_tokens
 
 def parse_character_response(bot, response, user_character_labels, gender, universe_memory, bot_memory, story_seed_file):
@@ -54,7 +54,7 @@ def parse_character_response(bot, response, user_character_labels, gender, unive
     if 'speak' in response and not is_null_or_empty(response['speak']):
         print("parse_character_response3")
         speak_response = response['speak'].replace('"','')
-        outer_information_bot_format = 'character'+str(bot)+' says, "'+speak_response+ '".'
+        outer_information_bot_format = 'character'+str(bot)+' says, "'+speak_response+ '".\n'
         print("parse_character_response4")
         outer_information_user_format = user_character_labels[bot]+' says: "'+speak_response + '"\n'
     if 'action' in response and not is_null_or_empty(response['action']):
@@ -69,11 +69,11 @@ def parse_character_response(bot, response, user_character_labels, gender, unive
         if universe_response:
             print("if universe response", universe_response)
             outer_information_bot_format += third_person_action + universe_response
-            universe_response = case_insensitive_replace(universe_response, "character"+str(bot), user_character_labels[bot]) + "\n"
+            universe_response = replace_character_nums_with_names(universe_response,user_character_labels) + "\n"
         else:
             outer_information_bot_format += third_person_action 
         print("parse_character_response6")
-        outer_information_user_format += case_insensitive_replace(third_person_action, "character"+str(bot), user_character_labels[bot]) +"\n"        
+        outer_information_user_format += replace_character_nums_with_names(third_person_action, user_character_labels) + "\n"       
     if 'label' in response:
         print(response["label"])
     if outer_information_bot_format == "":

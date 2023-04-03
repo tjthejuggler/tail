@@ -90,8 +90,15 @@ def initialize_character_memories(characters_user_knows, character_seed):
             user_character_labels.append(character_seed["individuals"][bot]["physical_description"])
     return character_memories, user_character_labels
 
-def initialize_universe_memory(universe_seed):
-    print('universe seed', universe_seed)
+def construct_characters_introduction(characters_seed):
+    characters_introduction = "There are "+str(len(characters_seed["individuals"]))+" characters currently in this story. "
+    for individual in characters_seed["individuals"].keys():
+        characters_introduction += "Character"+individual+" is "+characters_seed["individuals"][individual]["gender"]+" and is "+characters_seed["individuals"][individual]["physical_description"]+".\n"
+    return characters_introduction
+
+def initialize_universe_memory(story_seed):
+    print('universe seed', story_seed["universe"])
     universe_memory = BotMemory(99)
-    universe_memory.append(["system", universe_seed])
+    characters_introduction = construct_characters_introduction(story_seed["characters"])
+    universe_memory.append(["system", story_seed["universe"] + characters_introduction])
     return universe_memory

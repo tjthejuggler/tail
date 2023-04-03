@@ -41,6 +41,13 @@ def case_insensitive_replace(my_string, target, replacement):
     result.append(my_string)
     return ''.join(result)
 
+def replace_character_nums_with_names(text, user_character_labels):
+    print("replace_character_nums_with_names1", text)
+    for i in range(len(user_character_labels)):
+        text = case_insensitive_replace(text, "Character"+str(i), user_character_labels[i])
+    print("replace_character_nums_with_names2", text)
+    return text
+
 def convert_to_third_person(character_name, gender, action):
     third_person_action, tokens = chatgpt_req.send_request([{"role": "user", "content":"Convert this first person sentence to a third person sentence about someone named '"+character_name+"'. Remove any information that would not be outwardly apparent. Their gender is "+gender+". It is very important that you use the exact name '"+character_name+"'.\n"+action+"\nRespond only with the third person sentence."}])
     print("convert_to_third")
