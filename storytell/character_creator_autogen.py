@@ -5,8 +5,7 @@ import json
 import chatgpt_req
 import anki_history
 import os
-
-num_characters = 1
+import random
 
 def make_json(directory):
     directory = os.path.expanduser(directory)
@@ -57,6 +56,7 @@ def get_list_of_available_dates():
     anki_date_list = anki_history.get_all_dates_notes_were_created('...MyDiscoveries')
     full_date_list = combine_dates_from_multiple_sources(todo_items_dict, apnea_records_dict, todo_items_dict, unusual_experiences_dict, podcast_descriptions_dict, anki_date_list)
     print(full_date_list)
+    return full_date_list
 
 #personal records /home/lunkwill/Documents/obsidian_note_vault/noteVault/tail/personal_records.txt
 def get_data_from_records_dict(dict, date):
@@ -117,51 +117,12 @@ def create_character(target_date):
     podcast_prompt = "Subjects that they find very interesting: \n" + "\n".join(podcast_descriptions_date_data) + "\n" if podcast_descriptions_date_data else ""
     personal_records_prompt = "Here are some things that they are especially good at: \n"+ "\n".join(personal_records_date_data)+ "\n" if personal_records_date_data else ""
 
-    initial_prompt = "You are developing a character for a story. It is your job to decide their age, gender, name, personality, their goals, their motivations, history, and any other information you would like. You have the following information to pull inspiration from:\n"+ anki_prompt + todo_prompt + unusual_prompt + podcast_prompt + personal_records_prompt + ". Create a JSON file with the following keys and the matching information for this character: 'name', 'age', 'gender', 'relationship status', 'family status'(any information on parents, siblings, children), 'hobbies', 'education history', 'occupation', 'physical description'(a single short sentence), 'personality'(no more than 3 ro 4 sentences), 'goals and motivations'(no more than 3 or 4 sentences)', 'shadow self'(this is the characters dark side they don't outwardly share, no more than 3 or 4 sentences), 'history'(no more than 3 or 4 sentences), 'other'(any other information you would like to include about this character)."
+    initial_prompt = "You are developing a character for a story. It is your job to decide their age, gender, name, personality, their goals, their motivations, history, and any other information you would like. You have the following information to pull inspiration from:\n"+ anki_prompt + todo_prompt + unusual_prompt + podcast_prompt + personal_records_prompt + ".  Create a JSON file with the following keys and the matching information for this character: 'name', 'age', 'gender', 'relationship status', 'family status'(any information on parents, siblings, children), 'hobbies', 'education history', 'occupation', 'physical description'(a single short sentence), 'personality'(no more than 3 ro 4 sentences), 'goals and motivations'(no more than 3 or 4 sentences)', 'shadow self'(this is the characters dark side they don't outwardly share, no more than 3 or 4 sentences), 'history'(no more than 3 or 4 sentences), 'other'(any other information you would like to include about this character)."
 
     response, tokens = chatgpt_req.send_request([{"role": "user", "content":initial_prompt}])
 
     print("response: ", response, "\ntokens: ", tokens)
 
-def create_story_seed():
-    #this takes in a storyline and creates a seed for it for a single story
-
-
-    #decide if we will use new characters or already existing characters 
-
-    for i in range(num_characters):
-        #choose random date for this character
-        create_character('2022-09-03')
-        #create a character
-        #make a directory for this character
-        #we should keep track of interactions that characters have with each other for when they meet again later
-
-#create_story_seed()
-get_list_of_available_dates()
-
-    #choose time period?
-    #choose location
-    #covertly inject problems into the story based on habits that have long anti-streaks, or even short streaks
-    #   if the used is able to detect the associated habit and fix it then some help is provided and a new problem is introduced based on a different habit
-    #create a universe
-
-
-#Punishment for ignoring covert warnings for too long can be that a character dies, maybe first someone gets hurt or sick or something as a warning, maybe a harsher warning can be someone getting permenantly disfigured. The potential of someone dying has that thing built into it where money and potential will be burnt
 
 
 
-#todo
-
-#maybe we want to sometimes have it make a "completely opposite" character to get new ideas into the story
-
-#maybe look up info on making believable characters
-
-#turn this all into a function that takes in a date and returns a character
-
-#make a seperate function that creates a complete story_seed, it needs to be told how many characetrs, and it also needs to create a universe
-
-#i think i should either get more information about the character or limit the amount of information that i give the ai
-
-#maybe I want to not take clipboard items from inside VSCode, or maybe just take some of them. Maybe i could just get rid of anything that has too high of a character:special character ratio?
-
-#i should probably remove anything that is a duplicate?

@@ -1,50 +1,85 @@
+IMMEDIATE TODOS:
+
+
+CHARACTER/STORY_SEED AUTO GENERATOR:
+    character inspiration stuff can have priorities
+    maybe we want to sometimes have it make a "completely opposite" character to get new ideas into the story
+    maybe look up info on making believable characters
+    i may want to limit the number of characters from each different source of information
+    maybe I want to not take clipboard items from inside VSCode, or maybe just take some of them. Maybe i could just get rid of anything that has too high of a character:special character ratio?
+    I should probably remove anything that is a duplicate?
+    A way to add variety to the types of characters being created
+    Some characters could be based on just a specific item instead of a whole day
+        for example, a person from a single podcast episode, or someone based on a single unusual experience
+
+NARRATOR:
+    the narrator has access to everything, even inner dialog, and it puts everything together into story format.
+    the narrator could randomly choose from a list of popular authors and write in their style. or i could just use douglas admas all the time :)
+
 CRITIC AI:
     Instead of reading everything, I should have a helper AI that reads the story, and rates it or goes through and points out anything that doesnt make sense.
 
-make a script that gets chatgpt to make a story_seed given certain requirements
-    this would be temporary since we eventually want to have the character be made from habits/personal history/search etc..
+STORYGEN:
+    make a way to load a previous story and continue It
+        this can be done by selecting a history file and loading it into the storygen
+            to do this we probably want the full story put into a json file
+                i think we want to give the characters the narrated version of the story, tell them who they are and tell them any inner information that only they know, and let them go from there. this is because there will probably be new information added in the narration. Actually, maybe we could tell the narrator to not add anything that is beyond the facts that way we can give the character exactly what they had when the story ended last, everything in their history.
+    add in items to the universe
+        characters could also have inventories
+    there should be a way to load a history into the storygen to view it with colors
+    a referee of some sort that determines if a character has done something illegal may be good. This goes along with characters being able to have their own items. We need to make sure that characters only take things that were included in the original story, or things that the universe has created.
 
-make a way to load a previous story and continue It
-    this can be done by selecting a history file and loading it into the storygen
-        to do this we probably want the full story put into a json file
-            i think we want to give the characters the narrated version of the story, tell them who they are and tell them any inner information that only they know, and let them go from there. this is because there will probably be new information added in the narration. Actually, maybe we could tell the narrator to not add anything that is beyond the facts that way we can give the character exactly what they had when the story ended last, everything in their history.
+ITEMS:
+    If the game master creates any items, they should also send a list of all created items
+        maybe a seperate dummy could look for items and list them
 
 UNIVERSE:
-    maybe the universes prompt could be even simpler?    
+    maybe the universes prompt could be even simpler? 
+    put possible_universes into json format so that they can be loaded into the universe
+    universe should be able to spawn a new character
+    add items to the universe
+        the universe can create items and add them to the area for characters to potentially take
+    maybe the universe should be a dummy? it could have no history, but then objects need to have permanent info so that if someone looks in a box more than once they wont get different results
 
+EXPERIMENT:
+    See if the universe is able to do something like host a hand by hand poker game. 
+        Maybe gpt4 would be better for this.
+        
+DAILY ROUTINE:
+    decide between continuing a storyline or creating a new one
+        there should be some weight towards continuing the previous storyline if it is new so that it starts to get into the usuers head
 
-AUTOMATIC CHARACTER CREATION:
-    access to everything I have about myself with dates
-        these things all need cleaned
-        these should have priorities
-        things like habits need explanations
+EVENTUALLY:
+    take votes and/or feedback from user to adjust the storygen process
+    there could be an attention amount for bots to have on other bots (and players - not sure if there will be anything like a player in tail or not..) and if you are paying enough attention to someone then you are more likely to notice their actions at a distance, and maybe even be able to hear what they say 
+    Wow, what if you did occasionally have a player in tail, like sometimes you get lucky and have an interactive session. You could decide what happens and maybe even be able to find a character in the story. This could be really cool if it doesn't happen very often maybe.
 
-
-put possible_universes into json format so that they can be loaded into the universe
-
-test multi char with universe
-    See if the universe is able to do something like host a hand by hand poker game. Maybe gpt4 would be better for this.
-
-it is saving very little to to backups/full_text.txt
-    still the case?
-
-ADD ITEMS:
-    in the story seed
-
-AUTO STORY_SEED GENERATION:
-    input:
-        at least one character (maybe? is it possible to create a story with no characters?)
-            the current place in their storyline
-
-when program runs, show a list of previous stories that could be continued
-
-when program ends, ends make a way for it to continue
-
-there should be a way to load a history into the storygen with option to 
-    view it with colors
-
-When two characters first interact there should be an introduction function that gives them each others descriptions
+MISC:
+    When two characters first interact there should be an introduction function that gives them each others descriptions
+    in storytell there can be a global world state that includes the time. it can jump forward and back maybe, but everyone uses it to stay in sync.. rough idea.
 
 LOCATIONS:
     characters, items, should have a physical locations. There could be multiple locations going at the same time with different characters. The narrator could receive both at the end to make the completed story.
     even inside of a room, a character can have a location, maybe locations could be done like a file system, earth/europe/italy/rome/Luigi's house/bedroom/bed
+    we could have a setup where characters from a distance can see actions, but you must be close to hear someone talk
+
+LOTTERY SYSTEM:
+    doing lots of habits can be like buying lots of lottery tickets, they can be weighted towards doing a wide range of habits, for instance maybe the first time doing a habit is 5 tickets, then 4, then 3... there can be bonus for doing a habit that hasn't been done in awhile, and/or punishment(costs tickets) for building up a large anti-streak
+
+FUTURE CHARACTER REALISM:
+    with the current setup, the character has to speak and then act, in that order, it would be nice to give the bot the freedome to do it in any order,
+        we could possible not require them to respond in json, and then have a seperate instance parse their entire response for them in whatever order they present it
+    characters could each operate asynchronously somehow instead of taking turns
+        with chatgpt this is annoying because if we keep prompting but elling them that they dont have to do anything just so they can get a constant string of information then it will use lots of credits
+
+USER INPUT/CONTROL:
+    in the actual tail story, the user could initially input ratings for things
+        magic
+        mystery
+        sex
+        violence
+        historical
+    OR
+        they could write a short description of the overall type of story that will be told
+    OR
+        they could leave the story/stories entirely up to the bots
