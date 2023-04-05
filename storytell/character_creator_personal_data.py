@@ -71,7 +71,7 @@ def create_character(personal_records, apnea_records, todo_items, unusual_experi
     podcast_prompt = "Subjects that they find very interesting: \n" + "\n".join(podcast_descriptions) + "\n" if podcast_descriptions else ""
     personal_records_prompt = "Here are some things that they are especially good at: \n"+ "\n".join(personal_records)+ "\n" if personal_records else ""
 
-    initial_prompt = "You are developing a character for a story. It is your job to decide their age, gender, name, personality, their goals, their motivations, history, and any other information you would like. You have the following information to pull inspiration from: "+ anki_prompt + todo_prompt + unusual_prompt + podcast_prompt + personal_records_prompt + ". Create a JSON file with the following keys and the matching information for this character: 'name', 'gender', 'physical description'(a single short sentence), 'personality'(no more than 2 or 3 sentences), 'goals and motivations'(no more than 2 or sentences)'"
+    initial_prompt = "You are developing a character for a story. It is your job to decide their age, gender, name, personality, their goals, their motivations, history, and any other information you would like. You have the following information to pull inspiration from: "+ anki_prompt + todo_prompt + unusual_prompt + podcast_prompt + personal_records_prompt + ". Create a JSON file with the following keys and the matching information for this character: 'name', 'age', 'gender', 'physical description'(a single short sentence), 'personality'(no more than 3 ro 4 sentences), 'goals and motivations'(no more than 3 or 4 sentences)', 'shadow self'(this is the characters dark side they don't outwardly share, no more than 3 or 4 sentences), 'history'(no more than 3 or 4 sentences), 'other'(any other information you would like to include about this character)."
 
     response, tokens = chatgpt_req.send_request([{"role": "user", "content":initial_prompt}])
 
@@ -93,6 +93,16 @@ create_character(personal_records, apnea_records, todo_items, unusual_experience
 
 
 #todo
+
+#maybe we want to sometimes have it make a "completely opposite" character to get new ideas into the story
+
+#maybe look up info on making believable characters
+
+#add things like education, employment, family status
+
+#turn this all into a function that takes in a date and returns a character
+
+#make a seperate function that creates a complete story_seed, it needs to be told how many characetrs, and it also needs to create a universe
 
 #i think i should either get more information about the character or limit the amount of information that i give the ai
 

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# this script watches clipboard_monitor and restarts it if it is frozen
+# This script watches clipboard_monitor and restarts it if it is frozen
 
-# to make this scrpt executable run the following command:
-# chmod +x clipboard_monitor_watchdog.sh 
+# To make this script executable, run the following command:
+# chmod +x clipboard_monitor_watchdog.sh
 
 # Path to the main script
 main_script=/home/lunkwill/projects/tail/clipboard/clipboard_monitor.sh
@@ -19,6 +19,12 @@ get_cpu_usage() {
     ps -p "$pid" -o %cpu --no-headers
 }
 
+# Function to get the start time of the main script
+get_start_time() {
+    local pid=$1
+    ps -p "$pid" -o lstart= | tr -s ' '
+}
+
 # Main loop
 while true; do
     pid=$(get_pid)
@@ -27,13 +33,26 @@ while true; do
         # Start the main script if it's not running
         bash "$main_script" &
     else
-        # Check if the main script's CPU usage is 0 for 3 consecutive checks (15 seconds)
+        # Get the start time of the main script
+        script_start_time=$(get_start_time "$pid")
+        script_start_timestamp=$(date -d "$script_start_time" +%s)
+        
+        # Get the current time
+        current_time=$(date +%s)
+
+        # Calculate the elapsed time since the script started
+        elapsed_time=$((current_time - script_start_timestamp))
+
+        # Restart the script if it's frozen
         if [ "$(get_cpu_usage "$pid")" == "0.0" ] &&
            sleep 5 &&
            [ "$(get_cpu_usage "$pid")" == "0.0" ] &&
            sleep 5 &&
            [ "$(get_cpu_usage "$pid")" == "0.0" ]; then
-            # Kill the frozen main script and restart it
+            kill "$pid"
+            bash "$main_script" &
+        # Restart the script if it's been running for more than 30 minutes
+        elif [ "$elapsed_time" -gt 1800 ]; then
             kill "$pid"
             bash "$main_script" &
         fi
