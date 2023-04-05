@@ -26,7 +26,7 @@ def get_note_id_from_card_id(card_id):
         return None
 
 def remove_images_and_hyperlinks(text):
-    img_pattern = r'<br><br><img src="img\d+\.jpg">'
+    img_pattern = r'<img src="img\d+\.jpg">'
     hyperlink_pattern = r'<a href="https?://[^"]+">[^<]+</a>'
     text = re.sub(img_pattern, '', text)
     text = re.sub(hyperlink_pattern, '', text)
