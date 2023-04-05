@@ -52,6 +52,19 @@ def get_reviewed_cards(deck_name, target_date):
                 reviewed_notes.append(note_text.replace('<br>',''))    
     return reviewed_notes
 
+def timestamp_to_date_string(timestamp):
+    return time.strftime('%Y-%m-%d', time.localtime(timestamp))
+
+def get_all_dates_notes_were_created(deck_name):
+    note_ids = invoke('findNotes', query=f'deck:{deck_name}')
+    dates = set()
+    for note_id in note_ids:
+        note_timestamp = note_id // 1000
+        date_string = timestamp_to_date_string(note_timestamp)
+        dates.add(date_string)
+    return list(dates)
+
+
 def unix_time_range(date):
     start_of_day = int(time.mktime(time.strptime(date, '%Y-%m-%d')))
     end_of_day = start_of_day + 86399 # 86399 seconds = 23 hours, 59 minutes, and 59 seconds
