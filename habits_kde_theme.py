@@ -3,6 +3,7 @@
 import os
 import subprocess
 import json
+import time
 
 def notify(text):
     print('text')    
@@ -73,26 +74,30 @@ def set_kde_color_theme(theme):
     except Exception as e:
         print(f"Failed to set KDE global theme to {theme}: {e}")
 
-total_habit_count = get_total_habit_count()
+def main():
+    
+    time.sleep(7) #this is to avoid incorrect habit counts due to the phone adding habits to habitsdb.txt before removing them from habitsdb_to_add.txt
+    total_habit_count = get_total_habit_count()
 
-print(total_habit_count)
+    print(total_habit_count)
 
-if total_habit_count < 14:
-    set_kde_color_theme("red")
-elif 14 <= total_habit_count < 21:
-    set_kde_color_theme("orange")
-elif 21 <= total_habit_count < 31:
-    set_kde_color_theme("green")
-elif 31 <= total_habit_count < 42:
-    set_kde_color_theme("blue")
-elif 42 <= total_habit_count < 49:
-    set_kde_color_theme("pink")
-elif 49 <= total_habit_count < 56:
-    set_kde_color_theme("yellow")
+    if total_habit_count < 14:
+        set_kde_color_theme("red")
+    elif 14 <= total_habit_count < 21:
+        set_kde_color_theme("orange")
+    elif 21 <= total_habit_count < 31:
+        set_kde_color_theme("green")
+    elif 31 <= total_habit_count < 42:
+        set_kde_color_theme("blue")
+    elif 42 <= total_habit_count < 49:
+        set_kde_color_theme("pink")
+    elif 49 <= total_habit_count < 56:
+        set_kde_color_theme("yellow")
 
-print(total_habit_count)
-#notify(str(total_habit_count))
+    print(total_habit_count)
+    notify(str(total_habit_count))
 
+main()
 
 
 
