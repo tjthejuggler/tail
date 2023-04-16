@@ -1,4 +1,21 @@
+the universe is putting out character# sometimes
+
 IMMEDIATE TODOS:
+
+
+HABITS:
+    stats to track
+        number of streaks that died on the day
+        cumulative srteaks days that died each day. For every streak that dies in a day, add up all the days of those streaks.
+        number of habits on longest streak
+        total number of current streaks
+        cumulative number of all streaks
+    
+
+PUNISHMENT / REWARD:
+    Punishment for ignoring covert warnings for too long can be that a character dies, maybe first someone gets hurt or sick or something as a warning, maybe a harsher warning can be someone getting permenantly disfigured. The potential of someone dying has that thing built into it where money and potential will be burnt
+    if ever anything is really bad then maybe we could rush right into a punishment. However, to counter this there can be some sort of behind the seeds saved up "extra life" type thing that can save the user from the bad thing even if they deserve it.
+    Reward (new characters or storylines) for doing especially good with habits.
 
 
 CHARACTER/STORY_SEED AUTO GENERATOR:
@@ -11,6 +28,8 @@ CHARACTER/STORY_SEED AUTO GENERATOR:
     A way to add variety to the types of characters being created
     Some characters could be based on just a specific item instead of a whole day
         for example, a person from a single podcast episode, or someone based on a single unusual experience
+    characters should keep track of their inspiration date
+    a way to ensure more unique characters, keep track of global character database and make sure that we are not getting
 
 NARRATOR:
     the narrator has access to everything, even inner dialog, and it puts everything together into story format.

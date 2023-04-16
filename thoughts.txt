@@ -1,24 +1,11 @@
-we can have a physical description as well as a mental model(currenty called description)
-    the physical description can be what other people use as your title until they learn your name
-        they have another option which is "set title" that they can do to set your title to something else as they learn more about you
+STORIES:
+    integrate big events - occasional big events in stories, characters die, people have babies, murders, etc.. it would be good if there was foreshadowing as well somehow
 
-we need a way to keep track of names that the reader knows
+CLIPBOARD IDEAS:
+    Instead of just using some clipboard items in story, give all the clipboard items (and dates/times) to a seperate ai and have it give a paragraph on what kind of a person would have such a clipboard history, and what kind of day they might have had, then use that as the audience we are writing for if trying to give them a trippy experience without them knowing that their clipboard was being used. 
+        when i give clipboard items i can just tell it how many of duplicates
 
-there should be occasional big events in stories, characters die, people have babies, murders, etc.. it would be good if there was foreshadowing as well somehow
 
-A long streak ending can also be taken into account with tail
-
-maybe involve anki cards created around certain dates in tail
-
-Instead of just using some clipboard items in story, give all the clipboard items (and dates/times) to a seperate ai and have it give a paragraph on what kind of a person would have such a clipboard history, and what kind of day they might have had, then use that as the audience we are writing for if trying to give them a trippy experience without them knowing that their clipboard was being used. 
-    when i give clipboard items i can just tell it how many of duplicates
-
--similarly, tell all habit stats(as well as weekly and monthly averages) and receive back a couple sentences on how the person is probably feeling about their day based on that. Possibly all this can be done together, or maybe seperate and then use the descriptions from each when making the story.
-
-SPLIT PERSONALITIES
-    Maybe the story can be greater if there are seperate character instances. There can be a narator/gm that makes world decisions, and seperate characters each with their own memory. There can also be an observer/writer that takes notes and keeps track of the most important/interesting bits.
-
-    Basically set up the AI to have a backstory, a personality, goals, and then put it into a sort of a text based role playing game. The situations and atmosphere can be made by another AI, but the characters should not have complete information, they should just be told what stuff they would actually know. Multiple characters can have genuine interactions and can each be born out of different time periods of the users life. After the character plays the game for a bit, then the log from its game can be passed of to another AI that dresses it up and turns it into a story.
 
 Tail could randomly choose an old todo item and incorporate it into a story and give it as a mission.
 

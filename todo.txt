@@ -1,7 +1,0 @@
-CREATE CUSTOM CHARACTER:
-    make a plan on how to create a character given a specific date
-    
-
-CLIPBOARD
-    computer python clipboard monitor gets turned off somehow
-        is there some way I can let myself know if the toggle is on, but text didnt go to clipboard?

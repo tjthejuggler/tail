@@ -28,4 +28,4 @@ create_story_seed()
     #create a universe
 
 
-#Punishment for ignoring covert warnings for too long can be that a character dies, maybe first someone gets hurt or sick or something as a warning, maybe a harsher warning can be someone getting permenantly disfigured. The potential of someone dying has that thing built into it where money and potential will be burnt
+

@@ -19,7 +19,7 @@ def on_dropdown_selected(event):
 
 def start_story(root, outer_text_box, token_label_var, cycles):    
     character_memories, universe_memory, user_character_labels = initialize_story(story_seed_file)
-    print('start_story universe_memory', universe_memory)
+    #print('start_story universe_memory', universe_memory)
     run_loop(root, outer_text_box, token_label_var, character_memories, universe_memory, user_character_labels, cycles)
 
 def setup_gui():
@@ -83,10 +83,10 @@ def insert_color_text(outer_text_box, inner_dialog, bot_num, outer_information_u
         insert_text_with_color(outer_text_box, universe_response, lime_green)
 
 def run_loop(root, outer_text_box, token_label_var, character_memories, universe_memory, user_character_labels, cycles):
-    print("run_loop", character_memories, universe_memory)
+    #print("run_loop", character_memories, universe_memory)
     inner_dialog, outer_information_bot_format, outer_information_user_format = "","",""
     total_tokens = 0
-    for cycle in range(cycles):
+    for cycle in range(20):
         for bot_num, bot_memory in enumerate(character_memories):
             try:                
                 if cycle == 0 and bot_num == 0:
@@ -97,7 +97,7 @@ def run_loop(root, outer_text_box, token_label_var, character_memories, universe
                 inner_dialog, outer_information_bot_format, outer_information_user_format, parse_tokens, universe_response, universe_memory, bot_memory = parse_character_response(bot_num, response, user_character_labels, bot_memory.gender, universe_memory, bot_memory, story_seed_file)
                 for other_bot_num, other_bot_memory in enumerate(character_memories):
                     if other_bot_num != bot_num:
-                        print("other_bot_num", other_bot_num, other_bot_memory)
+                        #print("other_bot_num", other_bot_num, other_bot_memory)
                         outer_information_bot_format_for_this_other_bot = replace_bot_known_labels(outer_information_bot_format, other_bot_memory)
                         other_bot_memory.append_to_last_user(outer_information_bot_format_for_this_other_bot)
                 total_tokens = handle_tokens(new_tokens + parse_tokens, total_tokens, token_label_var)
@@ -108,7 +108,7 @@ def run_loop(root, outer_text_box, token_label_var, character_memories, universe
             except Exception as e:
                 print("Error:", e)
                 break
-        create_history_file(total_tokens, story_seed_file, character_memories, universe_memory, user_character_labels)
+        #create_history_file(total_tokens, story_seed_file, character_memories, universe_memory, user_character_labels)
     print("Story complete.")
 
 def main():
