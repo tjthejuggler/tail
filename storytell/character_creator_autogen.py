@@ -13,12 +13,15 @@ def make_json(directory):
         my_json = json.load(f)
     return my_json
 
+with open('/home/lunkwill/projects/tail/obsidian_dir.txt', 'r') as f:
+    obsidian_dir = f.read().strip()
+
 #def get_available_dates():
-personal_records_dict = make_json('/home/lunkwill/Documents/obsidian_note_vault/noteVault/tail/personal_records.txt')
-apnea_records_dict = make_json('/home/lunkwill/Documents/obsidian_note_vault/noteVault/tail/apnea_records.txt')
-todo_items_dict = make_json('/home/lunkwill/Documents/obsidian_note_vault/noteVault/tail/tododb.txt')
-unusual_experiences_dict = make_json('/home/lunkwill/Documents/obsidian_note_vault/noteVault/tail/unusual_experiences.txt')
-podcast_descriptions_dict = make_json('/home/lunkwill/Documents/obsidian_note_vault/noteVault/tail/podcasts_history.txt')
+personal_records_dict = make_json(obsidian_dir+'tail/personal_records.txt')
+apnea_records_dict = make_json(obsidian_dir+'tail/apnea_records.txt')
+todo_items_dict = make_json(obsidian_dir+'tail/tododb.txt')
+unusual_experiences_dict = make_json(obsidian_dir+'tail/unusual_experiences.txt')
+podcast_descriptions_dict = make_json(obsidian_dir+'tail/podcasts_history.txt')
 
 def extract_dates_from_nested_dict(data):
     dates = set()

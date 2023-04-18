@@ -31,7 +31,7 @@ while true; do
 
             # Set the file path
             #file_path=~/Documents/obsidian_note_vault/noteVault/tail/clipboard/comp/$current_date.md
-            file_path=~/Documents/obsidian_note_vault/noteVault/tail/clipboard/comp/comp_clipboard.md
+            file_path=~/Documents/obsidyen/tail/clipboard/comp/comp_clipboard.md
 
             # Create the file if it doesn't exist
             touch "$file_path"

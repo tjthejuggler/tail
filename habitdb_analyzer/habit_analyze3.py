@@ -3,8 +3,11 @@ import numpy as np
 from scipy import stats
 import json
 
+with open('/home/lunkwill/projects/tail/obsidian_dir.txt', 'r') as f:
+    obsidian_dir = f.read().strip()
+
 # Load data from file
-data = json.load(open("/home/lunkwill/Documents/obsidian_note_vault/noteVault/habitsdb.txt"))
+data = json.load(open(obsidian_dir+"habitsdb.txt"))
 
 # Process data
 activities = list(data.keys())

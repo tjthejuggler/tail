@@ -2,6 +2,9 @@ import json
 import re
 from datetime import datetime
 
+with open('/home/lunkwill/projects/tail/obsidian_dir.txt', 'r') as f:
+    obsidian_dir = f.read().strip()
+
 def process_clipboard(file_path, suffix):
     with open(file_path, 'r') as file:
         text_with_dates = file.read()
@@ -23,12 +26,12 @@ def process_clipboard(file_path, suffix):
 
         txt_file_dict[date_time_obj.strftime(date_time_format) + suffix] = text_value
 
-with open('/home/lunkwill/Documents/obsidian_note_vault/noteVault/tail/clipboard/clipboarddb.txt', 'r') as file:
+with open(obsidian_dir+'tail/clipboard/clipboarddb.txt', 'r') as file:
     txt_file_dict = json.load(file)
 
 file_suffixes = [
-    ("/home/lunkwill/Documents/obsidian_note_vault/noteVault/tail/clipboard/comp/comp_clipboard.md", "c"),
-    ("/home/lunkwill/Documents/obsidian_note_vault/noteVault/tail/clipboard/phone/phone_clipboard.md", "p")
+    (obsidian_dir+"tail/clipboard/comp/comp_clipboard.md", "c"),
+    (obsidian_dir+"tail/clipboard/phone/phone_clipboard.md", "p")
 ]
 
 for file_path, suffix in file_suffixes:
@@ -42,5 +45,5 @@ for key, value in sorted_txt_file_dict.items():
     print(f"{key}: {value}")
 
 # Write the sorted dictionary to the file
-with open('/home/lunkwill/Documents/obsidian_note_vault/noteVault/tail/clipboard/clipboarddb.txt', 'w') as file:
+with open(obsidian_dir+'tail/clipboard/clipboarddb.txt', 'w') as file:
     json.dump(sorted_txt_file_dict, file, indent=4)

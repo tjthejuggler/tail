@@ -5,13 +5,16 @@ import subprocess
 import json
 import time
 
+with open('/home/lunkwill/projects/tail/obsidian_dir.txt', 'r') as f:
+    obsidian_dir = f.read().strip()
+
 def notify(text):
     print('text')    
     msg = "notify-send ' ' '"+text+"'"
     os.system(msg)
 
 def get_total_habit_count():
-    habitsdb_dir = '~/Documents/obsidian_note_vault/noteVault/habitsdb.txt'
+    habitsdb_dir = obsidian_dir+ 'habitsdb.txt'
     habitsdb_dir = os.path.expanduser(habitsdb_dir)
     with open(habitsdb_dir, 'r') as f:
         habitsdb = json.load(f)
@@ -21,7 +24,7 @@ def get_total_habit_count():
     for key, value in habitsdb.items():
         habitsdb_final_only[key] = list(value.values())[-1]
 
-    habitsdb_to_add_dir = '~/Documents/obsidian_note_vault/noteVault/habitsdb_to_add.txt'
+    habitsdb_to_add_dir = obsidian_dir+ 'habitsdb_to_add.txt'
     habitsdb_to_add_dir = os.path.expanduser(habitsdb_to_add_dir)
     with open(habitsdb_to_add_dir, 'r') as f:
         habitsdb_to_add = json.load(f)

@@ -4,8 +4,11 @@ import pandas as pd
 import os
 import json
 
-json_location = '~/Documents/obsidian_note_vault/noteVault/habitsdb.txt'
-json_location = os.path.expanduser(json_location)
+with open('/home/lunkwill/projects/tail/obsidian_dir.txt', 'r') as f:
+    obsidian_dir = f.read().strip()
+
+json_location = obsidian_dir+'habitsdb.txt'
+#json_location = os.path.expanduser(json_location)
 
 # with open(json_location, "r") as f:
 #     json_obj = json.load(f)

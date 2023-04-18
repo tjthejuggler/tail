@@ -1,0 +1,5 @@
+IMAGES
+figure out how to make a consistent character
+have a gn bot go from current storygen output to image prompts and graphic novel speech.
+it could make many options for each image 
+how to make it choose its own graphic novel layout, how the images are connected

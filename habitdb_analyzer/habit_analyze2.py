@@ -15,8 +15,11 @@ import json
 
 # Overall, the total score provides a useful metric for identifying highly unusual or anomalous days in the dataset. However, it's important to note that the interpretation of the total score will depend on the specific dataset and the habits being measured. It's always important to interpret the total score in the context of the specific habits being measured and the overall goals of the analysis.
 
+with open('/home/lunkwill/projects/tail/obsidian_dir.txt', 'r') as f:
+    obsidian_dir = f.read().strip()
+
 # load data from file
-data = json.load(open("/home/lunkwill/Documents/obsidian_note_vault/noteVault/habitsdb.txt"))
+data = json.load(open(obsidian_dir+"habitsdb.txt"))
 
 # loop through habits and update values
 for habit_name in data:

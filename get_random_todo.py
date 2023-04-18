@@ -1,7 +1,10 @@
 import re
 import random
 
-todo_file = '/home/lunkwill/Documents/obsidian_note_vault/noteVault/Inbox.md'
+with open('/home/lunkwill/projects/tail/obsidian_dir.txt', 'r') as f:
+    obsidian_dir = f.read().strip()
+
+todo_file = obsidian_dir+'/Inbox.md'
 
 #open this file
 with open(todo_file, 'r') as f:

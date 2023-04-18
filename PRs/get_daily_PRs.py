@@ -50,8 +50,10 @@ for s in suggestions_str:
 
     suggestions.append({"Name": name, "Description": description})
 
+with open('/home/lunkwill/projects/tail/obsidian_dir.txt', 'r') as f:
+    obsidian_dir = f.read().strip()
 
-personal_records_file = '/home/lunkwill/Documents/obsidian_note_vault/noteVault/personal_records.txt'
+personal_records_file = obsidian_dir+'personal_records.txt'
 
 # Load the existing personal records
 with open(personal_records_file, "r") as f:

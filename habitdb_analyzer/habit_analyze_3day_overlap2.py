@@ -5,8 +5,11 @@ from keras.models import Model
 from sklearn.preprocessing import StandardScaler
 import json
 
+with open('/home/lunkwill/projects/tail/obsidian_dir.txt', 'r') as f:
+    obsidian_dir = f.read().strip()
+
 # load data from file
-data = json.load(open("/home/lunkwill/Documents/obsidian_note_vault/noteVault/habitsdb.txt"))
+data = json.load(open(obsidian_dir+"habitsdb.txt"))
 
 
 # loop through habits and update values
