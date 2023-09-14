@@ -1,0 +1,34 @@
+this project uses create_dream_images.py and submitted_dreams.watchdog.sh
+
+set up gpt requests to make several different prompts from each sentence, and possibly even multiple different prompts from a sentence
+
+organize the stuff below
+
+make it separate each sentence in the file, then take the sentences and pass them individually through gpt4 along with prompt examples to have it get prompts(maybe it should focus on one sentence, but give the whole thing to chatgpt so it has extra conext) and make a bunch of images with the prompts it creates.
+
+---------
+
+ART STUFF
+should automatically tack on a bunch of different types of artists
+
+there should be a way to go deeper after image generation as well as to tell it to before
+
+--------
+
+TASKER THINGS
+I can show more recently added images more times in a row before going to the next image.
+
+there should be different modes that I can be in of showing images, this way I can occasionally switch from mode to mode. One mode can be one where I take 24,48,72(or something like this) Hours from the most recent image I have and make that period be the short term.
+
+ordered background also has a button to go to next. maybe it randomly chooses if its todaya or the whple runs. maybe today should be extended to the last few days. maybe next button should also have the randomizer in it bwtween short and long term.
+
+images should maybe not be random, but rather on a sequencial loop that alternates back and forth between today and all of history. to do thism keep track of what that last picture shown from today is as well as the last non-today pic
+
+maybe background dream likeliness should smoothly go down as it gets further away in time, however maybe likeliness should go back up again after awhile, maybe in waves
+
+---------
+
+MAYBE: 
+
+most important aspects and other aspects get randomized and I'm given a large set of images to choose from
+

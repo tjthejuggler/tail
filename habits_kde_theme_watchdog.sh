@@ -2,14 +2,23 @@
 
 echo "Script started at $(date)" >> /home/lunkwill/logs/logfile.log
 
-sleep 10
-
 file_to_watch="$HOME/Documents/obsidyen/habitsdb.txt"
 python_script="$HOME/projects/tail/habits_kde_theme.py"
+py_widget="$HOME/projects/py_habits_widget/py_widget.py"
 
+# Start the initial instance of python_widget
+python3 "$py_widget" &
+
+# Watch for file changes
 while true; do
-  inotifywait -e modify,attrib,move,close_write,create,delete,delete_self --timeout 10 "$file_to_watch"
-  if [ $? -eq 0 ]; then
+    inotifywait -e modify "$file_to_watch"
+    
+    # Kill the previous instance of python_widget
+    pkill -f "py_widget.py"
+    
+    # Run python_script
     python3 "$python_script"
-  fi
+    
+    # Start python_widget again
+    python3 "$py_widget" &
 done

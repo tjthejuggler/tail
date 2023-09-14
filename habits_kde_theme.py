@@ -13,41 +13,84 @@ def notify(text):
     msg = "notify-send ' ' '"+text+"'"
     os.system(msg)
 
+# def get_total_habit_count():
+#     habitsdb_dir = obsidian_dir+ 'habitsdb.txt'
+#     habitsdb_dir = os.path.expanduser(habitsdb_dir)
+#     with open(habitsdb_dir, 'r') as f:
+#         habitsdb = json.load(f)
+
+#     habitsdb_final_only = {}
+
+#     for key, value in habitsdb.items():
+#         habitsdb_final_only[key] = list(value.values())[-1]
+
+#     habitsdb_to_add_dir = obsidian_dir+ 'habitsdb_to_add.txt'
+#     habitsdb_to_add_dir = os.path.expanduser(habitsdb_to_add_dir)
+#     with open(habitsdb_to_add_dir, 'r') as f:
+#         habitsdb_to_add = json.load(f)
+
+#     total_habit_count = 0
+
+#     for this_dict in [habitsdb_final_only, habitsdb_to_add]:
+#         for key, value in this_dict.items():
+
+#             if "Pushups" in key:
+#                 value = round(value/30)
+#             elif "Situps" in key:
+#                 print(value)
+#                 value = round(value/50)
+#             elif "Squats" in key:
+#                 value = round(value/30)
+#                 print(value)
+#             elif "Cold Shower" in key:
+#                 if value > 0 and value < 3:
+#                     value = 3
+#                 value = round(value/3)            
+#             total_habit_count += value
+#     return total_habit_count
+
 def get_total_habit_count():
-    habitsdb_dir = obsidian_dir+ 'habitsdb.txt'
+    habitsdb_dir = obsidian_dir + 'habitsdb.txt'
     habitsdb_dir = os.path.expanduser(habitsdb_dir)
     with open(habitsdb_dir, 'r') as f:
         habitsdb = json.load(f)
-
-    habitsdb_final_only = {}
-
-    for key, value in habitsdb.items():
-        habitsdb_final_only[key] = list(value.values())[-1]
 
     habitsdb_to_add_dir = obsidian_dir+ 'habitsdb_to_add.txt'
     habitsdb_to_add_dir = os.path.expanduser(habitsdb_to_add_dir)
     with open(habitsdb_to_add_dir, 'r') as f:
         habitsdb_to_add = json.load(f)
 
-    total_habit_count = 0
+    total_habit_count, last_7_days_total, last_30_days_total = 0, 0, 0
 
-    for this_dict in [habitsdb_final_only, habitsdb_to_add]:
-        for key, value in this_dict.items():
+    def adjust_habit_count(count, habit_name):
+        if "Pushups" in habit_name:
+            return round(count / 30)
+        elif "Situps" in habit_name:
+            return round(count / 50)
+        elif "Squats" in habit_name:
+            return round(count / 30)
+        elif "Cold Shower" in habit_name:
+            if count > 0 and count < 3:
+                count = 3
+            return round(count / 3)
+        else:
+            return count
 
-            if "Pushups" in key:
-                value = round(value/30)
-            elif "Situps" in key:
-                print(value)
-                value = round(value/50)
-            elif "Squats" in key:
-                value = round(value/30)
-                print(value)
-            elif "Cold Shower" in key:
-                if value > 0 and value < 3:
-                    value = 3
-                value = round(value/3)            
-            total_habit_count += value
-    return total_habit_count
+    for key, habit_counts in habitsdb.items():
+        sorted_dates = sorted(habit_counts.keys(), reverse=True)
+        habit_to_add = habitsdb_to_add.get(key, 0)
+        today_habit = habit_counts[sorted_dates[0]] + habit_to_add
+        total_habit_count += adjust_habit_count(today_habit, key)
+
+        for date in sorted_dates[:7]:
+            last_7_days_total += adjust_habit_count(habit_counts[date], key)
+
+        for date in sorted_dates[:30]:
+            last_30_days_total += adjust_habit_count(habit_counts[date], key)
+
+    print(total_habit_count, last_7_days_total/7, last_30_days_total/30)
+    return last_7_days_total/7
+
 
 def set_kde_color_theme(theme):
     theme_package = {
