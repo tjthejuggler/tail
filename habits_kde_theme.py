@@ -125,7 +125,11 @@ def main():
     time.sleep(7) #this is to avoid incorrect habit counts due to the phone adding habits to habitsdb.txt before removing them from habitsdb_to_add.txt
     total_habit_count = get_total_habit_count()
 
-    print(total_habit_count)
+    #round total_habit_count up
+    total_habit_count = round(total_habit_count)
+
+    print(total_habit_count)  
+
 
     if total_habit_count < 14:
         set_kde_color_theme("red")
