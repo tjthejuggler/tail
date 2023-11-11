@@ -126,22 +126,22 @@ def main():
     total_habit_count = get_total_habit_count()
 
     #round total_habit_count up
-    total_habit_count = round(total_habit_count)
+    #total_habit_count = round(total_habit_count)
 
     print(total_habit_count)  
 
 
-    if total_habit_count < 14:
+    if total_habit_count < 13:
         set_kde_color_theme("red")
-    elif 14 <= total_habit_count < 21:
+    elif 13 < total_habit_count <= 20:
         set_kde_color_theme("orange")
-    elif 21 <= total_habit_count < 31:
+    elif 20 < total_habit_count <= 30:
         set_kde_color_theme("green")
-    elif 31 <= total_habit_count < 42:
+    elif 30 < total_habit_count <= 41:
         set_kde_color_theme("blue")
-    elif 42 <= total_habit_count < 49:
+    elif 41 < total_habit_count <= 48:
         set_kde_color_theme("pink")
-    elif 49 <= total_habit_count < 56:
+    elif 48 < total_habit_count <= 55:
         set_kde_color_theme("yellow")
 
     print(total_habit_count)
