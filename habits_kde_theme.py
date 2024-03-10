@@ -89,7 +89,28 @@ def get_total_habit_count():
             last_30_days_total += adjust_habit_count(habit_counts[date], key)
 
     print(total_habit_count, last_7_days_total/7, last_30_days_total/30)
-    return last_7_days_total/7
+    return(last_7_days_total/7, last_30_days_total/30)
+
+def set_keyboard_leds(theme):
+    #msi-perkeyrgb --id 1038:113a -s 00ff00
+    hex_color = {
+        "red": "ff0000",
+        "orange": "ff7f00",
+        "green": "00ff00",
+        "blue": "0000ff",
+        "pink": "ff00ff",
+        "yellow": "ffff00",
+        "transparent": "ffffff"
+    }
+    with open('/home/lunkwill/projects/tail/current_monthly_hex_code.txt', 'w') as f:
+        f.write(hex_color[theme])
+    with open('/home/lunkwill/projects/tail/use_plover_keys.txt', 'r') as f:
+        plover_keys = f.read().strip()
+    if plover_keys == "true":
+        #msi-perkeyrgb --id 1038:113a -c /home/lunkwill/projects/tail/plover_led_keys.txt
+        subprocess.run(["msi-perkeyrgb", "--id", "1038:113a", "-c", "/home/lunkwill/projects/tail/plover_led_keys.txt"])
+    else:
+        subprocess.run(["msi-perkeyrgb", "--id", "1038:113a", "-s", hex_color[theme]])
 
 
 def set_kde_color_theme(theme):
@@ -99,8 +120,12 @@ def set_kde_color_theme(theme):
         "green": "spectrum-mawsitsit",
         "blue": "Shadows-Global",
         "pink": "spectrum-strawberryquartz",
+        #"pink": "Gently",
         "yellow": "Neon-Knights-Yellow",
+        "transparent": "Glassy"
     }
+
+    #set_keyboard_leds(theme)
 
     if theme not in theme_package:
         print(f"Invalid theme name: {theme}")
@@ -120,32 +145,62 @@ def set_kde_color_theme(theme):
     except Exception as e:
         print(f"Failed to set KDE global theme to {theme}: {e}")
 
+def get_color_from_count(count):
+
+    if count < 13:
+        return "red"
+    elif 13 < count <= 20:
+        return "orange"
+    elif 20 < count <= 30:
+        return "green"
+    elif 30 < count <= 41:
+        return "blue"
+    elif 41 < count <= 48:
+        return "pink"
+    elif 48 < count <= 55:
+        return "yellow"
+    elif 55 < count <= 62:
+        return "transparent"
+    else:
+        return "transparent"
+
+
+
+
 def main():
     
     time.sleep(7) #this is to avoid incorrect habit counts due to the phone adding habits to habitsdb.txt before removing them from habitsdb_to_add.txt
-    total_habit_count = get_total_habit_count()
+    total_habit_count_weekly, total_habit_count_monthly = get_total_habit_count()
 
     #round total_habit_count up
     #total_habit_count = round(total_habit_count)
 
-    print(total_habit_count)  
+    print(total_habit_count_weekly)  
+
+    weekly_color = get_color_from_count(total_habit_count_weekly)
+    monthly_color = get_color_from_count(total_habit_count_monthly)
+
+    set_kde_color_theme(weekly_color)
+    set_keyboard_leds(monthly_color)
 
 
-    if total_habit_count < 13:
-        set_kde_color_theme("red")
-    elif 13 < total_habit_count <= 20:
-        set_kde_color_theme("orange")
-    elif 20 < total_habit_count <= 30:
-        set_kde_color_theme("green")
-    elif 30 < total_habit_count <= 41:
-        set_kde_color_theme("blue")
-    elif 41 < total_habit_count <= 48:
-        set_kde_color_theme("pink")
-    elif 48 < total_habit_count <= 55:
-        set_kde_color_theme("yellow")
+    # if total_habit_count_weekly < 13:
+    #     set_kde_color_theme("red")
+    # elif 13 < total_habit_count_weekly <= 20:
+    #     set_kde_color_theme("orange")
+    # elif 20 < total_habit_count_weekly <= 30:
+    #     set_kde_color_theme("green")
+    # elif 30 < total_habit_count_weekly <= 41:
+    #     set_kde_color_theme("blue")
+    # elif 41 < total_habit_count_weekly <= 48:
+    #     set_kde_color_theme("pink")
+    # elif 48 < total_habit_count_weekly <= 55:
+    #     set_kde_color_theme("yellow")
+    # elif 55 < total_habit_count_weekly <= 62:
+    #     set_kde_color_theme("transparent")
 
-    print(total_habit_count)
-    notify(str(total_habit_count))
+    print(total_habit_count_weekly)
+    notify(str(total_habit_count_weekly))
 
 main()
 
