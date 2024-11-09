@@ -5,7 +5,7 @@ echo "Script started at $(date)" >> /home/lunkwill/logs/logfile.log
 source /home/lunkwill/miniconda3/etc/profile.d/conda.sh  # Replace with the path to your conda.sh
 conda activate base
 
-file_to_watch="$HOME/Documents/obsidyen/habitsdb.txt"
+file_to_watch="$HOME/noteVault/habitsdb.txt"
 python_script="$HOME/projects/tail/habits_kde_theme.py"
 py_widget="$HOME/projects/py_habits_widget/py_widget.py"
 get_habits_daily_totals="$HOME/projects/py_habits_widget/get_habits_daily_totals.py"

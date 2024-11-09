@@ -2,7 +2,7 @@
 
 echo "Script started at $(date)" >> /home/lunkwill/logs/logfile.log
 
-file_to_watch="$HOME/Documents/obsidyen/submitted_dreams.txt"
+file_to_watch="$HOME/noteVault/submitted_dreams.txt"
 python_script="$HOME/projects/tail/create_dream_images.py"
 
 # Start the initial instance of python_widget
