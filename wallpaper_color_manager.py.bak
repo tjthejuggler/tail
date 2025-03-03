@@ -1,0 +1,396 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import json
+import logging
+import shutil
+import time
+from datetime import datetime
+from PIL import Image
+import numpy as np
+from sklearn.cluster import KMeans
+
+# Setup logging
+logging.basicConfig(
+    filename='/home/twain/logs/wallpaper_manager.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+# Constants
+BASE_DIR = "/home/twain/Pictures"
+WEEK_AVERAGE_FILE = "/home/twain/noteVault/habitCounters/week_average.txt"
+STATE_FILE = os.path.join(BASE_DIR, "llm_baby_monster_current", "state.json")
+
+# Color category directories
+COLOR_DIRS = {
+    "red": os.path.join(BASE_DIR, "llm_baby_monster_by_color", "red"),
+    "orange": os.path.join(BASE_DIR, "llm_baby_monster_by_color", "orange"),
+    "green": os.path.join(BASE_DIR, "llm_baby_monster_by_color", "green"),
+    "blue": os.path.join(BASE_DIR, "llm_baby_monster_by_color", "blue"),
+    "pink": os.path.join(BASE_DIR, "llm_baby_monster_by_color", "pink"),
+    "yellow": os.path.join(BASE_DIR, "llm_baby_monster_by_color", "yellow"),
+    "white_gray_black": os.path.join(BASE_DIR, "llm_baby_monster_by_color", "white_gray_black")
+}
+
+# Define color ranges in RGB
+COLOR_RANGES = {
+    "red": [(150, 0, 0), (255, 100, 100)],
+    "orange": [(150, 75, 0), (255, 200, 100)],
+    "green": [(0, 150, 0), (100, 255, 100)],
+    "blue": [(0, 0, 150), (100, 100, 255)],
+    "pink": [(150, 0, 150), (255, 100, 255)],
+    "yellow": [(150, 150, 0), (255, 255, 100)],
+    "white_gray_black": [(0, 0, 0), (255, 255, 255)]  # This is a catch-all
+}
+
+def setup_directory_structure():
+    """
+    Create the necessary directory structure for the wallpaper color management system.
+    """
+    # Define all directories
+    directories = [
+        "llm_baby_monster_original",
+        "llm_baby_monster_new",
+        "llm_baby_monster_by_color",
+        "llm_baby_monster_by_color/red",
+        "llm_baby_monster_by_color/orange",
+        "llm_baby_monster_by_color/green",
+        "llm_baby_monster_by_color/blue",
+        "llm_baby_monster_by_color/pink",
+        "llm_baby_monster_by_color/yellow",
+        "llm_baby_monster_by_color/white_gray_black",
+        "llm_baby_monster_current"
+    ]
+    
+    # Create directories if they don't exist
+    for directory in directories:
+        full_path = os.path.join(BASE_DIR, directory)
+        if not os.path.exists(full_path):
+            os.makedirs(full_path)
+            logging.info(f"Created directory: {full_path}")
+    
+    # Copy existing images to original directory if it's empty
+    original_dir = os.path.join(BASE_DIR, "llm_baby_monster_original")
+    source_dir = os.path.join(BASE_DIR, "llm_baby_monster")
+    
+    if os.path.exists(source_dir) and os.path.isdir(original_dir) and not os.listdir(original_dir):
+        for filename in os.listdir(source_dir):
+            if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+                source_file = os.path.join(source_dir, filename)
+                dest_file = os.path.join(original_dir, filename)
+                if os.path.isfile(source_file):
+                    shutil.copy2(source_file, dest_file)
+        logging.info(f"Copied existing images to {original_dir}")
+
+def analyze_image_color(image_path):
+    """
+    Analyze an image to determine its dominant color category.
+    
+    Args:
+        image_path: Path to the image file
+        
+    Returns:
+        String representing the color category
+    """
+    try:
+        # Open image and resize for faster processing
+        img = Image.open(image_path)
+        img = img.resize((100, 100))
+        img = img.convert('RGB')
+        
+        # Convert image to numpy array
+        img_array = np.array(img)
+        img_array = img_array.reshape((img_array.shape[0] * img_array.shape[1], 3))
+        
+        # Use k-means clustering to find dominant colors
+        kmeans = KMeans(n_clusters=5)
+        kmeans.fit(img_array)
+        
+        # Get the colors and their percentages
+        colors = kmeans.cluster_centers_
+        labels = kmeans.labels_
+        label_counts = np.bincount(labels)
+        percentages = label_counts / len(labels)
+        
+        # Combine colors and percentages
+        color_percentages = list(zip(colors, percentages))
+        
+        # Sort by percentage (descending)
+        color_percentages.sort(key=lambda x: x[1], reverse=True)
+        
+        # Determine the dominant color category
+        dominant_color = color_percentages[0][0]
+        
+        # Map RGB to color category
+        return map_rgb_to_category(dominant_color)
+        
+    except Exception as e:
+        logging.error(f"Error analyzing image {image_path}: {e}")
+        return "white_gray_black"  # Default to this category on error
+
+def map_rgb_to_category(rgb):
+    """
+    Map an RGB color to one of our predefined categories.
+    
+    Args:
+        rgb: Numpy array of RGB values
+        
+    Returns:
+        String representing the color category
+    """
+    # Calculate distance to each color range
+    min_distances = {}
+    
+    for category, ranges in COLOR_RANGES.items():
+        min_range, max_range = ranges
+        
+        # Check if color is within range
+        if all(min_range[i] <= rgb[i] <= max_range[i] for i in range(3)):
+            return category
+        
+        # Calculate minimum distance to range
+        min_dist = 0
+        for i in range(3):
+            if rgb[i] < min_range[i]:
+                min_dist += (min_range[i] - rgb[i]) ** 2
+            elif rgb[i] > max_range[i]:
+                min_dist += (rgb[i] - max_range[i]) ** 2
+        
+        min_distances[category] = min_dist
+    
+    # Return category with minimum distance
+    return min(min_distances.items(), key=lambda x: x[1])[0]
+
+def process_new_images(new_dir, original_dir, color_dirs):
+    """
+    Process new images, analyze their colors, and organize them.
+    
+    Args:
+        new_dir: Directory containing new images
+        original_dir: Directory to store original copies
+        color_dirs: Dictionary mapping color categories to directories
+    
+    Returns:
+        Number of images processed
+    """
+    processed_count = 0
+    
+    for filename in os.listdir(new_dir):
+        if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+            image_path = os.path.join(new_dir, filename)
+            
+            # Skip if not a file
+            if not os.path.isfile(image_path):
+                continue
+                
+            # Analyze color
+            color_category = analyze_image_color(image_path)
+            
+            # Copy to original directory
+            original_path = os.path.join(original_dir, filename)
+            shutil.copy2(image_path, original_path)
+            
+            # Create symlink in appropriate color directory
+            color_dir = color_dirs[color_category]
+            symlink_path = os.path.join(color_dir, filename)
+            
+            # Remove existing symlink if it exists
+            if os.path.exists(symlink_path):
+                os.remove(symlink_path)
+                
+            # Create new symlink
+            os.symlink(original_path, symlink_path)
+            
+            # Remove from new directory
+            os.remove(image_path)
+            
+            processed_count += 1
+            logging.info(f"Processed image {filename} as {color_category}")
+            
+    return processed_count
+
+def get_color_from_count(count):
+    """
+    Determine color category based on habit count.
+    """
+    if count < 13:
+        return "red"
+    elif 13 < count <= 20:
+        return "orange"
+    elif 20 < count <= 30:
+        return "green"
+    elif 30 < count <= 41:
+        return "blue"
+    elif 41 < count <= 48:
+        return "pink"
+    elif 48 < count <= 55:
+        return "yellow"
+    else:
+        return "white_gray_black"
+
+def get_weekly_average():
+    """
+    Read the weekly average from the file.
+    """
+    try:
+        with open(WEEK_AVERAGE_FILE, 'r') as f:
+            return float(f.read().strip())
+    except Exception as e:
+        logging.error(f"Error reading weekly average: {e}")
+        return 0
+
+def get_current_state():
+    """
+    Read the current state from the state file.
+    """
+    if not os.path.exists(STATE_FILE):
+        return {"last_color": None, "last_update": None}
+    
+    try:
+        with open(STATE_FILE, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        logging.error(f"Error reading state file: {e}")
+        return {"last_color": None, "last_update": None}
+
+def save_current_state(color):
+    """
+    Save the current state to the state file.
+    """
+    state = {
+        "last_color": color,
+        "last_update": datetime.now().isoformat()
+    }
+    
+    try:
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
+        
+        with open(STATE_FILE, 'w') as f:
+            json.dump(state, f, indent=2)
+    except Exception as e:
+        logging.error(f"Error saving state file: {e}")
+
+def update_wallpaper_directory(color):
+    """
+    Update the KDE wallpaper directory to point to the appropriate color directory.
+    """
+    wallpaper_dir = os.path.join(BASE_DIR, "llm_baby_monster")
+    color_dir = COLOR_DIRS[color]
+    
+    try:
+        # Check if there are images in the color directory
+        if not os.path.exists(color_dir) or not os.listdir(color_dir):
+            logging.warning(f"No images in {color} directory. Using white_gray_black instead.")
+            color = "white_gray_black"
+            color_dir = COLOR_DIRS[color]
+            
+            # If still no images, log error and return
+            if not os.path.exists(color_dir) or not os.listdir(color_dir):
+                logging.error("No images in any color directory. Cannot update wallpaper.")
+                return False
+        
+        # Clear existing wallpaper directory
+        for item in os.listdir(wallpaper_dir):
+            item_path = os.path.join(wallpaper_dir, item)
+            if os.path.islink(item_path) or os.path.isfile(item_path):
+                os.remove(item_path)
+        
+        # Create symlinks to all images in the color directory
+        for filename in os.listdir(color_dir):
+            source = os.path.join(color_dir, filename)
+            target = os.path.join(wallpaper_dir, filename)
+            
+            # Only create symlinks for files, not directories
+            if os.path.isfile(source):
+                os.symlink(source, target)
+        
+        logging.info(f"Updated wallpaper directory to {color} category")
+        return True
+    except Exception as e:
+        logging.error(f"Error updating wallpaper directory: {e}")
+        return False
+
+def categorize_existing_images():
+    """
+    Categorize all existing images in the original directory.
+    """
+    original_dir = os.path.join(BASE_DIR, "llm_baby_monster_original")
+    
+    if not os.path.exists(original_dir):
+        logging.error(f"Original directory {original_dir} does not exist")
+        return 0
+    
+    categorized_count = 0
+    
+    for filename in os.listdir(original_dir):
+        if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+            image_path = os.path.join(original_dir, filename)
+            
+            # Skip if not a file
+            if not os.path.isfile(image_path):
+                continue
+                
+            # Analyze color
+            color_category = analyze_image_color(image_path)
+            
+            # Create symlink in appropriate color directory
+            color_dir = COLOR_DIRS[color_category]
+            symlink_path = os.path.join(color_dir, filename)
+            
+            # Skip if symlink already exists
+            if os.path.exists(symlink_path):
+                continue
+                
+            # Create new symlink
+            os.symlink(image_path, symlink_path)
+            
+            categorized_count += 1
+            
+    if categorized_count > 0:
+        logging.info(f"Categorized {categorized_count} existing images")
+    
+    return categorized_count
+
+def main():
+    try:
+        # Ensure logs directory exists
+        os.makedirs('/home/twain/logs', exist_ok=True)
+        
+        # Ensure directory structure exists
+        setup_directory_structure()
+        
+        # Categorize existing images if needed
+        categorize_existing_images()
+        
+        # Process any new images
+        new_dir = os.path.join(BASE_DIR, "llm_baby_monster_new")
+        original_dir = os.path.join(BASE_DIR, "llm_baby_monster_original")
+        processed_count = process_new_images(new_dir, original_dir, COLOR_DIRS)
+        
+        if processed_count > 0:
+            logging.info(f"Processed {processed_count} new images")
+        
+        # Get weekly average and determine color
+        weekly_average = get_weekly_average()
+        current_color = get_color_from_count(weekly_average)
+        
+        # Get current state
+        state = get_current_state()
+        
+        # Update wallpaper directory if color has changed
+        if current_color != state["last_color"]:
+            if update_wallpaper_directory(current_color):
+                save_current_state(current_color)
+                logging.info(f"Changed wallpaper color to {current_color} (weekly average: {weekly_average})")
+        
+    except Exception as e:
+        logging.error(f"Unexpected error in main function: {e}")
+        return 1
+    
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

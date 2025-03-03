@@ -5,7 +5,7 @@ import subprocess
 import json
 import time
 
-with open('/home/lunkwill/projects/tail/obsidian_dir.txt', 'r') as f:
+with open('/home/twain/Projects/tail/obsidian_dir.txt', 'r') as f:
     obsidian_dir = f.read().strip()
 
 def notify(text):
@@ -102,13 +102,13 @@ def set_keyboard_leds(theme):
         "yellow": "ffff00",
         "transparent": "ffffff"
     }
-    with open('/home/lunkwill/projects/tail/current_monthly_hex_code.txt', 'w') as f:
+    with open('/home/twain/Projects/tail/current_monthly_hex_code.txt', 'w') as f:
         f.write(hex_color[theme])
-    with open('/home/lunkwill/projects/tail/use_plover_keys.txt', 'r') as f:
+    with open('/home/twain/Projects/tail/use_plover_keys.txt', 'r') as f:
         plover_keys = f.read().strip()
     if plover_keys == "true":
-        #msi-perkeyrgb --id 1038:113a -c /home/lunkwill/projects/tail/plover_led_keys.txt
-        subprocess.run(["msi-perkeyrgb", "--id", "1038:113a", "-c", "/home/lunkwill/projects/tail/plover_led_keys.txt"])
+        #msi-perkeyrgb --id 1038:113a -c /home/twain/Projects/tail/plover_led_keys.txt
+        subprocess.run(["msi-perkeyrgb", "--id", "1038:113a", "-c", "/home/twain/Projects/tail/plover_led_keys.txt"])
     else:
         subprocess.run(["msi-perkeyrgb", "--id", "1038:113a", "-s", hex_color[theme]])
 
