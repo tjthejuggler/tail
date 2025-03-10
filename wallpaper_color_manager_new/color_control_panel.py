@@ -258,6 +258,39 @@ class ColorControlPanel:
         )
         add_button.pack(side=tk.RIGHT, padx=5)
         
+        # New images directory frame
+        new_images_frame = ttk.LabelFrame(self.main_tab, text="New Images Directory")
+        new_images_frame.pack(fill=tk.X, pady=5)
+        
+        # Directory selection
+        dir_frame = ttk.Frame(new_images_frame)
+        dir_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        # Directory label
+        ttk.Label(dir_frame, text="Directory:").pack(side=tk.LEFT, padx=5)
+        
+        # Directory entry
+        self.new_images_dir_var = tk.StringVar(value="")
+        dir_entry = ttk.Entry(dir_frame, textvariable=self.new_images_dir_var, width=40)
+        dir_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+        
+        # Browse button
+        browse_button = ttk.Button(
+            dir_frame,
+            text="Browse...",
+            command=self.browse_new_images_dir
+        )
+        browse_button.pack(side=tk.LEFT, padx=5)
+        
+        # Help text
+        help_text = ttk.Label(
+            new_images_frame,
+            text="Leave empty to process all images in the original directory (will reset existing categories).\n"
+                 "Specify a directory to only process new images from that location (will add to existing categories).",
+            wraplength=800
+        )
+        help_text.pack(fill=tk.X, padx=5, pady=5)
+        
         # Action frame
         action_frame = ttk.Frame(self.main_tab)
         action_frame.pack(fill=tk.X, pady=5)
@@ -1082,15 +1115,41 @@ class ColorControlPanel:
             # Re-enable UI
             self.root.after(0, self.enable_ui)
     
+    def browse_new_images_dir(self):
+        """
+        Open a directory selection dialog for new images.
+        """
+        # Open directory dialog
+        directory = filedialog.askdirectory(
+            title="Select New Images Directory"
+        )
+        
+        if directory:
+            self.new_images_dir_var.set(directory)
+            self.status_var.set(f"Selected new images directory: {directory}")
+    
     def run_analysis(self):
         """
         Run the analysis process.
         """
+        # Check if a custom directory is specified
+        custom_dir = self.new_images_dir_var.get().strip()
+        
+        # Prepare confirmation message
+        if custom_dir:
+            message = (f"Are you sure you want to run the analysis process?\n\n"
+                      f"This will process images from the custom directory:\n"
+                      f"{custom_dir}\n\n"
+                      f"and categorize them based on current thresholds and color detection settings.")
+        else:
+            message = ("Are you sure you want to run the analysis process?\n\n"
+                      "This will categorize all images in the original directory based on current "
+                      "thresholds and color detection settings.")
+        
         # Confirm with user
         result = messagebox.askyesno(
             "Confirm Analysis",
-            "Are you sure you want to run the analysis process?\n\n"
-            "This will categorize all images based on current thresholds and color detection settings."
+            message
         )
         
         if not result:
@@ -1110,39 +1169,69 @@ class ColorControlPanel:
         Run analysis in a separate thread.
         """
         try:
-            # First reset categories
-            reset_stats = file_operations.reset_categories(self.config)
-            
-            # Update UI
-            self.root.after(0, lambda: self.status_var.set(
-                f"Reset complete. Analyzing images..."
-            ))
-            
             # Get color parameters
             color_params = self.get_color_params()
             
-            # Process new images
-            new_stats = file_operations.process_new_images(
-                self.config,
-                lambda path, thresholds, *args: color_analysis.analyze_and_categorize(
-                    path, thresholds, tuple(self.config["resize_dimensions"]), color_params,
-                    self.config.get("color_selection_limits")
-                )
-            )
+            # Check if a custom directory is specified
+            custom_dir = self.new_images_dir_var.get().strip()
             
-            # Update UI
-            self.root.after(0, lambda: self.status_var.set(
-                f"Processed new images. Categorizing existing images..."
-            ))
-            
-            # Categorize existing images
-            existing_stats = file_operations.categorize_existing_images(
-                self.config,
-                lambda path, thresholds, *args: color_analysis.analyze_and_categorize(
-                    path, thresholds, tuple(self.config["resize_dimensions"]), color_params,
-                    self.config.get("color_selection_limits")
+            if custom_dir:
+                # When using a custom directory, we don't reset categories
+                # We just add the new images to the existing categories
+                reset_stats = {"total_removed": 0, "errors": 0}
+                
+                # Create a copy of the config with the custom directory
+                custom_config = self.config.copy()
+                custom_config["paths"] = self.config["paths"].copy()
+                custom_config["paths"]["original_dir"] = custom_dir
+                
+                # Process images from the custom directory
+                self.root.after(0, lambda: self.status_var.set(
+                    f"Processing images from custom directory: {custom_dir}..."
+                ))
+                
+                # Process new images from custom directory
+                new_stats = file_operations.process_new_images(
+                    custom_config,
+                    lambda path, thresholds, *args: color_analysis.analyze_and_categorize(
+                        path, thresholds, tuple(self.config["resize_dimensions"]), color_params,
+                        self.config.get("color_selection_limits")
+                    )
                 )
-            )
+                
+                # Skip categorizing existing images since we're only processing the custom directory
+                existing_stats = {"processed": 0, "errors": 0, "categories": {}}
+            else:
+                # For the original directory, first reset categories
+                reset_stats = file_operations.reset_categories(self.config)
+                
+                # Update UI
+                self.root.after(0, lambda: self.status_var.set(
+                    f"Reset complete. Analyzing images..."
+                ))
+                
+                # Process new images from the original directory in config
+                new_stats = file_operations.process_new_images(
+                    self.config,
+                    lambda path, thresholds, *args: color_analysis.analyze_and_categorize(
+                        path, thresholds, tuple(self.config["resize_dimensions"]), color_params,
+                        self.config.get("color_selection_limits")
+                    )
+                )
+                
+                # Update UI
+                self.root.after(0, lambda: self.status_var.set(
+                    f"Processed new images. Categorizing existing images..."
+                ))
+                
+                # Categorize existing images
+                existing_stats = file_operations.categorize_existing_images(
+                    self.config,
+                    lambda path, thresholds, *args: color_analysis.analyze_and_categorize(
+                        path, thresholds, tuple(self.config["resize_dimensions"]), color_params,
+                        self.config.get("color_selection_limits")
+                    )
+                )
             
             # Update UI
             self.root.after(0, lambda: self.status_var.set(
@@ -1151,6 +1240,11 @@ class ColorControlPanel:
             
             # Prepare result message
             message = "Analysis completed.\n\n"
+            
+            # Add information about the directory used
+            custom_dir = self.new_images_dir_var.get().strip()
+            if custom_dir:
+                message += f"Processed images from custom directory:\n{custom_dir}\n\n"
             
             if new_stats["processed"] > 0:
                 message += f"Processed {new_stats['processed']} new images.\n"
@@ -1163,13 +1257,13 @@ class ColorControlPanel:
             # Combine category counts
             category_counts = {}
             for category in self.config["color_thresholds"]:
-                count = (new_stats["categories"].get(category, 0) + 
+                count = (new_stats["categories"].get(category, 0) +
                         existing_stats["categories"].get(category, 0))
                 category_counts[category] = count
                 message += f"  {category}: {count} images\n"
             
             # Show result
-            total_errors = (reset_stats["errors"] + new_stats["errors"] + 
+            total_errors = (reset_stats["errors"] + new_stats["errors"] +
                            existing_stats["errors"])
             
             if total_errors > 0:
@@ -1183,6 +1277,10 @@ class ColorControlPanel:
                     "Analysis Complete",
                     message
                 ))
+                
+            # Clear the custom directory field after processing
+            if custom_dir:
+                self.root.after(0, lambda: self.new_images_dir_var.set(""))
             
         except Exception as e:
             logger.error(f"Error running analysis: {e}")
