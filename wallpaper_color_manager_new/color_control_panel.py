@@ -90,6 +90,9 @@ class ColorControlPanel:
         self.color_picker_current_pos = None
         self.color_picker_selection = None
         
+        # Track processed files
+        self.processed_files = self.config.get("processed_files", {})
+        
         # Create UI
         self.create_ui()
         
@@ -269,8 +272,9 @@ class ColorControlPanel:
         # Directory label
         ttk.Label(dir_frame, text="Directory:").pack(side=tk.LEFT, padx=5)
         
-        # Directory entry
-        self.new_images_dir_var = tk.StringVar(value="")
+        # Directory entry - load from config if available
+        last_dir = self.config.get("last_analysis_dir", "")
+        self.new_images_dir_var = tk.StringVar(value=last_dir)
         dir_entry = ttk.Entry(dir_frame, textvariable=self.new_images_dir_var, width=40)
         dir_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
         
@@ -295,13 +299,25 @@ class ColorControlPanel:
         action_frame = ttk.Frame(self.main_tab)
         action_frame.pack(fill=tk.X, pady=5)
         
-        # Reset button
+        # Button frame for reset options
+        reset_frame = ttk.Frame(action_frame)
+        reset_frame.pack(side=tk.LEFT)
+        
+        # Reset Categories button
         reset_button = ttk.Button(
-            action_frame,
+            reset_frame,
             text="Reset Categories",
             command=self.reset_categories
         )
         reset_button.pack(side=tk.LEFT, padx=5)
+        
+        # Restart Sorting button
+        restart_button = ttk.Button(
+            reset_frame,
+            text="Restart Sorting",
+            command=self.restart_sorting
+        )
+        restart_button.pack(side=tk.LEFT, padx=5)
         
         # Run button
         run_button = ttk.Button(
@@ -383,6 +399,15 @@ class ColorControlPanel:
             hue_frame = ttk.LabelFrame(color_tab, text="Hue Ranges (0-360°)")
             hue_frame.pack(fill=tk.X, padx=10, pady=5)
             
+            # Add weight explanation
+            weight_info = ttk.Label(
+                hue_frame,
+                text="Note: Weights have an enhanced effect (squared internally for stronger impact)",
+                font=("Arial", 8, "italic"),
+                foreground="blue"
+            )
+            weight_info.pack(fill=tk.X, padx=5, pady=2)
+            
             hue_ranges = color_params.get("hue_ranges",
                                          color_analysis.DEFAULT_COLOR_DETECTION_PARAMS[color]["hue_ranges"])
             
@@ -435,6 +460,32 @@ class ColorControlPanel:
                 # Store variables
                 self.color_param_vars[color]["hue_ranges"].append((min_var, max_var))
                 
+                # Weight slider
+                weight_label = ttk.Label(range_frame, text="Weight:")
+                weight_label.pack(side=tk.LEFT, padx=5)
+                
+                # Get weight from config if available, otherwise default to 1.0
+                weight_value = 1.0
+                if "hue_weights" in color_params and i < len(color_params["hue_weights"]):
+                    weight_value = color_params["hue_weights"][i]
+                
+                weight_var = tk.DoubleVar(value=weight_value)
+                weight_spinbox = ttk.Spinbox(
+                    range_frame,
+                    from_=0.1,
+                    to=20.0,  # Increased maximum to allow for stronger weights
+                    increment=0.5,  # Larger increment for easier adjustment
+                    width=5,
+                    textvariable=weight_var,
+                    command=lambda c=color: self.on_color_param_change(c)
+                )
+                weight_spinbox.pack(side=tk.LEFT, padx=5)
+                
+                # Store weight variable
+                if "weights" not in self.color_param_vars[color]:
+                    self.color_param_vars[color]["weights"] = []
+                self.color_param_vars[color]["weights"].append(weight_var)
+
                 # Add/remove buttons
                 if i == 0:
                     # Add button for first range
@@ -446,8 +497,6 @@ class ColorControlPanel:
                     add_button.pack(side=tk.LEFT, padx=5)
                 else:
                     # Remove button for additional ranges
-                    # Use a direct reference to the current index, not a variable in the loop
-                    # This ensures each button gets its own unique index
                     current_idx = i  # Create a local variable that won't change
                     remove_button = ttk.Button(
                         range_frame,
@@ -925,13 +974,14 @@ class ColorControlPanel:
                 if color != "white_gray_black" and color in range_sizes and color in range_weights:
                     size = range_sizes[color]
                     weight = range_weights[color]
+                    # Show the effective weight (squared) to help user understand the impact
                     label_text += f" (Size: {size:.0f}°, Weight: {weight:.1f}x)"
                 
                 self.plot.text(v + 1, i, label_text, va='center')
             
             # Set labels and title
-            self.plot.set_xlabel("Percentage (with Range Size and Weight)")
-            self.plot.set_title("Color Distribution with Range Weighting")
+            self.plot.set_xlabel("Percentage (with Enhanced Weighting)")
+            self.plot.set_title("Color Distribution with Enhanced Weight Effect")
             
             # Set x-axis limits
             self.plot.set_xlim(0, 100)
@@ -1126,6 +1176,9 @@ class ColorControlPanel:
         
         if directory:
             self.new_images_dir_var.set(directory)
+            # Save to configuration
+            self.config["last_analysis_dir"] = directory
+            config_manager.save_config(self.config, self.config_path)
             self.status_var.set(f"Selected new images directory: {directory}")
     
     def run_analysis(self):
@@ -1175,6 +1228,22 @@ class ColorControlPanel:
             # Check if a custom directory is specified
             custom_dir = self.new_images_dir_var.get().strip()
             
+            # Save current analysis settings
+            current_settings = {
+                "color_thresholds": self.config["color_thresholds"].copy(),
+                "color_detection_params": self.config["color_detection_params"].copy(),
+                "color_selection_limits": self.config["color_selection_limits"].copy(),
+                "timestamp": time.time()
+            }
+            
+            # Create a settings hash for tracking processed files
+            settings_hash = str(hash(str(current_settings)))
+            self.config["last_analysis_settings"] = current_settings
+            
+            # Initialize processed files tracking for this settings hash if needed
+            if settings_hash not in self.processed_files:
+                self.processed_files[settings_hash] = []
+            
             if custom_dir:
                 # When using a custom directory, we don't reset categories
                 # We just add the new images to the existing categories
@@ -1190,13 +1259,11 @@ class ColorControlPanel:
                     f"Processing images from custom directory: {custom_dir}..."
                 ))
                 
-                # Process new images from custom directory
-                new_stats = file_operations.process_new_images(
+                # Process new images from custom directory with file tracking
+                new_stats = self.process_new_images_with_tracking(
                     custom_config,
-                    lambda path, thresholds, *args: color_analysis.analyze_and_categorize(
-                        path, thresholds, tuple(self.config["resize_dimensions"]), color_params,
-                        self.config.get("color_selection_limits")
-                    )
+                    color_params,
+                    settings_hash
                 )
                 
                 # Skip categorizing existing images since we're only processing the custom directory
@@ -1210,13 +1277,11 @@ class ColorControlPanel:
                     f"Reset complete. Analyzing images..."
                 ))
                 
-                # Process new images from the original directory in config
-                new_stats = file_operations.process_new_images(
+                # Process new images from the original directory in config with file tracking
+                new_stats = self.process_new_images_with_tracking(
                     self.config,
-                    lambda path, thresholds, *args: color_analysis.analyze_and_categorize(
-                        path, thresholds, tuple(self.config["resize_dimensions"]), color_params,
-                        self.config.get("color_selection_limits")
-                    )
+                    color_params,
+                    settings_hash
                 )
                 
                 # Update UI
@@ -1224,14 +1289,16 @@ class ColorControlPanel:
                     f"Processed new images. Categorizing existing images..."
                 ))
                 
-                # Categorize existing images
-                existing_stats = file_operations.categorize_existing_images(
+                # Categorize existing images with file tracking
+                existing_stats = self.process_new_images_with_tracking(
                     self.config,
-                    lambda path, thresholds, *args: color_analysis.analyze_and_categorize(
-                        path, thresholds, tuple(self.config["resize_dimensions"]), color_params,
-                        self.config.get("color_selection_limits")
-                    )
+                    color_params,
+                    settings_hash
                 )
+            
+            # Save processed files to config
+            self.config["processed_files"] = self.processed_files
+            config_manager.save_config(self.config, self.config_path)
             
             # Update UI
             self.root.after(0, lambda: self.status_var.set(
@@ -1380,7 +1447,11 @@ class ColorControlPanel:
             
             # Remove the variables directly from the color parameters
             if index < len(self.color_param_vars[color]["hue_ranges"]):
+                # Remove hue range
                 del self.color_param_vars[color]["hue_ranges"][index]
+                # Remove corresponding weight if it exists
+                if "weights" in self.color_param_vars[color] and index < len(self.color_param_vars[color]["weights"]):
+                    del self.color_param_vars[color]["weights"][index]
                 
                 # Update the configuration immediately
                 if "color_detection_params" not in self.config:
@@ -1440,11 +1511,20 @@ class ColorControlPanel:
             else:
                 # Regular colors
                 hue_ranges = []
-                for min_var, max_var in self.color_param_vars[color]["hue_ranges"]:
+                hue_weights = []
+                
+                # Get hue ranges and weights
+                for i, (min_var, max_var) in enumerate(self.color_param_vars[color]["hue_ranges"]):
                     hue_ranges.append([min_var.get(), max_var.get()])
+                    # Get weight if available, default to 1.0
+                    weight = 1.0
+                    if "weights" in self.color_param_vars[color] and i < len(self.color_param_vars[color]["weights"]):
+                        weight = self.color_param_vars[color]["weights"][i].get()
+                    hue_weights.append(weight)
                 
                 color_params[color] = {
                     "hue_ranges": hue_ranges,
+                    "hue_weights": hue_weights,
                     "saturation_range": [
                         self.color_param_vars[color]["saturation_min"].get(),
                         self.color_param_vars[color]["saturation_max"].get()
@@ -2275,6 +2355,168 @@ class ColorControlPanel:
             "Reset Complete",
             "Color selection limits have been reset to defaults."
         )
+    
+    def restart_sorting(self):
+        """
+        Restart sorting by removing all symlinks from color folders and the main folder.
+        This provides a fresh start for sorting with new settings.
+        """
+        # Confirm with user
+        result = messagebox.askyesno(
+            "Confirm Restart",
+            "Are you sure you want to restart sorting?\n\n"
+            "This will remove all symlinks from color folders and the main folder,\n"
+            "allowing you to start fresh with new color sort settings."
+        )
+        
+        if not result:
+            return
+        
+        # Disable UI during restart
+        self.disable_ui()
+        self.status_var.set("Restarting sorting...")
+        
+        # Run restart in a separate thread
+        thread = threading.Thread(target=self._restart_sorting_thread)
+        thread.daemon = True
+        thread.start()
+    
+    def _restart_sorting_thread(self):
+        """
+        Restart sorting in a separate thread.
+        """
+        try:
+            # Use the restart_sorting function to remove symlinks from both color folders and main folder
+            stats = file_operations.restart_sorting(self.config)
+            
+            # Update UI
+            self.root.after(0, lambda: self.status_var.set(
+                f"Restart complete: {stats['total_removed']} symlinks removed, "
+                f"{stats['errors']} errors"
+            ))
+            
+            # Show result
+            if stats["errors"] > 0:
+                self.root.after(0, lambda: messagebox.showwarning(
+                    "Restart Complete",
+                    f"Restart completed with {stats['errors']} errors.\n\n"
+                    f"See log for details."
+                ))
+            else:
+                self.root.after(0, lambda: messagebox.showinfo(
+                    "Restart Complete",
+                    f"Restart completed successfully.\n\n"
+                    f"{stats['total_removed']} symlinks removed."
+                ))
+            
+        except Exception as e:
+            logger.error(f"Error restarting sorting: {e}")
+            self.root.after(0, lambda: self.status_var.set(f"Error restarting sorting: {e}"))
+            self.root.after(0, lambda: messagebox.showerror(
+                "Error",
+                f"An error occurred while restarting sorting:\n\n{e}"
+            ))
+        
+        finally:
+            # Re-enable UI
+            self.root.after(0, self.enable_ui)
+
+    def process_new_images_with_tracking(self, config, color_params, settings_hash):
+        """
+        Process new images with tracking of processed files.
+        
+        Args:
+            config: Configuration dictionary
+            color_params: Color detection parameters
+            settings_hash: Hash of the current analysis settings
+            
+        Returns:
+            dict: Statistics about the processing
+        """
+        # Get directories
+        base_dir = config["paths"]["base_dir"]
+        original_dir = os.path.join(base_dir, config["paths"]["original_dir"])
+        
+        # Check if original directory exists
+        if not os.path.exists(original_dir) or not os.path.isdir(original_dir):
+            logger.warning(f"Original directory does not exist: {original_dir}")
+            return {"processed": 0, "errors": 0, "categories": {}}
+        
+        # Get thresholds and color limits
+        thresholds = config["color_thresholds"]
+        color_limits = config.get("color_selection_limits")
+        
+        # Get all image files recursively
+        image_files = file_operations.get_image_files_recursive(original_dir)
+        
+        # Filter out already processed files with the same settings
+        unprocessed_files = []
+        for image_path in image_files:
+            if image_path not in self.processed_files.get(settings_hash, []):
+                unprocessed_files.append(image_path)
+        
+        # If all files have been processed with these settings, return empty stats
+        if not unprocessed_files:
+            logger.info(f"All files already processed with current settings")
+            return {"processed": 0, "errors": 0, "categories": {}}
+        
+        # Initialize stats
+        stats = {
+            "processed": 0,
+            "errors": 0,
+            "categories": {}
+        }
+        
+        # Process each unprocessed image
+        for image_path in unprocessed_files:
+            try:
+                # Get filename for symlink creation
+                filename = os.path.basename(image_path)
+                
+                # Analyze and categorize image
+                result = color_analysis.analyze_and_categorize(
+                    image_path,
+                    thresholds,
+                    tuple(config["resize_dimensions"]),
+                    color_params,
+                    color_limits
+                )
+                
+                # Create symlinks for each category
+                for category in result["categories"]:
+                    # Get color directory
+                    color_dir = os.path.join(base_dir, config["paths"]["color_dirs"][category])
+                    
+                    # Create symlink
+                    symlink_path = os.path.join(color_dir, filename)
+                    
+                    # Check if symlink already exists
+                    if os.path.exists(symlink_path):
+                        # Skip if already exists
+                        continue
+                    
+                    # Create symlink
+                    os.symlink(image_path, symlink_path)
+                    
+                    # Update stats
+                    stats["categories"][category] = stats["categories"].get(category, 0) + 1
+                
+                # Add to processed files list
+                self.processed_files[settings_hash].append(image_path)
+                
+                # Update stats
+                stats["processed"] += 1
+                
+                # Log progress
+                if stats["processed"] % 100 == 0:
+                    logger.info(f"Processed {stats['processed']} images")
+            
+            except Exception as e:
+                logger.error(f"Error processing image {image_path}: {e}")
+                stats["errors"] += 1
+        
+        logger.info(f"Processing complete: {stats['processed']} images processed, {stats['errors']} errors")
+        return stats
     
     def apply_limits(self):
         """

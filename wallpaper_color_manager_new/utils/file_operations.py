@@ -200,6 +200,80 @@ def reset_categories(config: Dict[str, Any]) -> Dict[str, int]:
     return stats
 
 
+def restart_sorting(config: Dict[str, Any]) -> Dict[str, int]:
+    """
+    Restart sorting by removing all symlinks from color folders and the main folder.
+    This provides a fresh start for sorting with new settings.
+    
+    Args:
+        config: Configuration dictionary
+        
+    Returns:
+        dict: Statistics about the restart operation
+    """
+    stats = {
+        "total_removed": 0,
+        "errors": 0
+    }
+    
+    # First, reset all color categories
+    reset_stats = reset_categories(config)
+    stats["total_removed"] += reset_stats["total_removed"]
+    stats["errors"] += reset_stats["errors"]
+    
+    # Get base directory
+    base_dir = config["paths"]["base_dir"]
+    
+    # Check for the main little_baby_monster folder
+    # This is assumed to be in the base directory
+    main_folder = os.path.join(base_dir, "little_baby_monster")
+    
+    if os.path.exists(main_folder) and os.path.isdir(main_folder):
+        # Remove all symlinks in the main folder
+        for filename in os.listdir(main_folder):
+            file_path = os.path.join(main_folder, filename)
+            
+            try:
+                # Check if it's a symlink
+                if os.path.islink(file_path):
+                    # Remove symlink
+                    os.unlink(file_path)
+                    stats["total_removed"] += 1
+                    logger.debug(f"Removed symlink from main folder: {file_path}")
+            except Exception as e:
+                logger.error(f"Error removing symlink from main folder {file_path}: {e}")
+                stats["errors"] += 1
+    else:
+        logger.warning(f"Main folder does not exist: {main_folder}")
+    
+    logger.info(f"Restart complete: {stats['total_removed']} symlinks removed, {stats['errors']} errors")
+    return stats
+
+
+def get_image_files_recursive(directory: str) -> List[str]:
+    """
+    Get all image files in a directory and its subdirectories.
+    
+    Args:
+        directory: Directory path to scan
+        
+    Returns:
+        list: Absolute paths to image files
+    """
+    image_files = []
+    
+    try:
+        for root, _, files in os.walk(directory):
+            for filename in files:
+                if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+                    # Create absolute path
+                    image_path = os.path.join(root, filename)
+                    image_files.append(image_path)
+    except Exception as e:
+        logger.error(f"Error scanning directory {directory}: {e}")
+    
+    return image_files
+
 def process_new_images(
     config: Dict[str, Any],
     analyze_func: Callable[[str, Dict[str, float], Any, Any, Any], Dict[str, Any]]
@@ -233,45 +307,47 @@ def process_new_images(
     thresholds = config["color_thresholds"]
     color_limits = config.get("color_selection_limits")
     
-    # Process each image in the original directory
-    for filename in os.listdir(original_dir):
-        if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
-            # Create absolute path
-            image_path = os.path.join(original_dir, filename)
+    # Get all image files recursively
+    image_files = get_image_files_recursive(original_dir)
+    
+    # Process each image
+    for image_path in image_files:
+        try:
+            # Get filename for symlink creation
+            filename = os.path.basename(image_path)
             
-            try:
-                # Analyze and categorize image
-                result = analyze_func(image_path, thresholds, None, None, color_limits)
+            # Analyze and categorize image
+            result = analyze_func(image_path, thresholds, None, None, color_limits)
+            
+            # Create symlinks for each category
+            for category in result["categories"]:
+                # Get color directory
+                color_dir = os.path.join(base_dir, config["paths"]["color_dirs"][category])
                 
-                # Create symlinks for each category
-                for category in result["categories"]:
-                    # Get color directory
-                    color_dir = os.path.join(base_dir, config["paths"]["color_dirs"][category])
-                    
-                    # Create symlink
-                    symlink_path = os.path.join(color_dir, filename)
-                    
-                    # Check if symlink already exists
-                    if os.path.exists(symlink_path):
-                        # Skip if already exists
-                        continue
-                    
-                    # Create symlink
-                    os.symlink(image_path, symlink_path)
-                    
-                    # Update stats
-                    stats["categories"][category] = stats["categories"].get(category, 0) + 1
+                # Create symlink
+                symlink_path = os.path.join(color_dir, filename)
+                
+                # Check if symlink already exists
+                if os.path.exists(symlink_path):
+                    # Skip if already exists
+                    continue
+                
+                # Create symlink
+                os.symlink(image_path, symlink_path)
                 
                 # Update stats
-                stats["processed"] += 1
-                
-                # Log progress
-                if stats["processed"] % 100 == 0:
-                    logger.info(f"Processed {stats['processed']} images")
-                
-            except Exception as e:
-                logger.error(f"Error processing image {image_path}: {e}")
-                stats["errors"] += 1
+                stats["categories"][category] = stats["categories"].get(category, 0) + 1
+            
+            # Update stats
+            stats["processed"] += 1
+            
+            # Log progress
+            if stats["processed"] % 100 == 0:
+                logger.info(f"Processed {stats['processed']} images")
+        
+        except Exception as e:
+            logger.error(f"Error processing image {image_path}: {e}")
+            stats["errors"] += 1
     
     logger.info(f"Processing complete: {stats['processed']} images processed, {stats['errors']} errors")
     return stats

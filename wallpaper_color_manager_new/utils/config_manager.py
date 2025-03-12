@@ -44,31 +44,37 @@ DEFAULT_CONFIG = {
     "color_detection_params": {
         "red": {
             "hue_ranges": [[0, 30], [330, 360]],
+            "hue_weights": [1.0, 1.0],
             "saturation_range": [0.3, 1.0],
             "value_range": [0.2, 0.9]
         },
         "orange": {
             "hue_ranges": [[30, 60]],
+            "hue_weights": [1.0],
             "saturation_range": [0.3, 1.0],
             "value_range": [0.2, 0.9]
         },
         "yellow": {
             "hue_ranges": [[60, 90]],
+            "hue_weights": [1.0],
             "saturation_range": [0.3, 1.0],
             "value_range": [0.2, 0.9]
         },
         "green": {
             "hue_ranges": [[90, 150]],
+            "hue_weights": [1.0],
             "saturation_range": [0.3, 1.0],
             "value_range": [0.2, 0.9]
         },
         "blue": {
             "hue_ranges": [[150, 210]],
+            "hue_weights": [1.0],
             "saturation_range": [0.3, 1.0],
             "value_range": [0.2, 0.9]
         },
         "pink": {
             "hue_ranges": [[210, 330]],
+            "hue_weights": [1.0],
             "saturation_range": [0.3, 1.0],
             "value_range": [0.2, 0.9]
         },
@@ -92,7 +98,10 @@ DEFAULT_CONFIG = {
             "yellow": "llm_baby_monster_by_color/yellow",
             "white_gray_black": "llm_baby_monster_by_color/white_gray_black"
         }
-    }
+    },
+    "last_analysis_dir": "",
+    "last_analysis_settings": {},
+    "processed_files": {}
 }
 
 # Default configuration file path

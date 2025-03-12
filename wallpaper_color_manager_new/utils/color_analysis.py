@@ -255,7 +255,7 @@ def analyze_image_multi(image_path: str,
                 for category in categories:
                     color_counts[category] += 1
         
-        # Calculate range sizes and weights for each color
+        # Get range weights from parameters or calculate them
         range_sizes = {}
         range_weights = {}
         
@@ -263,7 +263,7 @@ def analyze_image_multi(image_path: str,
         if color_params is None:
             color_params = DEFAULT_COLOR_DETECTION_PARAMS
         
-        # Calculate range sizes for each color (except white_gray_black)
+        # Get or calculate weights for each color (except white_gray_black)
         for color in COLOR_CATEGORIES:
             if color == "white_gray_black":
                 continue
@@ -271,15 +271,21 @@ def analyze_image_multi(image_path: str,
             color_param = color_params.get(color, DEFAULT_COLOR_DETECTION_PARAMS[color])
             hue_ranges = color_param.get("hue_ranges", DEFAULT_COLOR_DETECTION_PARAMS[color]["hue_ranges"])
             
-            # Calculate total range size
+            # Calculate total range size (for information only)
             range_size = calculate_range_size(hue_ranges)
             range_sizes[color] = range_size
             
-            # Calculate weight based on inverse of range size
-            # Smaller ranges get higher weights
-            # Use a formula that gives reasonable weights: 360 / (range_size + 60)
-            # This ensures that very small ranges don't get extremely high weights
-            range_weights[color] = 360 / (range_size + 60)
+            # Check if user-provided weights exist
+            if "hue_weights" in color_param and len(color_param["hue_weights"]) > 0:
+                # Use the average of user-provided weights
+                user_weights = color_param["hue_weights"]
+                # Apply a stronger effect by using the square of the weights
+                # This makes higher weights have a much stronger impact
+                squared_weights = [w * w for w in user_weights]
+                range_weights[color] = sum(squared_weights) / len(squared_weights)
+            else:
+                # Calculate weight based on inverse of range size (legacy method)
+                range_weights[color] = 360 / (range_size + 60)
         
         # Set weight for white_gray_black to 1.0 (no adjustment)
         range_weights["white_gray_black"] = 1.0
@@ -596,7 +602,7 @@ def analyze_region(image: Image.Image, color_params: Dict[str, Any] = None) -> D
         avg_s = s_total / total_pixels
         avg_v = v_total / total_pixels
         
-        # Calculate range sizes and weights for each color
+        # Get range weights from parameters or calculate them
         range_sizes = {}
         range_weights = {}
         
@@ -604,7 +610,7 @@ def analyze_region(image: Image.Image, color_params: Dict[str, Any] = None) -> D
         if color_params is None:
             color_params = DEFAULT_COLOR_DETECTION_PARAMS
         
-        # Calculate range sizes for each color (except white_gray_black)
+        # Get or calculate weights for each color (except white_gray_black)
         for color in COLOR_CATEGORIES:
             if color == "white_gray_black":
                 continue
@@ -612,15 +618,21 @@ def analyze_region(image: Image.Image, color_params: Dict[str, Any] = None) -> D
             color_param = color_params.get(color, DEFAULT_COLOR_DETECTION_PARAMS[color])
             hue_ranges = color_param.get("hue_ranges", DEFAULT_COLOR_DETECTION_PARAMS[color]["hue_ranges"])
             
-            # Calculate total range size
+            # Calculate total range size (for information only)
             range_size = calculate_range_size(hue_ranges)
             range_sizes[color] = range_size
             
-            # Calculate weight based on inverse of range size
-            # Smaller ranges get higher weights
-            # Use a formula that gives reasonable weights: 360 / (range_size + 60)
-            # This ensures that very small ranges don't get extremely high weights
-            range_weights[color] = 360 / (range_size + 60)
+            # Check if user-provided weights exist
+            if "hue_weights" in color_param and len(color_param["hue_weights"]) > 0:
+                # Use the average of user-provided weights
+                user_weights = color_param["hue_weights"]
+                # Apply a stronger effect by using the square of the weights
+                # This makes higher weights have a much stronger impact
+                squared_weights = [w * w for w in user_weights]
+                range_weights[color] = sum(squared_weights) / len(squared_weights)
+            else:
+                # Calculate weight based on inverse of range size (legacy method)
+                range_weights[color] = 360 / (range_size + 60)
         
         # Set weight for white_gray_black to 1.0 (no adjustment)
         range_weights["white_gray_black"] = 1.0

@@ -97,7 +97,7 @@ while true; do
     update_heartbeat
     
     # Wait for file changes
-    inotifywait -e close_write "$file_to_watch"
+    inotifywait -e modify "$file_to_watch"
     
     echo "File change detected at $(date)" >> "$logfile"
     sleep 7  # Ensure file is fully written
