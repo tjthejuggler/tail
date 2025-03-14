@@ -93,6 +93,10 @@ class ColorControlPanel:
         # Track processed files
         self.processed_files = self.config.get("processed_files", {})
         
+        # Initialize wallpaper source selection
+        if "wallpaper_source" not in self.config:
+            self.config["wallpaper_source"] = "weekly_habits"
+        
         # Create UI
         self.create_ui()
         
@@ -120,11 +124,13 @@ class ColorControlPanel:
         self.settings_tab = ttk.Frame(self.notebook)
         self.limits_tab = ttk.Frame(self.notebook)
         self.color_picker_tab = ttk.Frame(self.notebook)
+        self.wallpaper_source_tab = ttk.Frame(self.notebook)
         
         self.notebook.add(self.main_tab, text="Main")
         self.notebook.add(self.settings_tab, text="Color Detection Settings")
         self.notebook.add(self.limits_tab, text="Color Selection Limits")
         self.notebook.add(self.color_picker_tab, text="Color Picker")
+        self.notebook.add(self.wallpaper_source_tab, text="Wallpaper Source")
         
         # Create main tab UI
         self.create_main_tab_ui()
@@ -137,6 +143,9 @@ class ColorControlPanel:
         
         # Create color picker tab UI
         self.create_color_picker_tab_ui()
+        
+        # Create wallpaper source tab UI
+        self.create_wallpaper_source_tab_ui()
         
         # Status bar
         self.status_var = tk.StringVar(value="Ready")
@@ -2545,6 +2554,741 @@ class ColorControlPanel:
             "Changes Applied",
             "Color selection limits have been applied and saved."
         )
+        
+    def create_wallpaper_source_tab_ui(self):
+        """
+        Create the UI for the wallpaper source tab.
+        """
+        # Main frame
+        main_frame = ttk.Frame(self.wallpaper_source_tab, padding="10")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Title
+        title_label = ttk.Label(
+            main_frame,
+            text="Wallpaper Source Selection",
+            font=("Arial", 14, "bold")
+        )
+        title_label.pack(pady=10)
+        
+        # Description
+        desc_label = ttk.Label(
+            main_frame,
+            text="Select how to determine which images will be used as the current active wallpaper folder.",
+            wraplength=800
+        )
+        desc_label.pack(pady=5)
+        
+        # Create a frame for the radio buttons
+        radio_frame = ttk.LabelFrame(main_frame, text="Selection Method")
+        radio_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Variable to store the selected option
+        self.wallpaper_source_var = tk.StringVar(value=self.config["wallpaper_source"])
+        
+        # Define the color order for inclusive options
+        self.color_order = ["red", "orange", "green", "blue", "pink", "yellow", "white_gray_black"]
+        
+        # Create radio buttons for each option
+        
+        # Habits section
+        habits_frame = ttk.LabelFrame(radio_frame, text="Habits-Based Selection")
+        habits_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Weekly habits (current method)
+        weekly_habits_radio = ttk.Radiobutton(
+            habits_frame,
+            text="Weekly Habits (Current Method)",
+            variable=self.wallpaper_source_var,
+            value="weekly_habits"
+        )
+        weekly_habits_radio.pack(anchor=tk.W, padx=20, pady=5)
+        
+        # Weekly habits (inclusive)
+        weekly_habits_inclusive_radio = ttk.Radiobutton(
+            habits_frame,
+            text="Weekly Habits (Inclusive)",
+            variable=self.wallpaper_source_var,
+            value="weekly_habits_inclusive"
+        )
+        weekly_habits_inclusive_radio.pack(anchor=tk.W, padx=20, pady=5)
+        
+        # Today's habits (to be implemented later)
+        daily_habits_radio = ttk.Radiobutton(
+            habits_frame,
+            text="Today's Habits (Not Yet Implemented)",
+            variable=self.wallpaper_source_var,
+            value="daily_habits",
+            state="disabled"  # Disabled until implemented
+        )
+        daily_habits_radio.pack(anchor=tk.W, padx=20, pady=5)
+        
+        # Today's habits (inclusive) (to be implemented later)
+        daily_habits_inclusive_radio = ttk.Radiobutton(
+            habits_frame,
+            text="Today's Habits (Inclusive) (Not Yet Implemented)",
+            variable=self.wallpaper_source_var,
+            value="daily_habits_inclusive",
+            state="disabled"  # Disabled until implemented
+        )
+        daily_habits_inclusive_radio.pack(anchor=tk.W, padx=20, pady=5)
+        
+        # Monthly habits (to be implemented later)
+        monthly_habits_radio = ttk.Radiobutton(
+            habits_frame,
+            text="Monthly Habits (Not Yet Implemented)",
+            variable=self.wallpaper_source_var,
+            value="monthly_habits",
+            state="disabled"  # Disabled until implemented
+        )
+        monthly_habits_radio.pack(anchor=tk.W, padx=20, pady=5)
+        
+        # Monthly habits (inclusive) (to be implemented later)
+        monthly_habits_inclusive_radio = ttk.Radiobutton(
+            habits_frame,
+            text="Monthly Habits (Inclusive) (Not Yet Implemented)",
+            variable=self.wallpaper_source_var,
+            value="monthly_habits_inclusive",
+            state="disabled"  # Disabled until implemented
+        )
+        monthly_habits_inclusive_radio.pack(anchor=tk.W, padx=20, pady=5)
+        
+        # Direct color selection section
+        color_frame = ttk.LabelFrame(radio_frame, text="Direct Color Selection")
+        color_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Add a single radio button for the direct color selection
+        direct_color_radio = ttk.Radiobutton(
+            color_frame,
+            text="Select specific colors:",
+            variable=self.wallpaper_source_var,
+            value="direct_color_selection"
+        )
+        direct_color_radio.pack(anchor=tk.W, padx=20, pady=5)
+        
+        # Create a frame for the color checkboxes
+        color_checkboxes_frame = ttk.Frame(color_frame)
+        color_checkboxes_frame.pack(fill=tk.X, padx=40, pady=5)
+        
+        # Initialize dictionary to store checkbox variables
+        self.color_checkbox_vars = {}
+        
+        # Create a checkbox for each color
+        for i, color in enumerate(self.color_order):
+            var = tk.BooleanVar(value=False)
+            self.color_checkbox_vars[color] = var
+            
+            checkbox = ttk.Checkbutton(
+                color_checkboxes_frame,
+                text=color.capitalize(),
+                variable=var,
+                command=self.update_direct_color_selection
+            )
+            checkbox.grid(row=i//3, column=i%3, sticky=tk.W, padx=10, pady=2)
+        
+        # Configure grid columns to be equal width
+        for i in range(3):
+            color_checkboxes_frame.columnconfigure(i, weight=1)
+        
+        # Latest images section
+        latest_frame = ttk.LabelFrame(radio_frame, text="Latest Images")
+        latest_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Latest option
+        latest_radio = ttk.Radiobutton(
+            latest_frame,
+            text="Use images from the most recently added source folder",
+            variable=self.wallpaper_source_var,
+            value="latest"
+        )
+        latest_radio.pack(anchor=tk.W, padx=20, pady=5)
+        
+        # Create a frame for the action buttons
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill=tk.X, pady=10)
+        
+        # Apply button
+        apply_button = ttk.Button(
+            button_frame,
+            text="Apply and Refresh Plasma",
+            command=self.apply_wallpaper_source
+        )
+        apply_button.pack(side=tk.RIGHT, padx=5)
+        
+        # Help text
+        help_text = ttk.Label(
+            main_frame,
+            text="Note: Clicking 'Apply and Refresh Plasma' will update the active wallpaper folder and refresh the KDE Plasma desktop to apply the changes.\n\n"
+                 "Inclusive options include all colors up to the current color in the order: red, orange, green, blue, pink, yellow, white_gray_black.",
+            wraplength=800,
+            font=("Arial", 9, "italic")
+        )
+        help_text.pack(pady=10)
+        
+        # Initialize the direct color selection if it's the current selection
+        if self.wallpaper_source_var.get() == "direct_color_selection":
+            self.initialize_direct_color_selection()
+    
+    def initialize_direct_color_selection(self):
+        """
+        Initialize the direct color selection checkboxes based on the saved configuration.
+        """
+        # Check if we have saved selected colors
+        if "direct_color_selection" in self.config:
+            selected_colors = self.config["direct_color_selection"]
+            
+            # Set the checkbox values
+            for color, var in self.color_checkbox_vars.items():
+                var.set(color in selected_colors)
+    
+    def update_direct_color_selection(self):
+        """
+        Update the direct color selection based on the checkbox values.
+        """
+        # Get the selected colors
+        selected_colors = [
+            color for color, var in self.color_checkbox_vars.items()
+            if var.get()
+        ]
+        
+        # Save to configuration
+        self.config["direct_color_selection"] = selected_colors
+    
+    def apply_wallpaper_source(self):
+        """
+        Apply the selected wallpaper source and refresh Plasma.
+        """
+        import traceback
+        import time
+        
+        # Generate a unique ID for this operation to track it in logs
+        operation_id = f"apply_source_{int(time.time())}"
+        logger.debug(f"[{operation_id}] apply_wallpaper_source called")
+        
+        selected_source = self.wallpaper_source_var.get()
+        logger.debug(f"[{operation_id}] Selected source: {selected_source}")
+        
+        # Save the selection to the configuration
+        self.config["wallpaper_source"] = selected_source
+        logger.debug(f"[{operation_id}] Saving configuration")
+        config_manager.save_config(self.config, self.config_path)
+        logger.debug(f"[{operation_id}] Configuration saved")
+        
+        # Disable UI during processing
+        logger.debug(f"[{operation_id}] Disabling UI")
+        try:
+            self.disable_ui()
+            logger.debug(f"[{operation_id}] UI disabled successfully")
+        except Exception as e:
+            logger.error(f"[{operation_id}] Error disabling UI: {e}")
+            logger.error(traceback.format_exc())
+            # Continue anyway, but note the error
+        
+        self.status_var.set("Applying wallpaper source...")
+        
+        # Prepare parameters for the thread
+        params = {
+            'selected_source': selected_source,
+            'color': None,
+            'colors': [],
+            'operation_id': operation_id  # Pass the operation ID to child methods
+        }
+        logger.debug(f"[{operation_id}] Initial params: {params}")
+        
+        try:
+            # Determine which color or method to use
+            if selected_source == "weekly_habits":
+                # Use the current method (weekly habits)
+                logger.debug(f"[{operation_id}] Using weekly habits method")
+                self.status_var.set("Using weekly habits to determine wallpaper color...")
+                # No need to specify color, the script will determine it from weekly habits
+            elif selected_source == "weekly_habits_inclusive":
+                # Use weekly habits but include all colors up to the determined color
+                logger.debug(f"[{operation_id}] Using weekly habits inclusive method")
+                self.status_var.set("Using weekly habits (inclusive) to determine wallpaper colors...")
+                # Get the color from weekly habits
+                try:
+                    # Get weekly average from the file
+                    WEEK_AVERAGE_FILE = "/home/twain/noteVault/habitCounters/week_average.txt"
+                    logger.debug(f"[{operation_id}] Reading weekly average from {WEEK_AVERAGE_FILE}")
+                    
+                    with open(WEEK_AVERAGE_FILE, 'r') as f:
+                        weekly_average = float(f.read().strip())
+                    logger.debug(f"[{operation_id}] Weekly average: {weekly_average}")
+                    
+                    # Determine color based on count
+                    def get_color_from_count(count):
+                        if count < 13:
+                            return "red"
+                        elif 13 < count <= 20:
+                            return "orange"
+                        elif 20 < count <= 30:
+                            return "green"
+                        elif 30 < count <= 41:
+                            return "blue"
+                        elif 41 < count <= 48:
+                            return "pink"
+                        elif 48 < count <= 55:
+                            return "yellow"
+                        else:
+                            return "white_gray_black"
+                    
+                    habit_color = get_color_from_count(weekly_average)
+                    logger.debug(f"[{operation_id}] Determined habit color: {habit_color}")
+                    
+                    # Get all colors up to and including the habit color
+                    if habit_color in self.color_order:
+                        index = self.color_order.index(habit_color)
+                        params['colors'] = self.color_order[:index+1]
+                        logger.debug(f"[{operation_id}] Using colors up to index {index}: {params['colors']}")
+                        self.status_var.set(f"Using colors: {', '.join(params['colors'])}")
+                except Exception as e:
+                    logger.error(f"[{operation_id}] Error determining habit color: {e}")
+                    logger.error(traceback.format_exc())
+                    messagebox.showerror(
+                        "Error",
+                        f"Failed to determine habit color: {e}"
+                    )
+                    self._safe_enable_ui()
+                    return
+            elif selected_source == "daily_habits" or selected_source == "daily_habits_inclusive":
+                # Not yet implemented
+                logger.debug(f"[{operation_id}] Daily habits method not implemented")
+                messagebox.showinfo(
+                    "Not Implemented",
+                    "Daily habits selection is not yet implemented."
+                )
+                self._safe_enable_ui()
+                return
+            elif selected_source == "monthly_habits" or selected_source == "monthly_habits_inclusive":
+                # Not yet implemented
+                logger.debug(f"[{operation_id}] Monthly habits method not implemented")
+                messagebox.showinfo(
+                    "Not Implemented",
+                    "Monthly habits selection is not yet implemented."
+                )
+                self._safe_enable_ui()
+                return
+            elif selected_source == "direct_color_selection":
+                # Get selected colors from checkboxes
+                logger.debug(f"[{operation_id}] Using direct color selection method")
+                params['colors'] = [
+                    color for color, var in self.color_checkbox_vars.items()
+                    if var.get()
+                ]
+                logger.debug(f"[{operation_id}] Selected colors: {params['colors']}")
+                
+                if not params['colors']:
+                    logger.warning(f"[{operation_id}] No colors selected for direct color selection")
+                    messagebox.showwarning(
+                        "No Colors Selected",
+                        "Please select at least one color for direct color selection."
+                    )
+                    self._safe_enable_ui()
+                    return
+                
+                self.status_var.set(f"Using selected colors: {', '.join(params['colors'])}")
+            elif selected_source == "latest":
+                # Use the latest folder
+                logger.debug(f"[{operation_id}] Using latest images folder method")
+                self.status_var.set("Using latest images folder...")
+                params['color'] = "latest"
+            elif selected_source.startswith("color_"):
+                # Direct color selection (single color)
+                color_name = selected_source.replace("color_", "")
+                logger.debug(f"[{operation_id}] Using direct color selection for color: {color_name}")
+                params['color'] = color_name
+                self.status_var.set(f"Using {params['color']} color folder...")
+            
+            # First update the wallpaper source without refreshing plasma
+            logger.debug(f"[{operation_id}] Starting update for wallpaper source")
+            
+            # CRITICAL SECTION: This is where we need to be extra careful
+            try:
+                # First, make sure the UI is in a good state before proceeding
+                logger.debug(f"[{operation_id}] Ensuring UI is in a good state before update")
+                self.root.update_idletasks()
+                
+                # Update the wallpaper source
+                logger.debug(f"[{operation_id}] Calling _update_wallpaper_source")
+                self._update_wallpaper_source(params)
+                logger.debug(f"[{operation_id}] _update_wallpaper_source completed successfully")
+                
+                # Re-enable UI before plasma refresh to ensure app stays responsive
+                logger.debug(f"[{operation_id}] Re-enabling UI before plasma refresh")
+                self._safe_enable_ui()
+                
+                # Add a small delay to ensure UI is fully responsive
+                time.sleep(0.5)
+                logger.debug(f"[{operation_id}] Added delay after re-enabling UI")
+                
+                # Then refresh plasma shell safely
+                logger.debug(f"[{operation_id}] Scheduling safe plasma refresh")
+                self.status_var.set("Refreshing plasma shell...")
+                
+                # Use a callback that includes the operation ID for tracking
+                def refresh_complete_callback():
+                    logger.debug(f"[{operation_id}] Plasma refresh completed")
+                    self.status_var.set("Plasma shell refreshed successfully")
+                
+                self._safe_refresh_plasma(refresh_complete_callback)
+                logger.debug(f"[{operation_id}] _safe_refresh_plasma scheduled successfully")
+                
+            except Exception as e:
+                logger.error(f"[{operation_id}] Error in critical section: {e}")
+                logger.error(traceback.format_exc())
+                self.status_var.set(f"Error during update: {e}")
+                messagebox.showerror(
+                    "Error",
+                    f"An error occurred during the update process:\n\n{e}"
+                )
+                # Make sure UI is enabled
+                self._safe_enable_ui()
+            
+        except Exception as e:
+            logger.error(f"[{operation_id}] Error preparing wallpaper source update: {e}")
+            logger.error(traceback.format_exc())
+            self.status_var.set(f"Error: {e}")
+            messagebox.showerror(
+                "Error",
+                f"An error occurred while preparing wallpaper source update:\n\n{e}"
+            )
+            self._safe_enable_ui()
+    
+    def _update_wallpaper_source(self, params):
+        """
+        Update the wallpaper source without refreshing plasma.
+        
+        Args:
+            params: Dictionary containing parameters for the update
+        """
+        try:
+            import subprocess
+            import os
+            import traceback
+            
+            logger.debug("Starting _update_wallpaper_source")
+            
+            selected_source = params['selected_source']
+            color = params['color']
+            colors = params['colors']
+            
+            logger.debug(f"Parameters: selected_source={selected_source}, color={color}, colors={colors}")
+            
+            script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "refresh_wallpaper.py")
+            logger.debug(f"Script path: {script_path}")
+            
+            # Update status
+            logger.debug("Setting status to 'Updating wallpaper source...'")
+            self.root.after(0, lambda: self.status_var.set("Updating wallpaper source..."))
+            
+            if colors:
+                # For multiple colors, we need to run the script for each color
+                logger.debug(f"Processing multiple colors: {colors}")
+                success_count = 0
+                for c in colors:
+                    # Update status for each color
+                    logger.debug(f"Processing color: {c}")
+                    self.root.after(0, lambda c=c: self.status_var.set(f"Processing color: {c}..."))
+                    
+                    # Run the script without the --force-refresh flag
+                    cmd = ["python3", script_path, c]
+                    logger.debug(f"Running command: {' '.join(cmd)}")
+                    
+                    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    logger.debug(f"Process started with PID: {process.pid}")
+                    
+                    # Wait for process to complete
+                    logger.debug("Waiting for process to complete...")
+                    stdout, stderr = process.communicate()
+                    logger.debug(f"Process completed with return code: {process.returncode}")
+                    logger.debug(f"stdout: {stdout}")
+                    logger.debug(f"stderr: {stderr}")
+                    
+                    if process.returncode == 0:
+                        success_count += 1
+                        logger.debug(f"Color {c} processed successfully")
+                    else:
+                        logger.error(f"Failed to process color {c}: {stderr}")
+                
+                # Final status update
+                if success_count == len(colors):
+                    status_message = f"Success: Updated wallpaper sources to: {', '.join(colors)}"
+                    logger.debug(status_message)
+                    self.root.after(0, lambda: self.status_var.set(status_message))
+                else:
+                    status_message = f"Warning: Only {success_count} of {len(colors)} colors were successfully applied"
+                    logger.warning(status_message)
+                    self.root.after(0, lambda: self.status_var.set(status_message))
+            else:
+                # For single color or method
+                logger.debug(f"Processing single color or method: {color}")
+                cmd = ["python3", script_path]
+                if color:
+                    cmd.append(color)
+                
+                logger.debug(f"Running command: {' '.join(cmd)}")
+                
+                process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                logger.debug(f"Process started with PID: {process.pid}")
+                
+                # Wait for process to complete
+                logger.debug("Waiting for process to complete...")
+                stdout, stderr = process.communicate()
+                logger.debug(f"Process completed with return code: {process.returncode}")
+                logger.debug(f"stdout: {stdout}")
+                logger.debug(f"stderr: {stderr}")
+                
+                if process.returncode == 0:
+                    source_name = selected_source
+                    if selected_source.startswith("color_"):
+                        source_name = selected_source.replace("color_", "")
+                    
+                    status_message = f"Success: Updated wallpaper source to {source_name.replace('_', ' ').title()}"
+                    logger.debug(status_message)
+                    self.root.after(0, lambda: self.status_var.set(status_message))
+                else:
+                    status_message = f"Error: Failed to apply wallpaper source. See log for details."
+                    logger.error(status_message)
+                    logger.error(f"Error output from refresh_wallpaper.py: {stderr}")
+                    self.root.after(0, lambda: self.status_var.set(status_message))
+            
+        except Exception as e:
+            logger.error(f"Error in wallpaper source update: {e}")
+            logger.error(traceback.format_exc())
+            self.root.after(0, lambda: self.status_var.set(f"Error: {e}"))
+            self.root.after(0, self._safe_enable_ui)
+    
+    # The _apply_wallpaper_source_thread method has been replaced by _update_wallpaper_source
+    # and _safe_refresh_plasma methods for better separation of concerns and stability
+    
+    def _safe_enable_ui(self):
+        """
+        Safely re-enable the UI with exception handling.
+        """
+        try:
+            logger.debug("Attempting to re-enable UI")
+            self.enable_ui()
+            logger.debug("UI re-enabled successfully")
+        except Exception as e:
+            logger.error(f"Error re-enabling UI: {e}")
+            logger.error(traceback.format_exc())
+            # Try to recover UI
+            self._recover_ui()
+    
+    def _recover_ui(self):
+        """
+        Attempt to recover the UI if it's in an inconsistent state.
+        This is a last resort method to try to restore UI responsiveness.
+        """
+        import traceback
+        
+        logger.debug("Attempting emergency UI recovery")
+        try:
+            # Force update the UI
+            self.root.update_idletasks()
+            logger.debug("Forced update_idletasks")
+            
+            # Try to force a complete UI refresh
+            self.root.update()
+            logger.debug("Forced update")
+            
+            # Try to force focus to the root window
+            self.root.focus_force()
+            logger.debug("Forced focus to root window")
+            
+            # Try to force a geometry update to trigger a redraw
+            current_geometry = self.root.geometry()
+            logger.debug(f"Current geometry: {current_geometry}")
+            
+            # Slightly modify the geometry and then restore it
+            # This can sometimes help "unstick" a frozen UI
+            size_parts = current_geometry.split('+')[0].split('x')
+            if len(size_parts) == 2:
+                width, height = int(size_parts[0]), int(size_parts[1])
+                # Temporarily resize the window
+                self.root.geometry(f"{width+1}x{height+1}")
+                logger.debug(f"Temporarily resized to: {self.root.geometry()}")
+                # Then restore original size
+                self.root.after(100, lambda: self.root.geometry(current_geometry))
+                logger.debug(f"Scheduled restore to original geometry: {current_geometry}")
+            
+            # Try to force a redraw of all widgets
+            for child in self.root.winfo_children():
+                if hasattr(child, "update") and callable(getattr(child, "update")):
+                    child.update()
+            
+            logger.debug("Emergency UI recovery completed")
+        except Exception as e:
+            logger.error(f"Error in emergency UI recovery: {e}")
+            logger.error(traceback.format_exc())
+    
+    def _safe_refresh_plasma(self, callback=None):
+        """
+        Safely refresh the plasma shell without freezing the application.
+        
+        This method creates a separate process to refresh the plasma shell,
+        which prevents the refresh from affecting the main application.
+        
+        Args:
+            callback: Optional callback function to call after the refresh
+        """
+        import subprocess
+        import threading
+        import traceback
+        import time
+        import uuid
+        
+        # Generate a unique ID for this refresh operation
+        refresh_id = str(uuid.uuid4())[:8]
+        logger.debug(f"[PLASMA-{refresh_id}] Starting safe plasma refresh")
+        
+        # Explicitly re-enable UI before starting the refresh
+        # This ensures the UI is responsive during the refresh
+        try:
+            self.root.after(0, self._safe_enable_ui)
+            logger.debug(f"[PLASMA-{refresh_id}] UI re-enable scheduled before plasma refresh")
+        except Exception as e:
+            logger.error(f"[PLASMA-{refresh_id}] Error scheduling UI re-enable: {e}")
+            logger.error(traceback.format_exc())
+        
+        # Create a watchdog timer to ensure the UI stays responsive
+        def watchdog_timer():
+            try:
+                logger.debug(f"[PLASMA-{refresh_id}] Watchdog timer activated")
+                # Force UI update every 500ms to keep it responsive
+                self.root.after(0, lambda: self.root.update_idletasks())
+                # Schedule next watchdog check
+                self.root.after(500, watchdog_timer)
+            except Exception as e:
+                logger.error(f"[PLASMA-{refresh_id}] Error in watchdog timer: {e}")
+        
+        # Start the watchdog timer
+        self.root.after(0, watchdog_timer)
+        logger.debug(f"[PLASMA-{refresh_id}] Watchdog timer scheduled")
+        
+        def refresh_thread():
+            try:
+                # Create a simple script to run the plasma refresh command
+                temp_script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"temp_plasma_refresh_{refresh_id}.sh")
+                logger.debug(f"[PLASMA-{refresh_id}] Creating temporary script: {temp_script_path}")
+                
+                with open(temp_script_path, 'w') as f:
+                    f.write(f"""#!/bin/bash
+# This script refreshes the plasma shell and then exits (ID: {refresh_id})
+echo "[PLASMA-{refresh_id}] Refreshing plasma shell..."
+# Use timeout to ensure the command doesn't hang
+timeout 5s dbus-send --session --dest=org.kde.plasmashell --type=method_call /PlasmaShell org.kde.PlasmaShell.refreshCurrentShell > /dev/null 2>&1
+RESULT=$?
+if [ $RESULT -eq 124 ]; then
+    echo "[PLASMA-{refresh_id}] Warning: dbus-send timed out after 5 seconds"
+fi
+sleep 2  # Add a delay to ensure the refresh completes
+echo "[PLASMA-{refresh_id}] Plasma shell refresh completed"
+exit 0
+""")
+                
+                # Make the script executable
+                os.chmod(temp_script_path, 0o755)
+                logger.debug(f"[PLASMA-{refresh_id}] Temporary script created and made executable")
+                
+                # Run the script in a new process with a timeout
+                logger.debug(f"[PLASMA-{refresh_id}] Running plasma refresh script")
+                
+                # Use a timeout to prevent hanging
+                try:
+                    process = subprocess.Popen(
+                        ["/bin/bash", temp_script_path],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True
+                    )
+                    
+                    # Set a timeout for the process
+                    try:
+                        stdout, stderr = process.communicate(timeout=10)  # 10 second timeout
+                        logger.debug(f"[PLASMA-{refresh_id}] Plasma refresh completed with return code: {process.returncode}")
+                        logger.debug(f"[PLASMA-{refresh_id}] stdout: {stdout}")
+                        if stderr:
+                            logger.error(f"[PLASMA-{refresh_id}] stderr: {stderr}")
+                    except subprocess.TimeoutExpired:
+                        logger.warning(f"[PLASMA-{refresh_id}] Process timed out after 10 seconds, terminating")
+                        process.kill()
+                        stdout, stderr = process.communicate()
+                        logger.debug(f"[PLASMA-{refresh_id}] After kill - stdout: {stdout}")
+                        logger.debug(f"[PLASMA-{refresh_id}] After kill - stderr: {stderr}")
+                except Exception as e:
+                    logger.error(f"[PLASMA-{refresh_id}] Error running refresh script: {e}")
+                    logger.error(traceback.format_exc())
+                
+                # Clean up the temporary script
+                try:
+                    os.remove(temp_script_path)
+                    logger.debug(f"[PLASMA-{refresh_id}] Temporary script {temp_script_path} removed")
+                except Exception as e:
+                    logger.error(f"[PLASMA-{refresh_id}] Error removing temporary script: {e}")
+                
+                # Add a small delay to ensure the UI has time to recover
+                time.sleep(1)
+                logger.debug(f"[PLASMA-{refresh_id}] Added delay after plasma refresh")
+                
+                # Ensure UI is enabled after refresh
+                try:
+                    self.root.after(0, self._safe_enable_ui)
+                    logger.debug(f"[PLASMA-{refresh_id}] UI re-enable scheduled after plasma refresh")
+                except Exception as e:
+                    logger.error(f"[PLASMA-{refresh_id}] Error scheduling UI re-enable: {e}")
+                    logger.error(traceback.format_exc())
+                
+                # Call the callback if provided
+                if callback:
+                    logger.debug(f"[PLASMA-{refresh_id}] Scheduling callback function")
+                    try:
+                        self.root.after(500, callback)  # Add a delay before calling the callback
+                    except Exception as e:
+                        logger.error(f"[PLASMA-{refresh_id}] Error scheduling callback: {e}")
+                
+                logger.debug(f"[PLASMA-{refresh_id}] Refresh thread completed successfully")
+                
+            except Exception as e:
+                logger.error(f"[PLASMA-{refresh_id}] Error in refresh thread: {e}")
+                logger.error(traceback.format_exc())
+                # Ensure UI is enabled even if there's an error
+                try:
+                    self.root.after(0, self._safe_enable_ui)
+                    logger.debug(f"[PLASMA-{refresh_id}] UI re-enable scheduled after error")
+                except Exception as e2:
+                    logger.error(f"[PLASMA-{refresh_id}] Error scheduling UI re-enable after error: {e2}")
+                
+                # Still try to call the callback if provided
+                if callback:
+                    try:
+                        self.root.after(500, callback)
+                    except Exception as e2:
+                        logger.error(f"[PLASMA-{refresh_id}] Error scheduling callback after error: {e2}")
+        
+        # Start the refresh in a separate thread
+        thread = threading.Thread(target=refresh_thread, name=f"plasma-refresh-{refresh_id}")
+        thread.daemon = True
+        thread.start()
+        logger.debug(f"[PLASMA-{refresh_id}] Plasma refresh thread started")
+        
+        # Schedule a check to make sure the UI is still responsive after a few seconds
+        def check_ui_responsive():
+            logger.debug(f"[PLASMA-{refresh_id}] Checking UI responsiveness")
+            try:
+                # Force a UI update
+                self.root.update_idletasks()
+                # Try to recover UI if needed
+                self._recover_ui()
+                logger.debug(f"[PLASMA-{refresh_id}] UI responsiveness check completed")
+            except Exception as e:
+                logger.error(f"[PLASMA-{refresh_id}] Error in UI responsiveness check: {e}")
+        
+        # Schedule multiple checks at different intervals
+        self.root.after(2000, check_ui_responsive)  # Check after 2 seconds
+        self.root.after(5000, check_ui_responsive)  # Check after 5 seconds
+        self.root.after(10000, check_ui_responsive)  # Check after 10 seconds
     
     def draw_hue_spectrum(self, canvas, highlight_ranges=None):
         """
@@ -2654,8 +3398,34 @@ class ColorControlPanel:
         """
         Disable UI elements during long-running operations.
         """
-        for child in self.root.winfo_children():
-            self._disable_widget(child)
+        import traceback
+        logger.debug("Starting UI disable process")
+        try:
+            # Log the current UI state
+            logger.debug(f"Root window state before disable: {self.root.state()}")
+            logger.debug(f"Root window attributes before disable: {self.root.winfo_attributes()}")
+            
+            # Get the current active widget to help with debugging
+            try:
+                focused_widget = self.root.focus_get()
+                if focused_widget:
+                    logger.debug(f"Currently focused widget: {focused_widget} ({focused_widget.__class__.__name__})")
+                else:
+                    logger.debug("No widget currently has focus")
+            except Exception as e:
+                logger.error(f"Error getting focused widget: {e}")
+            
+            # Disable all children
+            for child in self.root.winfo_children():
+                self._disable_widget(child)
+            
+            # Force update the UI
+            self.root.update_idletasks()
+            logger.debug("UI disable process completed successfully")
+            logger.debug(f"Root window state after disable: {self.root.state()}")
+        except Exception as e:
+            logger.error(f"Error in disable_ui: {e}")
+            logger.error(traceback.format_exc())
     
     def _disable_widget(self, widget):
         """
@@ -2664,22 +3434,78 @@ class ColorControlPanel:
         Args:
             widget: Widget to disable
         """
-        if hasattr(widget, "state") and callable(getattr(widget, "state")):
-            widget.state(["disabled"])
-        elif hasattr(widget, "config") and callable(getattr(widget, "config")):
-            widget.config(state=tk.DISABLED)
-        
-        # Recursively disable children
-        if hasattr(widget, "winfo_children") and callable(getattr(widget, "winfo_children")):
-            for child in widget.winfo_children():
-                self._disable_widget(child)
+        try:
+            widget_name = widget.winfo_name() if hasattr(widget, "winfo_name") else "unknown"
+            widget_class = widget.__class__.__name__
+            logger.debug(f"Disabling widget: {widget_name} ({widget_class})")
+            
+            if hasattr(widget, "state") and callable(getattr(widget, "state")):
+                current_state = widget.state()
+                logger.debug(f"Widget {widget_name} current state: {current_state}")
+                widget.state(["disabled"])
+                logger.debug(f"Widget {widget_name} new state: {widget.state()}")
+            elif hasattr(widget, "config") and callable(getattr(widget, "config")):
+                try:
+                    current_state = widget.cget("state") if hasattr(widget, "cget") else "unknown"
+                    logger.debug(f"Widget {widget_name} current state: {current_state}")
+                    widget.config(state=tk.DISABLED)
+                    new_state = widget.cget("state") if hasattr(widget, "cget") else "unknown"
+                    logger.debug(f"Widget {widget_name} new state: {new_state}")
+                except Exception as e:
+                    logger.error(f"Error configuring widget {widget_name}: {e}")
+            else:
+                logger.debug(f"Widget {widget_name} has no state or config method")
+            
+            # Recursively disable children
+            if hasattr(widget, "winfo_children") and callable(getattr(widget, "winfo_children")):
+                for child in widget.winfo_children():
+                    self._disable_widget(child)
+        except Exception as e:
+            logger.error(f"Error disabling widget: {e}")
     
     def enable_ui(self):
         """
         Enable UI elements after long-running operations.
         """
-        for child in self.root.winfo_children():
-            self._enable_widget(child)
+        import traceback
+        logger.debug("Starting UI enable process")
+        try:
+            # Log the current UI state
+            logger.debug(f"Root window state before enable: {self.root.state()}")
+            logger.debug(f"Root window attributes before enable: {self.root.winfo_attributes()}")
+            
+            # Get the current active widget to help with debugging
+            try:
+                focused_widget = self.root.focus_get()
+                if focused_widget:
+                    logger.debug(f"Currently focused widget before enable: {focused_widget} ({focused_widget.__class__.__name__})")
+                else:
+                    logger.debug("No widget currently has focus before enable")
+            except Exception as e:
+                logger.error(f"Error getting focused widget: {e}")
+            
+            # Enable all children
+            for child in self.root.winfo_children():
+                self._enable_widget(child)
+            
+            # Update the UI to ensure changes take effect
+            self.root.update_idletasks()
+            
+            # Force an additional update to ensure UI is responsive
+            self.root.update()
+            
+            logger.debug("UI enable process completed successfully")
+            logger.debug(f"Root window state after enable: {self.root.state()}")
+            
+            # Try to set focus to the root window to ensure it's responsive
+            try:
+                self.root.focus_force()
+                logger.debug("Focus forced to root window")
+            except Exception as e:
+                logger.error(f"Error forcing focus: {e}")
+        except Exception as e:
+            logger.error(f"Error in enable_ui: {e}")
+            logger.error(traceback.format_exc())
     
     def _enable_widget(self, widget):
         """
@@ -2688,15 +3514,67 @@ class ColorControlPanel:
         Args:
             widget: Widget to enable
         """
-        if hasattr(widget, "state") and callable(getattr(widget, "state")):
-            widget.state(["!disabled"])
-        elif hasattr(widget, "config") and callable(getattr(widget, "config")):
-            widget.config(state=tk.NORMAL)
-        
-        # Recursively enable children
-        if hasattr(widget, "winfo_children") and callable(getattr(widget, "winfo_children")):
-            for child in widget.winfo_children():
-                self._enable_widget(child)
+        try:
+            widget_name = widget.winfo_name() if hasattr(widget, "winfo_name") else "unknown"
+            widget_class = widget.__class__.__name__
+            widget_id = str(id(widget))
+            logger.debug(f"Enabling widget: {widget_name} ({widget_class}) [id: {widget_id}]")
+            
+            # Log widget geometry and visibility
+            if hasattr(widget, "winfo_ismapped") and callable(getattr(widget, "winfo_ismapped")):
+                is_mapped = widget.winfo_ismapped()
+                logger.debug(f"Widget {widget_name} is mapped: {is_mapped}")
+            
+            if hasattr(widget, "winfo_viewable") and callable(getattr(widget, "winfo_viewable")):
+                is_viewable = widget.winfo_viewable()
+                logger.debug(f"Widget {widget_name} is viewable: {is_viewable}")
+            
+            if hasattr(widget, "winfo_geometry") and callable(getattr(widget, "winfo_geometry")):
+                geometry = widget.winfo_geometry()
+                logger.debug(f"Widget {widget_name} geometry: {geometry}")
+            
+            # Enable the widget based on its type
+            if hasattr(widget, "state") and callable(getattr(widget, "state")):
+                current_state = widget.state()
+                logger.debug(f"Widget {widget_name} current state: {current_state}")
+                
+                # Try to remove disabled state
+                try:
+                    widget.state(["!disabled"])
+                    logger.debug(f"Widget {widget_name} new state: {widget.state()}")
+                except Exception as e:
+                    logger.error(f"Error changing state for widget {widget_name}: {e}")
+                    # Try alternative method
+                    try:
+                        widget.configure(state="normal")
+                        logger.debug(f"Widget {widget_name} state set via configure")
+                    except Exception as e2:
+                        logger.error(f"Error configuring widget {widget_name}: {e2}")
+                
+            elif hasattr(widget, "config") and callable(getattr(widget, "config")):
+                try:
+                    current_state = widget.cget("state") if hasattr(widget, "cget") else "unknown"
+                    logger.debug(f"Widget {widget_name} current state: {current_state}")
+                    
+                    # Try to set normal state
+                    widget.config(state=tk.NORMAL)
+                    new_state = widget.cget("state") if hasattr(widget, "cget") else "unknown"
+                    logger.debug(f"Widget {widget_name} new state: {new_state}")
+                except Exception as e:
+                    logger.error(f"Error configuring widget {widget_name}: {e}")
+            else:
+                logger.debug(f"Widget {widget_name} has no state or config method")
+            
+            # Recursively enable children
+            if hasattr(widget, "winfo_children") and callable(getattr(widget, "winfo_children")):
+                children = widget.winfo_children()
+                logger.debug(f"Widget {widget_name} has {len(children)} children")
+                for child in children:
+                    self._enable_widget(child)
+        except Exception as e:
+            logger.error(f"Error enabling widget: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
 
 
 def parse_arguments():
@@ -2724,25 +3602,85 @@ def main():
     # Parse command line arguments
     args = parse_arguments()
     
-    # Set logging level
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-        logger.debug("Verbose logging enabled")
+    # Set up logging - always enable debug logging for troubleshooting
+    logging.getLogger().setLevel(logging.DEBUG)
+    
+    # Configure root logger with a more detailed format
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s - %(message)s')
+    
+    # Add console handler with detailed formatting
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    console_handler.setFormatter(formatter)
+    logging.getLogger().addHandler(console_handler)
+    
+    logger.debug("Debug logging enabled with enhanced formatting")
+    
+    # Set up a file handler to log to a file as well
+    try:
+        log_dir = os.path.dirname(os.path.abspath(__file__))
+        log_file = os.path.join(log_dir, "color_control_panel.log")
+        
+        # Create a rotating file handler to avoid huge log files
+        # Keep 3 backup files of 5MB each
+        from logging.handlers import RotatingFileHandler
+        file_handler = RotatingFileHandler(
+            log_file,
+            mode='a',  # Append mode to preserve previous logs
+            maxBytes=5*1024*1024,  # 5MB
+            backupCount=3
+        )
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+        logging.getLogger().addHandler(file_handler)
+        
+        logger.debug(f"Logging to file: {log_file}")
+        logger.debug(f"Log rotation enabled: 5MB max size, 3 backup files")
+        
+        # Log system information
+        import platform
+        logger.debug(f"Platform: {platform.platform()}")
+        logger.debug(f"Python version: {platform.python_version()}")
+        logger.debug(f"Tkinter version: {tk.TkVersion}")
+        
+    except Exception as e:
+        logger.error(f"Failed to set up file logging: {e}", exc_info=True)
     
     try:
         # Create Tkinter root
         root = tk.Tk()
         
+        # Set up exception handler for Tkinter
+        def report_callback_exception(exc, val, tb):
+            logger.critical("Unhandled Tkinter exception:", exc_info=(exc, val, tb))
+            # Try to show an error message to the user
+            try:
+                import traceback
+                error_message = ''.join(traceback.format_exception(exc, val, tb))
+                messagebox.showerror("Unhandled Error",
+                                    f"An unhandled error occurred:\n\n{val}\n\nDetails have been logged.")
+                logger.debug(f"Error dialog displayed to user")
+            except:
+                logger.error("Failed to show error dialog", exc_info=True)
+        
+        # Set the exception handler
+        root.report_callback_exception = report_callback_exception
+        logger.debug("Custom Tkinter exception handler installed")
+        
         # Create control panel
+        logger.debug("Creating ColorControlPanel instance")
         app = ColorControlPanel(root, args.config)
+        logger.debug("ColorControlPanel instance created successfully")
         
         # Start main loop
+        logger.debug("Starting Tkinter main loop")
         root.mainloop()
+        logger.debug("Tkinter main loop ended")
         
         return 0
         
     except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
+        logger.critical(f"Unexpected error in main function: {e}", exc_info=True)
         return 1
 
 

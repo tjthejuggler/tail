@@ -405,12 +405,63 @@ def create_default_config():
     
     return default_config
 
+def find_latest_source_folder():
+    """
+    Find the most recently added source folder.
+    
+    Returns:
+        str: The color of the most recently added source folder
+    """
+    # Load config to get the correct paths
+    config = load_config()
+    if not config:
+        logger.error("Failed to load configuration")
+        return None
+    
+    # Get base directory
+    base_dir = config["paths"]["base_dir"]
+    
+    # Dictionary to store folder modification times
+    folder_times = {}
+    
+    # Check each color directory
+    for color, color_dir in config["paths"]["color_dirs"].items():
+        # Create absolute path
+        abs_color_dir = os.path.join(base_dir, color_dir)
+        
+        # Skip if directory doesn't exist
+        if not os.path.exists(abs_color_dir) or not os.path.isdir(abs_color_dir):
+            logger.warning(f"Color directory does not exist: {abs_color_dir}")
+            continue
+        
+        # Get the most recent modification time of any file in the directory
+        latest_time = 0
+        for filename in os.listdir(abs_color_dir):
+            file_path = os.path.join(abs_color_dir, filename)
+            if os.path.isfile(file_path):
+                mod_time = os.path.getmtime(file_path)
+                if mod_time > latest_time:
+                    latest_time = mod_time
+        
+        # Store the latest modification time for this color
+        folder_times[color] = latest_time
+    
+    # Find the color with the most recent modification time
+    if folder_times:
+        latest_color = max(folder_times.items(), key=lambda x: x[1])[0]
+        logger.info(f"Latest source folder is: {latest_color}")
+        return latest_color
+    else:
+        logger.error("No valid color directories found")
+        return None
+
 def update_wallpaper_folder(color=None):
     """
     Update the wallpaper folder with images from the specified color category.
     
     Args:
         color: The color category to use. If None, it will be determined from the weekly habit count.
+              If "latest", it will use the most recently added source folder.
         
     Returns:
         tuple: (success, color_changed, previous_color)
@@ -425,8 +476,14 @@ def update_wallpaper_folder(color=None):
     except Exception as e:
         logger.error(f"Error reading previous color: {e}")
     
+    # Handle the "latest" option
+    if color == "latest":
+        color = find_latest_source_folder()
+        if not color:
+            logger.error("Failed to find latest source folder")
+            return False, False, previous_color
     # Determine color if not provided
-    if color is None:
+    elif color is None:
         weekly_count = get_weekly_habit_count()
         color = get_color_from_count(weekly_count)
     
