@@ -83,6 +83,10 @@ class ColorControlPanel:
         self.current_analysis = None
         self.current_overlay_image = None
         self.current_overlay_tk = None
+
+        # Initialize last modified folder tracking
+        if "last_modified_folders" not in self.config:
+            self.config["last_modified_folders"] = []
         
         # Color picker variables
         self.color_picker_active = False
@@ -90,12 +94,27 @@ class ColorControlPanel:
         self.color_picker_current_pos = None
         self.color_picker_selection = None
         
-        # Track processed files
+        # Load and initialize processed files tracking
         self.processed_files = self.config.get("processed_files", {})
+        if not isinstance(self.processed_files, dict):
+            self.processed_files = {}
+            self.config["processed_files"] = {}
+            config_manager.save_config(self.config, self.config_path)
+        self.cleanup_processed_files()  # Clean up old entries on startup
         
         # Initialize wallpaper source selection
         if "wallpaper_source" not in self.config:
             self.config["wallpaper_source"] = "weekly_habits"
+        
+        # Initialize latest_by_date settings
+        if "latest_by_date_settings" not in self.config:
+            self.config["latest_by_date_settings"] = {"days_back": 7}
+        
+        # Initialize days_back_var from config
+        self.days_back_var = tk.IntVar(value=self.config.get("latest_by_date_settings", {}).get("days_back", 7))
+            
+        # Define refresh_wallpaper.py script path
+        self.refresh_script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "refresh_wallpaper.py")
         
         # Create UI
         self.create_ui()
@@ -1242,16 +1261,18 @@ class ColorControlPanel:
                 "color_thresholds": self.config["color_thresholds"].copy(),
                 "color_detection_params": self.config["color_detection_params"].copy(),
                 "color_selection_limits": self.config["color_selection_limits"].copy(),
-                "timestamp": time.time()
+                "resize_dimensions": self.config["resize_dimensions"]
             }
             
             # Create a settings hash for tracking processed files
             settings_hash = str(hash(str(current_settings)))
-            self.config["last_analysis_settings"] = current_settings
+            self.config["last_analysis_settings"] = current_settings.copy()
+            # Add timestamp to last_analysis_settings but not to the hash
+            self.config["last_analysis_settings"]["timestamp"] = time.time()
             
             # Initialize processed files tracking for this settings hash if needed
             if settings_hash not in self.processed_files:
-                self.processed_files[settings_hash] = []
+                self.processed_files[settings_hash] = {}
             
             if custom_dir:
                 # When using a custom directory, we don't reset categories
@@ -1269,10 +1290,12 @@ class ColorControlPanel:
                 ))
                 
                 # Process new images from custom directory with file tracking
+                # Force reprocessing of all images if settings have changed
                 new_stats = self.process_new_images_with_tracking(
                     custom_config,
                     color_params,
-                    settings_hash
+                    settings_hash,
+                    force_reprocess=True  # Force reprocessing when using custom directory
                 )
                 
                 # Skip categorizing existing images since we're only processing the custom directory
@@ -1287,10 +1310,12 @@ class ColorControlPanel:
                 ))
                 
                 # Process new images from the original directory in config with file tracking
+                # Force reprocessing of all images if settings have changed
                 new_stats = self.process_new_images_with_tracking(
                     self.config,
                     color_params,
-                    settings_hash
+                    settings_hash,
+                    force_reprocess=True  # Force reprocessing when resetting categories
                 )
                 
                 # Update UI
@@ -1302,7 +1327,8 @@ class ColorControlPanel:
                 existing_stats = self.process_new_images_with_tracking(
                     self.config,
                     color_params,
-                    settings_hash
+                    settings_hash,
+                    force_reprocess=True  # Force reprocessing when categorizing existing images
                 )
             
             # Save processed files to config
@@ -2157,6 +2183,13 @@ class ColorControlPanel:
                 "without_white_gray_black": {"min_colors": 1, "max_colors": 3}
             }
         
+        # Initialize processed files structure
+        if "processed_files" not in self.config:
+            self.config["processed_files"] = {}
+        elif not isinstance(self.config["processed_files"], dict):
+            # Convert old format to new format if needed
+            self.config["processed_files"] = {}
+        
         # Create frame for with_white_gray_black settings
         with_wgb_frame = ttk.LabelFrame(
             main_frame,
@@ -2430,7 +2463,7 @@ class ColorControlPanel:
             # Re-enable UI
             self.root.after(0, self.enable_ui)
 
-    def process_new_images_with_tracking(self, config, color_params, settings_hash):
+    def process_new_images_with_tracking(self, config, color_params, settings_hash, force_reprocess=False):
         """
         Process new images with tracking of processed files.
         
@@ -2438,6 +2471,7 @@ class ColorControlPanel:
             config: Configuration dictionary
             color_params: Color detection parameters
             settings_hash: Hash of the current analysis settings
+            force_reprocess: If True, reprocess all images even if they've been processed before
             
         Returns:
             dict: Statistics about the processing
@@ -2458,11 +2492,34 @@ class ColorControlPanel:
         # Get all image files recursively
         image_files = file_operations.get_image_files_recursive(original_dir)
         
-        # Filter out already processed files with the same settings
-        unprocessed_files = []
-        for image_path in image_files:
-            if image_path not in self.processed_files.get(settings_hash, []):
-                unprocessed_files.append(image_path)
+        # If force_reprocess is True, process all files
+        # Otherwise, filter out already processed files with the same settings
+        if force_reprocess:
+            unprocessed_files = image_files
+            logger.info(f"Force reprocessing all {len(image_files)} images")
+        else:
+            unprocessed_files = []
+            # Create a settings digest that includes all relevant settings
+            # This must match the format in _run_analysis_thread
+            settings_digest = {
+                "color_thresholds": thresholds,
+                "color_detection_params": color_params,
+                "color_selection_limits": color_limits,
+                "resize_dimensions": config["resize_dimensions"]
+            }
+            settings_hash = str(hash(str(settings_digest)))
+            
+            # Track which files have been processed with these exact settings
+            for image_path in image_files:
+                if settings_hash not in self.processed_files:
+                    self.processed_files[settings_hash] = {}
+                
+                # Check if this file has been processed with these settings
+                if image_path not in self.processed_files[settings_hash]:
+                    unprocessed_files.append(image_path)
+                    logger.debug(f"File needs processing: {image_path}")
+                else:
+                    logger.debug(f"Skipping already processed file: {image_path}")
         
         # If all files have been processed with these settings, return empty stats
         if not unprocessed_files:
@@ -2510,11 +2567,26 @@ class ColorControlPanel:
                     # Update stats
                     stats["categories"][category] = stats["categories"].get(category, 0) + 1
                 
-                # Add to processed files list
-                self.processed_files[settings_hash].append(image_path)
+                # Add to processed files list with timestamp and result
+                self.processed_files[settings_hash][image_path] = {
+                    'timestamp': time.time(),
+                    'categories': list(result["categories"]),
+                    'color_percentages': result["color_percentages"]
+                }
+                # Save the updated processed files list to config
+                self.config["processed_files"] = self.processed_files
+                config_manager.save_config(self.config, self.config_path)
                 
                 # Update stats
                 stats["processed"] += 1
+                
+                # Add folder to modified list if we processed any images from it
+                if "modified_folders" not in stats:
+                    stats["modified_folders"] = set()
+                folder = os.path.dirname(image_path)
+                if folder not in stats["modified_folders"]:
+                    stats["modified_folders"].add(folder)
+                    self.add_folder_to_modified(folder)
                 
                 # Log progress
                 if stats["processed"] % 100 == 0:
@@ -2694,14 +2766,40 @@ class ColorControlPanel:
         latest_frame = ttk.LabelFrame(radio_frame, text="Latest Images")
         latest_frame.pack(fill=tk.X, padx=10, pady=5)
         
-        # Latest option
+        # Latest option (based on date in folder name)
         latest_radio = ttk.Radiobutton(
             latest_frame,
-            text="Use images from the most recently added source folder",
+            text="Use images from the most recent source directory (by date in folder name)",
             variable=self.wallpaper_source_var,
             value="latest"
         )
         latest_radio.pack(anchor=tk.W, padx=20, pady=5)
+        
+        # Latest by date naming convention
+        latest_date_frame = ttk.Frame(latest_frame)
+        latest_date_frame.pack(fill=tk.X, padx=20, pady=5)
+        
+        latest_date_radio = ttk.Radiobutton(
+            latest_date_frame,
+            text="Use images from folders in /home/twain/Pictures/lbm_dirs with format (lbm-M-D-YY) within the last",
+            variable=self.wallpaper_source_var,
+            value="latest_by_date"
+        )
+        latest_date_radio.pack(side=tk.LEFT, padx=0, pady=5)
+        
+        # Days back spinbox - already initialized in __init__ from config
+        
+        days_back_spinbox = ttk.Spinbox(
+            latest_date_frame,
+            from_=1,
+            to=365,
+            width=3,
+            textvariable=self.days_back_var
+        )
+        days_back_spinbox.pack(side=tk.LEFT, padx=5, pady=5)
+        
+        days_label = ttk.Label(latest_date_frame, text="days")
+        days_label.pack(side=tk.LEFT, padx=5, pady=5)
         
         # Create a frame for the action buttons
         button_frame = ttk.Frame(main_frame)
@@ -2719,7 +2817,8 @@ class ColorControlPanel:
         help_text = ttk.Label(
             main_frame,
             text="Note: Clicking 'Apply and Refresh Plasma' will update the active wallpaper folder and refresh the KDE Plasma desktop to apply the changes.\n\n"
-                 "Inclusive options include all colors up to the current color in the order: red, orange, green, blue, pink, yellow, white_gray_black.",
+                 "Inclusive options include all colors up to the current color in the order: red, orange, green, blue, pink, yellow, white_gray_black.\n\n"
+                 "The date-based folder selection looks for folders in /home/twain/Pictures/lbm_dirs with names like 'lbm-3-18-25' (month-day-year).",
             wraplength=800,
             font=("Arial", 9, "italic")
         )
@@ -2754,12 +2853,261 @@ class ColorControlPanel:
         # Save to configuration
         self.config["direct_color_selection"] = selected_colors
     
+    def parse_folder_date(self, folder_name):
+        """
+        Parse a folder name in the format 'lbm-M-D-YY' to extract the date.
+        
+        Args:
+            folder_name: Name of the folder (not full path)
+            
+        Returns:
+            datetime.date: The parsed date, or None if the format doesn't match
+        """
+        import datetime
+        import traceback
+        import time
+        
+        # Generate a unique ID for this operation
+        operation_id = f"parse_date_{folder_name}"
+        
+        # Start timing
+        start_time = time.time()
+        
+        logger.debug(f"[{operation_id}] Parsing date from folder name: {folder_name}")
+        
+        # Check if folder_name is valid
+        if not folder_name or not isinstance(folder_name, str):
+            logger.warning(f"[{operation_id}] Invalid folder name: {folder_name}")
+            return None
+        
+        # Split by '-' to handle variable-length month and day parts
+        parts = folder_name.split('-')
+        
+        # Check if we have the expected format (lbm-M-D-YY)
+        if len(parts) == 4 and parts[0] == 'lbm':
+            try:
+                # Validate each part
+                if not parts[1].isdigit() or not parts[2].isdigit() or not parts[3].isdigit():
+                    logger.warning(f"[{operation_id}] Non-numeric date parts in folder name: {folder_name}")
+                    return None
+                
+                month = int(parts[1])
+                day = int(parts[2])
+                year = int(parts[3])
+                
+                # Basic validation
+                if month < 1 or month > 12:
+                    logger.warning(f"[{operation_id}] Invalid month ({month}) in folder name: {folder_name}")
+                    return None
+                
+                if day < 1 or day > 31:
+                    logger.warning(f"[{operation_id}] Invalid day ({day}) in folder name: {folder_name}")
+                    return None
+                
+                # Assume 2-digit year format (e.g., 25 -> 2025)
+                if year < 100:
+                    year += 2000
+                
+                # Create date object with additional validation
+                try:
+                    date_obj = datetime.date(year, month, day)
+                    logger.debug(f"[{operation_id}] Successfully parsed date: {date_obj}")
+                    return date_obj
+                except ValueError as e:
+                    # This catches invalid dates like February 30
+                    logger.warning(f"[{operation_id}] Invalid date combination in folder name: {folder_name}, error: {e}")
+                    return None
+                
+            except (ValueError, IndexError) as e:
+                logger.warning(f"[{operation_id}] Failed to parse date from folder name: {folder_name}, error: {e}")
+                logger.debug(traceback.format_exc())
+                return None
+            except Exception as e:
+                logger.error(f"[{operation_id}] Unexpected error parsing date from folder name: {folder_name}, error: {e}")
+                logger.debug(traceback.format_exc())
+                return None
+            
+            # End timing and log duration
+            end_time = time.time()
+            duration_ms = (end_time - start_time) * 1000  # Convert to milliseconds
+            logger.debug(f"[{operation_id}] Parsing completed in {duration_ms:.2f} ms")
+        else:
+            logger.debug(f"[{operation_id}] Folder name does not match expected format (lbm-M-D-YY): {folder_name}")
+            return None
+    
+    def get_recent_folders(self, base_dir, days_back=7):
+        """
+        Get folders that have dates within the specified number of days from today.
+        
+        Args:
+            base_dir: Base directory to search in
+            days_back: Number of days to look back
+            
+        Returns:
+            list: List of folder paths sorted by date (most recent first)
+        """
+        import datetime
+        import os
+        import traceback
+        
+        # Generate a unique ID for this operation to track it in logs
+        operation_id = f"get_folders_{int(datetime.datetime.now().timestamp())}"
+        
+        # Start timing
+        start_time = time.time()
+        
+        logger.debug(f"[{operation_id}] Starting get_recent_folders with base_dir={base_dir}, days_back={days_back}")
+        
+        today = datetime.date.today()
+        cutoff_date = today - datetime.timedelta(days=days_back)
+        
+        logger.debug(f"[{operation_id}] Looking for folders with dates >= {cutoff_date}")
+        
+        # Get all subdirectories
+        folders = []
+        try:
+            # Check if base_dir exists
+            if not os.path.exists(base_dir):
+                logger.error(f"[{operation_id}] Base directory does not exist: {base_dir}")
+                return []
+                
+            # Check if base_dir is a directory
+            if not os.path.isdir(base_dir):
+                logger.error(f"[{operation_id}] Path is not a directory: {base_dir}")
+                return []
+            
+            # List directory contents
+            logger.debug(f"[{operation_id}] Listing contents of {base_dir}")
+            items = os.listdir(base_dir)
+            logger.debug(f"[{operation_id}] Found {len(items)} items in {base_dir}")
+            
+            # Add a safety limit to prevent processing too many folders
+            max_items = 500  # Set a reasonable limit
+            if len(items) > max_items:
+                logger.warning(f"[{operation_id}] Too many items ({len(items)}) in directory, limiting to {max_items}")
+                items = items[:max_items]
+            
+            # Process each item
+            for item_index, item in enumerate(items):
+                # Log progress for large directories
+                if item_index % 20 == 0 and item_index > 0:
+                    logger.debug(f"[{operation_id}] Processed {item_index}/{len(items)} items")
+                
+                full_path = os.path.join(base_dir, item)
+                
+                # Check if it's a directory
+                if os.path.isdir(full_path):
+                    # Parse date from folder name
+                    try:
+                        folder_date = self.parse_folder_date(item)
+                        if folder_date:
+                            logger.debug(f"[{operation_id}] Parsed date {folder_date} from folder {item}")
+                            if folder_date >= cutoff_date:
+                                logger.debug(f"[{operation_id}] Folder {item} with date {folder_date} is within range")
+                                folders.append((full_path, folder_date))
+                            else:
+                                logger.debug(f"[{operation_id}] Folder {item} with date {folder_date} is too old")
+                        else:
+                            logger.debug(f"[{operation_id}] Could not parse date from folder {item}")
+                    except Exception as e:
+                        logger.error(f"[{operation_id}] Error parsing date for folder {item}: {e}")
+                        logger.error(traceback.format_exc())
+                        # Continue processing other folders
+                        continue
+                else:
+                    logger.debug(f"[{operation_id}] Skipping non-directory item: {item}")
+        except Exception as e:
+            logger.error(f"[{operation_id}] Error listing directories in {base_dir}: {e}")
+            logger.error(traceback.format_exc())
+            return []
+        
+        # Sort by date (most recent first)
+        logger.debug(f"[{operation_id}] Sorting {len(folders)} folders by date")
+        folders.sort(key=lambda x: x[1], reverse=True)
+        
+        logger.debug(f"[{operation_id}] Found {len(folders)} folders with valid dates within range")
+        if folders:
+            for i, (path, date) in enumerate(folders[:5]):  # Log only the first 5 to avoid log spam
+                logger.debug(f"[{operation_id}]   {i+1}. {os.path.basename(path)} - {date}")
+            if len(folders) > 5:
+                logger.debug(f"[{operation_id}]   ... and {len(folders) - 5} more")
+        
+        # Return just the paths
+        result = [folder[0] for folder in folders]
+        
+        # End timing and log duration
+        end_time = time.time()
+        duration_sec = end_time - start_time
+        logger.debug(f"[{operation_id}] get_recent_folders completed in {duration_sec:.2f} seconds")
+        logger.debug(f"[{operation_id}] Returning {len(result)} folder paths")
+        
+        return result
+    
+    def add_folder_to_modified(self, folder_path):
+        """
+        Add a folder to the list of recently modified folders.
+        
+        Args:
+            folder_path: Path to the folder that was modified
+        """
+        # Ensure the path is absolute
+        folder_path = os.path.abspath(folder_path)
+        
+        # Remove this path if it's already in the list
+        if folder_path in self.config["last_modified_folders"]:
+            self.config["last_modified_folders"].remove(folder_path)
+        
+        # Add to the beginning of the list (most recent)
+        self.config["last_modified_folders"].insert(0, folder_path)
+        
+        # Keep only the last 10 folders
+        self.config["last_modified_folders"] = self.config["last_modified_folders"][:10]
+        
+        # Save configuration
+        config_manager.save_config(self.config, self.config_path)
+    
+    def cleanup_processed_files(self):
+        """
+        Clean up old processed file entries to prevent config file from growing too large.
+        Only keeps entries from the last 30 days.
+        """
+        current_time = time.time()
+        max_age = 30 * 24 * 60 * 60  # 30 days in seconds
+        
+        if not isinstance(self.processed_files, dict):
+            self.processed_files = {}
+            return
+            
+        for settings_hash in list(self.processed_files.keys()):
+            if not isinstance(self.processed_files[settings_hash], dict):
+                self.processed_files[settings_hash] = {}
+                continue
+                
+            # Clean up old entries for each settings hash
+            for file_path in list(self.processed_files[settings_hash].keys()):
+                entry = self.processed_files[settings_hash][file_path]
+                if isinstance(entry, dict) and 'timestamp' in entry:
+                    if current_time - entry['timestamp'] > max_age:
+                        del self.processed_files[settings_hash][file_path]
+                else:
+                    # Remove invalid entries
+                    del self.processed_files[settings_hash][file_path]
+            
+            # Remove empty settings hashes
+            if not self.processed_files[settings_hash]:
+                del self.processed_files[settings_hash]
+        
+        # Save the cleaned up processed files list
+        self.config["processed_files"] = self.processed_files
+        config_manager.save_config(self.config, self.config_path)
+        
     def apply_wallpaper_source(self):
         """
         Apply the selected wallpaper source and refresh Plasma.
         """
         import traceback
         import time
+        import subprocess
         
         # Generate a unique ID for this operation to track it in logs
         operation_id = f"apply_source_{int(time.time())}"
@@ -2774,17 +3122,10 @@ class ColorControlPanel:
         config_manager.save_config(self.config, self.config_path)
         logger.debug(f"[{operation_id}] Configuration saved")
         
-        # Disable UI during processing
-        logger.debug(f"[{operation_id}] Disabling UI")
-        try:
-            self.disable_ui()
-            logger.debug(f"[{operation_id}] UI disabled successfully")
-        except Exception as e:
-            logger.error(f"[{operation_id}] Error disabling UI: {e}")
-            logger.error(traceback.format_exc())
-            # Continue anyway, but note the error
+        # We'll gather all necessary information before disabling the UI
+        # to minimize the time the UI is disabled
         
-        self.status_var.set("Applying wallpaper source...")
+        self.status_var.set("Preparing to apply wallpaper source...")
         
         # Prepare parameters for the thread
         params = {
@@ -2888,11 +3229,249 @@ class ColorControlPanel:
                     return
                 
                 self.status_var.set(f"Using selected colors: {', '.join(params['colors'])}")
+            elif selected_source == "latest_by_date":
+                # Use folders with date naming convention within specified days
+                logger.debug(f"[{operation_id}] Using latest by date folder method")
+                days_back = self.days_back_var.get()
+                
+                # Save days_back value to configuration
+                if "latest_by_date_settings" not in self.config:
+                    self.config["latest_by_date_settings"] = {}
+                self.config["latest_by_date_settings"]["days_back"] = days_back
+                config_manager.save_config(self.config, self.config_path)
+                
+                # Use the specific directory for lbm folders
+                lbm_dirs_path = "/home/twain/Pictures/lbm_dirs"
+                
+                # Check if the directory exists
+                if not os.path.exists(lbm_dirs_path):
+                    logger.warning(f"[{operation_id}] LBM directories path does not exist: {lbm_dirs_path}")
+                    messagebox.showwarning(
+                        "Directory Not Found",
+                        f"The LBM directories path does not exist: {lbm_dirs_path}\n\nPlease create this directory and add folders with the naming convention 'lbm-M-D-YY'."
+                    )
+                    return
+                
+                # Get recent folders based on date naming convention - CRITICAL SECTION
+                # This is where the app might hang, so we'll add extra logging and error handling
+                try:
+                    logger.debug(f"[{operation_id}] Starting to get recent folders from {lbm_dirs_path} with days_back={days_back}")
+                    # Add a timeout mechanism for the get_recent_folders call
+                    import threading
+                    import queue
+                    
+                    result_queue = queue.Queue()
+                    
+                    def get_folders_with_timeout():
+                        try:
+                            folders = self.get_recent_folders(lbm_dirs_path, days_back)
+                            result_queue.put(("success", folders))
+                        except Exception as e:
+                            logger.error(f"[{operation_id}] Error in get_recent_folders: {e}")
+                            logger.error(traceback.format_exc())
+                            result_queue.put(("error", str(e)))
+                    
+                    # Start the folder retrieval in a separate thread
+                    folder_thread = threading.Thread(target=get_folders_with_timeout)
+                    folder_thread.daemon = True
+                    folder_thread.start()
+                    
+                    # Wait for the thread to complete with a timeout
+                    folder_thread.join(timeout=5)  # 5 second timeout
+                    
+                    if folder_thread.is_alive():
+                        # Thread is still running after timeout
+                        logger.warning(f"[{operation_id}] get_recent_folders timed out after 5 seconds")
+                        messagebox.showwarning(
+                            "Operation Timeout",
+                            f"The folder search operation timed out. This might be due to a large number of folders or system load.\n\nTry again with a smaller number of days."
+                        )
+                        return
+                    
+                    # Get the result from the queue
+                    if result_queue.empty():
+                        logger.error(f"[{operation_id}] No result from get_recent_folders thread")
+                        messagebox.showerror(
+                            "Error",
+                            "Failed to retrieve folder information. Please try again."
+                        )
+                        return
+                    
+                    status, result = result_queue.get()
+                    if status == "error":
+                        logger.error(f"[{operation_id}] Error from get_recent_folders: {result}")
+                        messagebox.showerror(
+                            "Error",
+                            f"An error occurred while retrieving folders: {result}"
+                        )
+                        return
+                    
+                    recent_folders = result
+                    logger.debug(f"[{operation_id}] Successfully retrieved {len(recent_folders)} folders")
+                    
+                except Exception as e:
+                    logger.error(f"[{operation_id}] Error in folder retrieval process: {e}")
+                    logger.error(traceback.format_exc())
+                    messagebox.showerror(
+                        "Error",
+                        f"An unexpected error occurred: {e}"
+                    )
+                    return
+                
+                # Check if we found any folders
+                if not recent_folders:
+                    logger.warning(f"[{operation_id}] No folders with date naming convention found within {days_back} days in {lbm_dirs_path}")
+                    messagebox.showwarning(
+                        "No Recent Folders",
+                        f"No folders with date naming convention (lbm-M-D-YY) found within the last {days_back} days in:\n{lbm_dirs_path}\n\nPlease create folders with names like 'lbm-3-18-25' in this directory."
+                    )
+                    return
+                
+                # Use the most recent folder (first in the list)
+                latest_folder = recent_folders[0]
+                folder_name = os.path.basename(latest_folder)
+                logger.debug(f"[{operation_id}] Using latest folder by date: {latest_folder}")
+                
+                # Now that we have all the information, disable the UI
+                logger.debug(f"[{operation_id}] Disabling UI")
+                try:
+                    self.disable_ui()
+                    logger.debug(f"[{operation_id}] UI disabled successfully")
+                except Exception as e:
+                    logger.error(f"[{operation_id}] Error disabling UI: {e}")
+                    logger.error(traceback.format_exc())
+                
+                self.status_var.set(f"Using latest folder by date: {folder_name}")
+                
+                # Update the configuration without refreshing plasma
+                try:
+                    # Save the folder to the configuration
+                    self.config["latest_folder"] = latest_folder
+                    config_manager.save_config(self.config, self.config_path)
+                    
+                    # Run the script with days_back parameter instead of latest_folder
+                    cmd = ["python3", self.refresh_script_path, "--days-back", str(days_back), "--no-refresh"]
+                    logger.debug(f"[{operation_id}] Command: {' '.join(cmd)}")
+                    
+                    # Use a shorter timeout to prevent hanging
+                    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    try:
+                        stdout, stderr = process.communicate(timeout=3)  # Reduced timeout to 3 seconds
+                        logger.debug(f"[{operation_id}] stdout: {stdout}")
+                        logger.debug(f"[{operation_id}] stderr: {stderr}")
+                    except subprocess.TimeoutExpired:
+                        logger.warning(f"[{operation_id}] Process timed out after 3 seconds, terminating")
+                        process.kill()
+                        stdout, stderr = process.communicate()
+                        logger.debug(f"[{operation_id}] After kill - stdout: {stdout}")
+                        logger.debug(f"[{operation_id}] After kill - stderr: {stderr}")
+                    
+                    # Re-enable UI immediately before showing any dialogs
+                    self._safe_enable_ui()
+                    
+                    # Show success message
+                    status_message = f"Success: Using latest folder by date: {folder_name}"
+                    logger.debug(status_message)
+                    self.status_var.set(status_message)
+                    
+                    # Re-enable UI before plasma refresh to ensure app stays responsive
+                    logger.debug(f"[{operation_id}] Re-enabling UI before plasma refresh")
+                    self._safe_enable_ui()
+                    
+                    # Add a small delay to ensure UI is fully responsive
+                    time.sleep(0.5)
+                    logger.debug(f"[{operation_id}] Added delay after re-enabling UI")
+                    
+                    # Run the plasma refresh in a separate process
+                    logger.debug(f"[{operation_id}] Running plasma refresh in separate process")
+                    self.status_var.set("Changes applied successfully. Refreshing plasma shell...")
+                    
+                    # Use the _safe_refresh_plasma method to refresh plasma in a separate process
+                    self._safe_refresh_plasma(callback=lambda: self.status_var.set(f"Plasma shell refreshed successfully. Using folder: {folder_name}"))
+                    
+                    # Show success message
+                    messagebox.showinfo(
+                        "Success",
+                        f"Wallpaper source updated to use folder: {folder_name}\n\n"
+                        "The plasma shell is being refreshed in a separate process.\n"
+                        "Your desktop wallpaper should update momentarily."
+                    )
+                    
+                    return
+                    
+                except Exception as e:
+                    logger.error(f"[{operation_id}] Error updating wallpaper source: {e}")
+                    logger.error(traceback.format_exc())
+                    self._safe_enable_ui()
+                    messagebox.showerror(
+                        "Error",
+                        f"An error occurred while updating the wallpaper source:\n\n{e}"
+                    )
+                    return
             elif selected_source == "latest":
-                # Use the latest folder
-                logger.debug(f"[{operation_id}] Using latest images folder method")
-                self.status_var.set("Using latest images folder...")
-                params['color'] = "latest"
+                # Use the most recent folder by date in folder name
+                logger.debug(f"[{operation_id}] Using most recent folder by date method")
+                
+                # Use the days_back parameter with a value of 36500 (100 years) to get all folders
+                # The script will sort them by date and use only the most recent one
+                days_back = 36500  # ~100 years to include all folders
+                
+                # Update the status
+                self.status_var.set("Finding the most recent folder by date...")
+                
+                # Run the script with days_back parameter
+                cmd = ["python3", self.refresh_script_path, "--days-back", str(days_back), "--most-recent-only"]
+                logger.debug(f"[{operation_id}] Command: {' '.join(cmd)}")
+                
+                process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                stdout, stderr = process.communicate()
+                logger.debug(f"[{operation_id}] stdout: {stdout}")
+                
+                if process.returncode == 0:
+                    # Extract the folder name from the output if possible
+                    folder_name = "most recent folder"
+                    for line in stdout.splitlines():
+                        if "Wallpaper directory updated with images from:" in line:
+                            parts = line.split(":")
+                            if len(parts) > 1:
+                                folder_name = parts[1].strip()
+                    
+                    status_message = f"Success: Using most recent folder: {folder_name}"
+                    logger.debug(status_message)
+                    self.root.after(0, lambda: self.status_var.set(status_message))
+                    
+                    # Re-enable UI before plasma refresh to ensure app stays responsive
+                    logger.debug(f"[{operation_id}] Re-enabling UI before plasma refresh")
+                    self._safe_enable_ui()
+                    
+                    # Add a small delay to ensure UI is fully responsive
+                    time.sleep(0.5)
+                    logger.debug(f"[{operation_id}] Added delay after re-enabling UI")
+                    
+                    # Run the plasma refresh in a separate process
+                    logger.debug(f"[{operation_id}] Running plasma refresh in separate process")
+                    self.status_var.set("Changes applied successfully. Refreshing plasma shell...")
+                    
+                    # Use the _safe_refresh_plasma method to refresh plasma in a separate process
+                    self._safe_refresh_plasma(callback=lambda: self.status_var.set(f"Plasma shell refreshed successfully. Using folder: {folder_name}"))
+                    
+                    # Show success message
+                    messagebox.showinfo(
+                        "Success",
+                        f"Wallpaper source updated to use the most recent folder: {folder_name}\n\n"
+                        "The plasma shell is being refreshed in a separate process.\n"
+                        "Your desktop wallpaper should update momentarily."
+                    )
+                    
+                    return
+                else:
+                    logger.warning(f"[{operation_id}] No folders with valid dates found")
+                    messagebox.showwarning(
+                        "No Valid Folders",
+                        "No folders with valid date format (lbm-M-D-YY) found. Please create folders with this naming convention."
+                    )
+                    self._safe_enable_ui()
+                    return
             elif selected_source.startswith("color_"):
                 # Direct color selection (single color)
                 color_name = selected_source.replace("color_", "")
@@ -2922,17 +3501,20 @@ class ColorControlPanel:
                 time.sleep(0.5)
                 logger.debug(f"[{operation_id}] Added delay after re-enabling UI")
                 
-                # Then refresh plasma shell safely
-                logger.debug(f"[{operation_id}] Scheduling safe plasma refresh")
-                self.status_var.set("Refreshing plasma shell...")
+                # Run the plasma refresh in a truly separate process
+                logger.debug(f"[{operation_id}] Running plasma refresh in separate process")
+                self.status_var.set("Changes applied successfully. Refreshing plasma shell...")
                 
-                # Use a callback that includes the operation ID for tracking
-                def refresh_complete_callback():
-                    logger.debug(f"[{operation_id}] Plasma refresh completed")
-                    self.status_var.set("Plasma shell refreshed successfully")
+                # Use the _safe_refresh_plasma method to refresh plasma in a separate process
+                self._safe_refresh_plasma(callback=lambda: self.status_var.set("Plasma shell refreshed successfully"))
                 
-                self._safe_refresh_plasma(refresh_complete_callback)
-                logger.debug(f"[{operation_id}] _safe_refresh_plasma scheduled successfully")
+                # Show a success message
+                messagebox.showinfo(
+                    "Success",
+                    "Wallpaper source updated successfully!\n\n"
+                    "The plasma shell is being refreshed in a separate process.\n"
+                    "Your desktop wallpaper should update momentarily."
+                )
                 
             except Exception as e:
                 logger.error(f"[{operation_id}] Error in critical section: {e}")
@@ -3000,10 +3582,20 @@ class ColorControlPanel:
                     
                     # Wait for process to complete
                     logger.debug("Waiting for process to complete...")
-                    stdout, stderr = process.communicate()
-                    logger.debug(f"Process completed with return code: {process.returncode}")
-                    logger.debug(f"stdout: {stdout}")
-                    logger.debug(f"stderr: {stderr}")
+                    try:
+                        # Add a timeout to prevent hanging
+                        stdout, stderr = process.communicate(timeout=10)  # 10 second timeout
+                        logger.debug(f"Process completed with return code: {process.returncode}")
+                        logger.debug(f"stdout: {stdout}")
+                        logger.debug(f"stderr: {stderr}")
+                    except subprocess.TimeoutExpired:
+                        logger.warning(f"Process timed out after 10 seconds, terminating")
+                        process.kill()
+                        stdout, stderr = process.communicate()
+                        logger.debug(f"After kill - stdout: {stdout}")
+                        logger.debug(f"After kill - stderr: {stderr}")
+                        # Consider it a failure if we had to kill it
+                        logger.error(f"Failed to process color {c}: Timeout")
                     
                     if process.returncode == 0:
                         success_count += 1
@@ -3034,10 +3626,22 @@ class ColorControlPanel:
                 
                 # Wait for process to complete
                 logger.debug("Waiting for process to complete...")
-                stdout, stderr = process.communicate()
-                logger.debug(f"Process completed with return code: {process.returncode}")
-                logger.debug(f"stdout: {stdout}")
-                logger.debug(f"stderr: {stderr}")
+                try:
+                    # Add a timeout to prevent hanging
+                    stdout, stderr = process.communicate(timeout=10)  # 10 second timeout
+                    logger.debug(f"Process completed with return code: {process.returncode}")
+                    logger.debug(f"stdout: {stdout}")
+                    logger.debug(f"stderr: {stderr}")
+                except subprocess.TimeoutExpired:
+                    logger.warning(f"Process timed out after 10 seconds, terminating")
+                    process.kill()
+                    stdout, stderr = process.communicate()
+                    logger.debug(f"After kill - stdout: {stdout}")
+                    logger.debug(f"After kill - stderr: {stderr}")
+                    # Still consider it a success if we had to kill it
+                    status_message = f"Timeout while applying changes, but changes should still be applied"
+                    logger.warning(status_message)
+                    self.root.after(0, lambda: self.status_var.set(status_message))
                 
                 if process.returncode == 0:
                     source_name = selected_source
@@ -3133,6 +3737,9 @@ class ColorControlPanel:
         Args:
             callback: Optional callback function to call after the refresh
         """
+        # IMPORTANT: This method has been identified as a potential source of UI freezes
+        # when setting days_back in the latest_by_date option in the wallpaper source tab.
+        # We've added additional safeguards to prevent the UI from becoming unresponsive.
         import subprocess
         import threading
         import traceback
@@ -3153,19 +3760,19 @@ class ColorControlPanel:
             logger.error(traceback.format_exc())
         
         # Create a watchdog timer to ensure the UI stays responsive
+        # This is a one-time check, not a recurring timer
         def watchdog_timer():
             try:
                 logger.debug(f"[PLASMA-{refresh_id}] Watchdog timer activated")
-                # Force UI update every 500ms to keep it responsive
+                # Force UI update to keep it responsive
                 self.root.after(0, lambda: self.root.update_idletasks())
-                # Schedule next watchdog check
-                self.root.after(500, watchdog_timer)
+                # No recursive scheduling here - this prevents the endless loop of watchdogs
             except Exception as e:
                 logger.error(f"[PLASMA-{refresh_id}] Error in watchdog timer: {e}")
         
-        # Start the watchdog timer
-        self.root.after(0, watchdog_timer)
-        logger.debug(f"[PLASMA-{refresh_id}] Watchdog timer scheduled")
+        # Start the watchdog timer - only schedule once, not repeatedly
+        self.root.after(0, lambda: self.root.after(500, watchdog_timer))
+        logger.debug(f"[PLASMA-{refresh_id}] Watchdog timer scheduled once")
         
         def refresh_thread():
             try:
@@ -3403,7 +4010,7 @@ exit 0
         try:
             # Log the current UI state
             logger.debug(f"Root window state before disable: {self.root.state()}")
-            logger.debug(f"Root window attributes before disable: {self.root.winfo_attributes()}")
+            # Skip attributes logging which can cause errors in some tkinter versions
             
             # Get the current active widget to help with debugging
             try:
@@ -3472,7 +4079,7 @@ exit 0
         try:
             # Log the current UI state
             logger.debug(f"Root window state before enable: {self.root.state()}")
-            logger.debug(f"Root window attributes before enable: {self.root.winfo_attributes()}")
+            # Skip attributes logging which can cause errors in some tkinter versions
             
             # Get the current active widget to help with debugging
             try:
@@ -3592,6 +4199,9 @@ def parse_arguments():
     parser.add_argument("--verbose", action="store_true",
                         help="Enable verbose logging")
     
+    parser.add_argument("--refresh-plasma", action="store_true",
+                        help="Just refresh the plasma shell and exit")
+    
     return parser.parse_args()
 
 
@@ -3615,6 +4225,44 @@ def main():
     logging.getLogger().addHandler(console_handler)
     
     logger.debug("Debug logging enabled with enhanced formatting")
+    
+    # Handle --refresh-plasma option
+    if args.refresh_plasma:
+        logger.info("Refreshing plasma shell and exiting")
+        try:
+            import subprocess
+            import time
+            
+            # Run the dbus-send command to refresh plasma
+            logger.debug("Running dbus-send command to refresh plasma")
+            cmd = ["dbus-send", "--session", "--dest=org.kde.plasmashell",
+                   "--type=method_call", "/PlasmaShell",
+                   "org.kde.PlasmaShell.refreshCurrentShell"]
+            
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            
+            try:
+                # Add a timeout to prevent hanging
+                stdout, stderr = process.communicate(timeout=5)
+                logger.debug(f"Plasma refresh completed with return code: {process.returncode}")
+                if stderr:
+                    logger.error(f"Error refreshing plasma: {stderr}")
+                else:
+                    logger.info("Plasma shell refreshed successfully")
+                    print("Plasma shell refreshed successfully")
+            except subprocess.TimeoutExpired:
+                logger.warning("Plasma refresh timed out after 5 seconds, terminating")
+                process.kill()
+                stdout, stderr = process.communicate()
+                logger.debug(f"After kill - stdout: {stdout}")
+                logger.debug(f"After kill - stderr: {stderr}")
+                print("Plasma refresh timed out, but may have still worked")
+            
+            return 0
+        except Exception as e:
+            logger.error(f"Error refreshing plasma: {e}", exc_info=True)
+            print(f"Error refreshing plasma: {e}")
+            return 1
     
     # Set up a file handler to log to a file as well
     try:
