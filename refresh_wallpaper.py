@@ -309,10 +309,52 @@ def update_wallpaper_folder(color=None, latest_folder=None, days_back=None):
     # Get the current color
     prev_color = get_current_color()
     
-    # Determine the color to use
-    if not color:
+    # Load config to check for wallpaper source setting
+    config = load_config()
+    
+    # If no specific source is provided via arguments, check the config
+    if not color and latest_folder is None and days_back is None and config:
+        wallpaper_source = config.get("wallpaper_source")
+        logger.info(f"Using wallpaper source from config: {wallpaper_source}")
+        
+        if wallpaper_source == "direct_color_selection" and "direct_color_selection" in config:
+            # Use the selected colors from direct color selection
+            selected_colors = config.get("direct_color_selection", [])
+            if selected_colors:
+                color = selected_colors[0]  # Use the first selected color
+                logger.info(f"Using direct color selection: {color}")
+        elif wallpaper_source == "latest_by_date":
+            # Use folders from the last X days
+            days_setting = config.get("latest_by_date_settings", {}).get("days_back", 7)
+            days_back = days_setting
+            logger.info(f"Using latest by date with days_back={days_back}")
+        elif wallpaper_source == "latest":
+            # Use the most recent folder
+            latest_folder = get_most_recent_folder()
+            if latest_folder:
+                logger.info(f"Using most recent folder: {latest_folder}")
+            else:
+                logger.warning("No recent folders found, falling back to weekly habits")
+                weekly_count = get_weekly_habit_count()
+                color = get_color_from_count(weekly_count)
+        elif wallpaper_source == "weekly_habits_inclusive":
+            # Use weekly habits but include all colors up to the determined color
+            weekly_count = get_weekly_habit_count()
+            habit_color = get_color_from_count(weekly_count)
+            # For now, just use the habit color directly
+            # In a more complete implementation, we would include all colors up to this one
+            color = habit_color
+            logger.info(f"Using weekly habits inclusive with color: {color}")
+        elif wallpaper_source != "weekly_habits":
+            # For any other source or if source is not specified, fall back to weekly habits
+            weekly_count = get_weekly_habit_count()
+            color = get_color_from_count(weekly_count)
+            logger.info(f"Using weekly habits with color: {color}")
+    elif not color:
+        # If no source is specified in config or arguments, fall back to weekly habits
         weekly_count = get_weekly_habit_count()
         color = get_color_from_count(weekly_count)
+        logger.info(f"Falling back to weekly habits with color: {color}")
     
     # Clear the target directory first
     if not clear_target_directory():

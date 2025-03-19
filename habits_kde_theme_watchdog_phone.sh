@@ -43,11 +43,12 @@ run_wallpaper_manager() {
     echo "Wallpaper manager completed at $(date)" >> "$logfile"
 }
 
-# Function to update the wallpaper folder based on weekly habit average
+# Function to update the wallpaper folder based on the last selected wallpaper source
 update_wallpaper_directory() {
-    echo "Updating wallpaper directory based on weekly habit average at $(date)" >> "$logfile"
+    echo "Updating wallpaper directory based on the last selected wallpaper source at $(date)" >> "$logfile"
     
     # Use the refresh_wallpaper.py script to update the wallpaper directory and refresh the Plasma shell
+    # This will use whatever source was last set in the wallpaper source tab of the color control panel
     python3 "$refresh_wallpaper" --force-refresh >> "$logfile" 2>&1
     
     echo "Wallpaper directory update completed at $(date)" >> "$logfile"
