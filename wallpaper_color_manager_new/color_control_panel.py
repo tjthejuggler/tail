@@ -2667,10 +2667,10 @@ class ColorControlPanel:
         habits_frame = ttk.LabelFrame(radio_frame, text="Habits-Based Selection")
         habits_frame.pack(fill=tk.X, padx=10, pady=5)
         
-        # Weekly habits (current method)
+        # Weekly habits (non-inclusive)
         weekly_habits_radio = ttk.Radiobutton(
             habits_frame,
-            text="Weekly Habits (Current Method)",
+            text="Weekly Habits (Non-Inclusive)",
             variable=self.wallpaper_source_var,
             value="weekly_habits"
         )
@@ -3139,10 +3139,52 @@ class ColorControlPanel:
         try:
             # Determine which color or method to use
             if selected_source == "weekly_habits":
-                # Use the current method (weekly habits)
-                logger.debug(f"[{operation_id}] Using weekly habits method")
-                self.status_var.set("Using weekly habits to determine wallpaper color...")
-                # No need to specify color, the script will determine it from weekly habits
+                # Use the non-inclusive method (weekly habits - current color only)
+                logger.debug(f"[{operation_id}] Using weekly habits non-inclusive method")
+                self.status_var.set("Using weekly habits to determine current wallpaper color...")
+                # Get the color from weekly habits
+                try:
+                    # Get weekly average from the file
+                    WEEK_AVERAGE_FILE = "/home/twain/noteVault/habitCounters/week_average.txt"
+                    logger.debug(f"[{operation_id}] Reading weekly average from {WEEK_AVERAGE_FILE}")
+                    
+                    with open(WEEK_AVERAGE_FILE, 'r') as f:
+                        weekly_average = float(f.read().strip())
+                    logger.debug(f"[{operation_id}] Weekly average: {weekly_average}")
+                    
+                    # Determine color based on count
+                    def get_color_from_count(count):
+                        if count < 13:
+                            return "red"
+                        elif 13 < count <= 20:
+                            return "orange"
+                        elif 20 < count <= 30:
+                            return "green"
+                        elif 30 < count <= 41:
+                            return "blue"
+                        elif 41 < count <= 48:
+                            return "pink"
+                        elif 48 < count <= 55:
+                            return "yellow"
+                        else:
+                            return "white_gray_black"
+                    
+                    habit_color = get_color_from_count(weekly_average)
+                    logger.debug(f"[{operation_id}] Determined habit color: {habit_color}")
+                    
+                    # Use only the current color (non-inclusive)
+                    params['colors'] = [habit_color]
+                    logger.debug(f"[{operation_id}] Using only current color: {params['colors']}")
+                    self.status_var.set(f"Using color: {habit_color}")
+                except Exception as e:
+                    logger.error(f"[{operation_id}] Error determining habit color: {e}")
+                    logger.error(traceback.format_exc())
+                    messagebox.showerror(
+                        "Error",
+                        f"Failed to determine habit color: {e}"
+                    )
+                    self._safe_enable_ui()
+                    return
             elif selected_source == "weekly_habits_inclusive":
                 # Use weekly habits but include all colors up to the determined color
                 logger.debug(f"[{operation_id}] Using weekly habits inclusive method")
