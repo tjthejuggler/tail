@@ -3219,6 +3219,9 @@ class ColorControlPanel:
                     habit_color = get_color_from_count(weekly_average)
                     logger.debug(f"[{operation_id}] Determined habit color: {habit_color}")
                     
+                    # Store weekly average for use in success message
+                    params['weekly_average'] = weekly_average
+                    
                     # Get all colors up to and including the habit color
                     if habit_color in self.color_order:
                         index = self.color_order.index(habit_color)
@@ -3424,6 +3427,11 @@ class ColorControlPanel:
                     time.sleep(0.5)
                     logger.debug(f"[{operation_id}] Added delay after re-enabling UI")
                     
+                    # Add a delay to ensure changes have time to take effect
+                    logger.debug(f"[{operation_id}] Adding delay before refreshing plasma shell")
+                    import time
+                    time.sleep(2)  # 2-second delay
+                    
                     # Run the plasma refresh in a separate process
                     logger.debug(f"[{operation_id}] Running plasma refresh in separate process")
                     self.status_var.set("Changes applied successfully. Refreshing plasma shell...")
@@ -3490,6 +3498,11 @@ class ColorControlPanel:
                     time.sleep(0.5)
                     logger.debug(f"[{operation_id}] Added delay after re-enabling UI")
                     
+                    # Add a delay to ensure changes have time to take effect
+                    logger.debug(f"[{operation_id}] Adding delay before refreshing plasma shell")
+                    import time
+                    time.sleep(2)  # 2-second delay
+                    
                     # Run the plasma refresh in a separate process
                     logger.debug(f"[{operation_id}] Running plasma refresh in separate process")
                     self.status_var.set("Changes applied successfully. Refreshing plasma shell...")
@@ -3543,6 +3556,11 @@ class ColorControlPanel:
                 time.sleep(0.5)
                 logger.debug(f"[{operation_id}] Added delay after re-enabling UI")
                 
+                # Add a delay to ensure changes have time to take effect
+                logger.debug(f"[{operation_id}] Adding delay before refreshing plasma shell")
+                import time
+                time.sleep(2)  # 2-second delay
+                
                 # Run the plasma refresh in a truly separate process
                 logger.debug(f"[{operation_id}] Running plasma refresh in separate process")
                 self.status_var.set("Changes applied successfully. Refreshing plasma shell...")
@@ -3551,12 +3569,22 @@ class ColorControlPanel:
                 self._safe_refresh_plasma(callback=lambda: self.status_var.set("Plasma shell refreshed successfully"))
                 
                 # Show a success message
-                messagebox.showinfo(
-                    "Success",
-                    "Wallpaper source updated successfully!\n\n"
-                    "The plasma shell is being refreshed in a separate process.\n"
-                    "Your desktop wallpaper should update momentarily."
-                )
+                if selected_source == "weekly_habits_inclusive" and 'weekly_average' in params and 'colors' in params:
+                    messagebox.showinfo(
+                        "Success",
+                        f"Wallpaper source updated successfully!\n\n"
+                        f"Weekly habit count: {params['weekly_average']:.1f}\n"
+                        f"Using colors: {', '.join(params['colors'])}\n\n"
+                        "The plasma shell is being refreshed in a separate process.\n"
+                        "Your desktop wallpaper should update momentarily."
+                    )
+                else:
+                    messagebox.showinfo(
+                        "Success",
+                        "Wallpaper source updated successfully!\n\n"
+                        "The plasma shell is being refreshed in a separate process.\n"
+                        "Your desktop wallpaper should update momentarily."
+                    )
                 
             except Exception as e:
                 logger.error(f"[{operation_id}] Error in critical section: {e}")
@@ -3607,16 +3635,57 @@ class ColorControlPanel:
             self.root.after(0, lambda: self.status_var.set("Updating wallpaper source..."))
             
             if colors:
-                # For multiple colors, we need to run the script for each color
+                # For multiple colors, we need to create a temporary directory with all the wallpapers
                 logger.debug(f"Processing multiple colors: {colors}")
-                success_count = 0
-                for c in colors:
-                    # Update status for each color
-                    logger.debug(f"Processing color: {c}")
-                    self.root.after(0, lambda c=c: self.status_var.set(f"Processing color: {c}..."))
+                
+                # Create a temporary directory
+                import tempfile
+                import shutil
+                import glob
+                temp_dir = tempfile.mkdtemp()
+                logger.debug(f"Created temporary directory: {temp_dir}")
+                
+                try:
+                    # Copy all wallpapers from each color to the temporary directory
+                    config = config_manager.load_config(self.config_path)
+                    if not config:
+                        logger.error("Failed to load config")
+                        self.status_var.set("Error: Failed to load config")
+                        return
                     
-                    # Run the script without the --force-refresh flag
-                    cmd = ["python3", script_path, c]
+                    # Get all image files from each color directory
+                    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+                    total_count = 0
+                    
+                    for c in colors:
+                        # Update status for each color
+                        logger.debug(f"Processing color: {c}")
+                        self.root.after(0, lambda c=c: self.status_var.set(f"Processing color: {c}..."))
+                        
+                        # Get color directory path
+                        BASE_DIR = "/home/twain/Pictures"  # Same as in refresh_wallpaper.py
+                        color_dir = os.path.join(BASE_DIR, config["paths"]["color_dirs"][c])
+                        
+                        # Get all image files in the color directory
+                        image_files = []
+                        for ext in image_extensions:
+                            image_files.extend(glob.glob(os.path.join(color_dir, f"*{ext}")))
+                            image_files.extend(glob.glob(os.path.join(color_dir, f"*{ext.upper()}")))
+                        
+                        # Copy each image file to the temporary directory
+                        for image_path in image_files:
+                            filename = os.path.basename(image_path)
+                            dest_path = os.path.join(temp_dir, filename)
+                            
+                            # Copy file if it doesn't exist
+                            if not os.path.exists(dest_path):
+                                shutil.copy2(image_path, dest_path)
+                                total_count += 1
+                    
+                    logger.debug(f"Copied {total_count} images to temporary directory")
+                    
+                    # Run the script with the temporary directory as the source
+                    cmd = ["python3", script_path, "--latest-folder", temp_dir]
                     logger.debug(f"Running command: {' '.join(cmd)}")
                     
                     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -3637,13 +3706,23 @@ class ColorControlPanel:
                         logger.debug(f"After kill - stdout: {stdout}")
                         logger.debug(f"After kill - stderr: {stderr}")
                         # Consider it a failure if we had to kill it
-                        logger.error(f"Failed to process color {c}: Timeout")
+                        logger.error(f"Failed to process colors: Timeout")
                     
                     if process.returncode == 0:
-                        success_count += 1
-                        logger.debug(f"Color {c} processed successfully")
+                        success_count = 1
+                        logger.debug(f"Colors processed successfully")
+                        self.status_var.set(f"Success: Updated wallpaper sources to: {', '.join(colors)}")
                     else:
-                        logger.error(f"Failed to process color {c}: {stderr}")
+                        logger.error(f"Failed to process colors: {stderr}")
+                        self.status_var.set(f"Error: Failed to apply wallpaper source. See log for details.")
+                
+                finally:
+                    # Clean up the temporary directory
+                    try:
+                        shutil.rmtree(temp_dir)
+                        logger.debug(f"Removed temporary directory: {temp_dir}")
+                    except Exception as e:
+                        logger.error(f"Error removing temporary directory: {e}")
                 
                 # Final status update
                 if success_count == len(colors):

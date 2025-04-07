@@ -17,6 +17,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Define the color order (same as in the color control panel)
+COLOR_ORDER = ["red", "orange", "green", "blue", "pink", "yellow", "white_gray_black"]
+
 BASE_DIR = "/home/twain/Pictures"
 TARGET_DIR = os.path.join(BASE_DIR, "llm_baby_monster")
 CONFIG_PATH = "/home/twain/Projects/tail/wallpaper_color_manager_new/config.json"
@@ -147,6 +150,56 @@ def create_symlinks_from_color_folder(color):
         return create_symlinks_from_folder(color_dir)
     except Exception as e:
         logger.error(f"Error creating symlinks for color {color}: {e}")
+        return False
+
+def create_symlinks_from_multiple_colors(colors):
+    """Create symlinks in the target directory for all images in multiple color folders."""
+    logger.info(f"Creating symlinks for multiple colors: {colors}")
+    try:
+        success = True
+        total_count = 0
+        
+        for color in colors:
+            logger.info(f"Processing color: {color}")
+            config = load_config()
+            if not config:
+                return False
+            
+            # Get color directory path
+            color_dir = os.path.join(BASE_DIR, config["paths"]["color_dirs"][color])
+            
+            # Get all image files in the color folder
+            image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+            image_files = []
+            
+            for ext in image_extensions:
+                image_files.extend(glob.glob(os.path.join(color_dir, f"*{ext}")))
+                image_files.extend(glob.glob(os.path.join(color_dir, f"*{ext.upper()}")))
+            
+            # Create symlinks for each image file
+            count = 0
+            for image_path in image_files:
+                filename = os.path.basename(image_path)
+                symlink_path = os.path.join(TARGET_DIR, filename)
+                
+                # Create symlink if it doesn't exist
+                if not os.path.exists(symlink_path):
+                    os.symlink(image_path, symlink_path)
+                    count += 1
+            
+            logger.info(f"Created {count} symlinks from color {color}")
+            total_count += count
+            
+            # If we couldn't create any symlinks for this color, log a warning
+            if count == 0:
+                logger.warning(f"No images found in color directory: {color_dir}")
+        
+        logger.info(f"Created a total of {total_count} symlinks from {len(colors)} colors")
+        return total_count > 0
+    except Exception as e:
+        logger.error(f"Error creating symlinks for multiple colors: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         return False
 
 def parse_folder_date(folder_name):
@@ -321,8 +374,23 @@ def update_wallpaper_folder(color=None, latest_folder=None, days_back=None):
             # Use the selected colors from direct color selection
             selected_colors = config.get("direct_color_selection", [])
             if selected_colors:
-                color = selected_colors[0]  # Use the first selected color
-                logger.info(f"Using direct color selection: {color}")
+                logger.info(f"Using direct color selection with colors: {selected_colors}")
+                
+                # Clear the target directory first
+                if not clear_target_directory():
+                    return False, False, prev_color
+                
+                # Create symlinks from all selected color folders
+                success = create_symlinks_from_multiple_colors(selected_colors)
+                
+                # Save the current color (use the first color as the "current" one)
+                if success:
+                    save_current_color(selected_colors[0])
+                
+                # Return success, whether the color changed, and the previous color
+                return success, selected_colors[0] != prev_color, prev_color
+            else:
+                logger.warning("No colors selected in direct_color_selection")
         elif wallpaper_source == "latest_by_date":
             # Use folders from the last X days
             days_setting = config.get("latest_by_date_settings", {}).get("days_back", 7)
@@ -341,10 +409,31 @@ def update_wallpaper_folder(color=None, latest_folder=None, days_back=None):
             # Use weekly habits but include all colors up to the determined color
             weekly_count = get_weekly_habit_count()
             habit_color = get_color_from_count(weekly_count)
-            # For now, just use the habit color directly
-            # In a more complete implementation, we would include all colors up to this one
-            color = habit_color
-            logger.info(f"Using weekly habits inclusive with color: {color}")
+            logger.info(f"Using weekly habits inclusive with habit color: {habit_color}")
+            
+            # Get all colors up to and including the habit color
+            if habit_color in COLOR_ORDER:
+                index = COLOR_ORDER.index(habit_color)
+                inclusive_colors = COLOR_ORDER[:index+1]
+                logger.info(f"Using colors up to index {index}: {inclusive_colors}")
+                
+                # Clear the target directory first
+                if not clear_target_directory():
+                    return False, False, prev_color
+                
+                # Create symlinks from all color folders
+                success = create_symlinks_from_multiple_colors(inclusive_colors)
+                
+                # Save the current color
+                if success:
+                    save_current_color(habit_color)
+                
+                # Return success, whether the color changed, and the previous color
+                return success, habit_color != prev_color, prev_color
+            else:
+                # Fallback to just the habit color if it's not in the color order
+                color = habit_color
+                logger.info(f"Habit color not in color order, using single color: {color}")
         elif wallpaper_source != "weekly_habits":
             # For any other source or if source is not specified, fall back to weekly habits
             weekly_count = get_weekly_habit_count()
