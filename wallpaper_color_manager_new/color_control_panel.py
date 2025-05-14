@@ -112,6 +112,10 @@ class ColorControlPanel:
         
         # Initialize days_back_var from config
         self.days_back_var = tk.IntVar(value=self.config.get("latest_by_date_settings", {}).get("days_back", 7))
+        
+        # Initialize directories_after_date from config
+        if "last_directories_after_date" not in self.config:
+            self.config["last_directories_after_date"] = ""
             
         # Define refresh_wallpaper.py script path
         self.refresh_script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "refresh_wallpaper.py")
@@ -314,11 +318,25 @@ class ColorControlPanel:
         )
         browse_button.pack(side=tk.LEFT, padx=5)
         
+        # Directories after date frame
+        date_frame = ttk.Frame(new_images_frame)
+        date_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        # Date label
+        ttk.Label(date_frame, text="Directories after date (MM-DD-YY):").pack(side=tk.LEFT, padx=5)
+        
+        # Date entry - load from config if available
+        last_date = self.config.get("last_directories_after_date", "")
+        self.directories_after_date_var = tk.StringVar(value=last_date)
+        date_entry = ttk.Entry(date_frame, textvariable=self.directories_after_date_var, width=10)
+        date_entry.pack(side=tk.LEFT, padx=5)
+        
         # Help text
         help_text = ttk.Label(
             new_images_frame,
-            text="Leave empty to process all images in the original directory (will reset existing categories).\n"
-                 "Specify a directory to only process new images from that location (will add to existing categories).",
+            text="Leave directory empty to process all images in the original directory (will reset existing categories).\n"
+                 "Specify a directory to only process new images from that location (will add to existing categories).\n"
+                 "Enter a date (MM-DD-YY) to only process directories with names like 'lbm-4-6-25' that are on or after that date.",
             wraplength=800
         )
         help_text.pack(fill=tk.X, padx=5, pady=5)
@@ -1256,6 +1274,9 @@ class ColorControlPanel:
             # Check if a custom directory is specified
             custom_dir = self.new_images_dir_var.get().strip()
             
+            # Check if a date filter is specified
+            directories_after_date = self.directories_after_date_var.get().strip()
+            
             # Save current analysis settings
             current_settings = {
                 "color_thresholds": self.config["color_thresholds"].copy(),
@@ -1269,6 +1290,10 @@ class ColorControlPanel:
             self.config["last_analysis_settings"] = current_settings.copy()
             # Add timestamp to last_analysis_settings but not to the hash
             self.config["last_analysis_settings"]["timestamp"] = time.time()
+            
+            # Save the directories_after_date to config
+            self.config["last_directories_after_date"] = directories_after_date
+            config_manager.save_config(self.config, self.config_path)
             
             # Initialize processed files tracking for this settings hash if needed
             if settings_hash not in self.processed_files:
@@ -1295,7 +1320,8 @@ class ColorControlPanel:
                     custom_config,
                     color_params,
                     settings_hash,
-                    force_reprocess=True  # Force reprocessing when using custom directory
+                    force_reprocess=True,  # Force reprocessing when using custom directory
+                    directories_after_date=directories_after_date
                 )
                 
                 # Skip categorizing existing images since we're only processing the custom directory
@@ -1315,7 +1341,8 @@ class ColorControlPanel:
                     self.config,
                     color_params,
                     settings_hash,
-                    force_reprocess=True  # Force reprocessing when resetting categories
+                    force_reprocess=True,  # Force reprocessing when resetting categories
+                    directories_after_date=directories_after_date
                 )
                 
                 # Update UI
@@ -1328,7 +1355,8 @@ class ColorControlPanel:
                     self.config,
                     color_params,
                     settings_hash,
-                    force_reprocess=True  # Force reprocessing when categorizing existing images
+                    force_reprocess=True,  # Force reprocessing when categorizing existing images
+                    directories_after_date=directories_after_date
                 )
             
             # Save processed files to config
@@ -2463,7 +2491,7 @@ class ColorControlPanel:
             # Re-enable UI
             self.root.after(0, self.enable_ui)
 
-    def process_new_images_with_tracking(self, config, color_params, settings_hash, force_reprocess=False):
+    def process_new_images_with_tracking(self, config, color_params, settings_hash, force_reprocess=False, directories_after_date=None):
         """
         Process new images with tracking of processed files.
         
@@ -2484,6 +2512,26 @@ class ColorControlPanel:
         if not os.path.exists(original_dir) or not os.path.isdir(original_dir):
             logger.warning(f"Original directory does not exist: {original_dir}")
             return {"processed": 0, "errors": 0, "categories": {}}
+            
+        # Parse the directories_after_date if provided
+        filter_date = None
+        newest_dir_date = None
+        if directories_after_date:
+            try:
+                # Parse MM-DD-YY format
+                parts = directories_after_date.split('-')
+                if len(parts) == 3:
+                    month = int(parts[0])
+                    day = int(parts[1])
+                    year = int(parts[2])
+                    # Assume 2-digit year format (e.g., 25 -> 2025)
+                    if year < 100:
+                        year += 2000
+                    import datetime
+                    filter_date = datetime.date(year, month, day)
+                    logger.info(f"Filtering directories after date: {filter_date}")
+            except Exception as e:
+                logger.error(f"Error parsing directories_after_date: {e}")
         
         # Get thresholds and color limits
         thresholds = config["color_thresholds"]
@@ -2491,6 +2539,24 @@ class ColorControlPanel:
         
         # Get all image files recursively
         image_files = file_operations.get_image_files_recursive(original_dir)
+        
+        # Filter image files based on directory date if filter_date is provided
+        if filter_date:
+            filtered_files = []
+            for image_path in image_files:
+                dir_name = os.path.basename(os.path.dirname(image_path))
+                dir_date = self.parse_folder_date(dir_name)
+                if dir_date:
+                    # Keep track of the newest directory date we find
+                    if newest_dir_date is None or dir_date > newest_dir_date:
+                        newest_dir_date = dir_date
+                    
+                    # Only include files from directories with dates on or after the filter date
+                    if dir_date >= filter_date:
+                        filtered_files.append(image_path)
+            
+            logger.info(f"Filtered {len(image_files)} files down to {len(filtered_files)} files after date {filter_date}")
+            image_files = filtered_files
         
         # If force_reprocess is True, process all files
         # Otherwise, filter out already processed files with the same settings
@@ -2588,6 +2654,14 @@ class ColorControlPanel:
                     stats["modified_folders"].add(folder)
                     self.add_folder_to_modified(folder)
                 
+                # Check if this folder has a date in its name
+                dir_name = os.path.basename(folder)
+                dir_date = self.parse_folder_date(dir_name)
+                if dir_date:
+                    # Keep track of the newest directory date we find
+                    if newest_dir_date is None or dir_date > newest_dir_date:
+                        newest_dir_date = dir_date
+                
                 # Log progress
                 if stats["processed"] % 100 == 0:
                     logger.info(f"Processed {stats['processed']} images")
@@ -2597,6 +2671,17 @@ class ColorControlPanel:
                 stats["errors"] += 1
         
         logger.info(f"Processing complete: {stats['processed']} images processed, {stats['errors']} errors")
+        
+        # Update the directories_after_date field with the newest directory date we found
+        if newest_dir_date:
+            newest_date_str = f"{newest_dir_date.month}-{newest_dir_date.day}-{str(newest_dir_date.year)[2:]}"
+            logger.info(f"Updating directories_after_date to newest found: {newest_date_str}")
+            self.root.after(0, lambda: self.directories_after_date_var.set(newest_date_str))
+            
+            # Also update in config
+            self.config["last_directories_after_date"] = newest_date_str
+            config_manager.save_config(self.config, self.config_path)
+        
         return stats
     
     def apply_limits(self):
@@ -3634,152 +3719,63 @@ class ColorControlPanel:
             logger.debug("Setting status to 'Updating wallpaper source...'")
             self.root.after(0, lambda: self.status_var.set("Updating wallpaper source..."))
             
-            if colors:
-                # For multiple colors, we need to create a temporary directory with all the wallpapers
-                logger.debug(f"Processing multiple colors: {colors}")
-                
-                # Create a temporary directory
-                import tempfile
-                import shutil
-                import glob
-                temp_dir = tempfile.mkdtemp()
-                logger.debug(f"Created temporary directory: {temp_dir}")
-                
-                try:
-                    # Copy all wallpapers from each color to the temporary directory
-                    config = config_manager.load_config(self.config_path)
-                    if not config:
-                        logger.error("Failed to load config")
-                        self.status_var.set("Error: Failed to load config")
-                        return
-                    
-                    # Get all image files from each color directory
-                    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
-                    total_count = 0
-                    
-                    for c in colors:
-                        # Update status for each color
-                        logger.debug(f"Processing color: {c}")
-                        self.root.after(0, lambda c=c: self.status_var.set(f"Processing color: {c}..."))
-                        
-                        # Get color directory path
-                        BASE_DIR = "/home/twain/Pictures"  # Same as in refresh_wallpaper.py
-                        color_dir = os.path.join(BASE_DIR, config["paths"]["color_dirs"][c])
-                        
-                        # Get all image files in the color directory
-                        image_files = []
-                        for ext in image_extensions:
-                            image_files.extend(glob.glob(os.path.join(color_dir, f"*{ext}")))
-                            image_files.extend(glob.glob(os.path.join(color_dir, f"*{ext.upper()}")))
-                        
-                        # Copy each image file to the temporary directory
-                        for image_path in image_files:
-                            filename = os.path.basename(image_path)
-                            dest_path = os.path.join(temp_dir, filename)
-                            
-                            # Copy file if it doesn't exist
-                            if not os.path.exists(dest_path):
-                                shutil.copy2(image_path, dest_path)
-                                total_count += 1
-                    
-                    logger.debug(f"Copied {total_count} images to temporary directory")
-                    
-                    # Run the script with the temporary directory as the source
-                    cmd = ["python3", script_path, "--latest-folder", temp_dir]
-                    logger.debug(f"Running command: {' '.join(cmd)}")
-                    
-                    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                    logger.debug(f"Process started with PID: {process.pid}")
-                    
-                    # Wait for process to complete
-                    logger.debug("Waiting for process to complete...")
-                    try:
-                        # Add a timeout to prevent hanging
-                        stdout, stderr = process.communicate(timeout=10)  # 10 second timeout
-                        logger.debug(f"Process completed with return code: {process.returncode}")
-                        logger.debug(f"stdout: {stdout}")
-                        logger.debug(f"stderr: {stderr}")
-                    except subprocess.TimeoutExpired:
-                        logger.warning(f"Process timed out after 10 seconds, terminating")
-                        process.kill()
-                        stdout, stderr = process.communicate()
-                        logger.debug(f"After kill - stdout: {stdout}")
-                        logger.debug(f"After kill - stderr: {stderr}")
-                        # Consider it a failure if we had to kill it
-                        logger.error(f"Failed to process colors: Timeout")
-                    
-                    if process.returncode == 0:
-                        success_count = 1
-                        logger.debug(f"Colors processed successfully")
-                        self.status_var.set(f"Success: Updated wallpaper sources to: {', '.join(colors)}")
-                    else:
-                        logger.error(f"Failed to process colors: {stderr}")
-                        self.status_var.set(f"Error: Failed to apply wallpaper source. See log for details.")
-                
-                finally:
-                    # Clean up the temporary directory
-                    try:
-                        shutil.rmtree(temp_dir)
-                        logger.debug(f"Removed temporary directory: {temp_dir}")
-                    except Exception as e:
-                        logger.error(f"Error removing temporary directory: {e}")
-                
-                # Final status update
-                if success_count == len(colors):
-                    status_message = f"Success: Updated wallpaper sources to: {', '.join(colors)}"
-                    logger.debug(status_message)
-                    self.root.after(0, lambda: self.status_var.set(status_message))
-                else:
-                    status_message = f"Warning: Only {success_count} of {len(colors)} colors were successfully applied"
-                    logger.warning(status_message)
-                    self.root.after(0, lambda: self.status_var.set(status_message))
+            operation_id = params.get('operation_id', 'N/A') # Get operation_id for logging
+
+            if colors: # This is a list of color names
+                logger.info(f"[{operation_id}] _update_wallpaper_source: Processing multiple/single colors via 'colors' list: {colors}")
+                source_colors_str = ",".join(colors)
+                cmd = ["python3", script_path, "--source-colors", source_colors_str]
+                final_colors_for_status = colors
+            elif color: # This is a single color string
+                logger.info(f"[{operation_id}] _update_wallpaper_source: Processing single color via 'color' string: {color}")
+                cmd = ["python3", script_path, color] # Pass as positional argument
+                final_colors_for_status = [color]
             else:
-                # For single color or method
-                logger.debug(f"Processing single color or method: {color}")
-                cmd = ["python3", script_path]
-                if color:
-                    cmd.append(color)
-                
-                logger.debug(f"Running command: {' '.join(cmd)}")
-                
-                process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                logger.debug(f"Process started with PID: {process.pid}")
-                
-                # Wait for process to complete
-                logger.debug("Waiting for process to complete...")
-                try:
-                    # Add a timeout to prevent hanging
-                    stdout, stderr = process.communicate(timeout=10)  # 10 second timeout
-                    logger.debug(f"Process completed with return code: {process.returncode}")
-                    logger.debug(f"stdout: {stdout}")
-                    logger.debug(f"stderr: {stderr}")
-                except subprocess.TimeoutExpired:
-                    logger.warning(f"Process timed out after 10 seconds, terminating")
-                    process.kill()
-                    stdout, stderr = process.communicate()
-                    logger.debug(f"After kill - stdout: {stdout}")
-                    logger.debug(f"After kill - stderr: {stderr}")
-                    # Still consider it a success if we had to kill it
-                    status_message = f"Timeout while applying changes, but changes should still be applied"
-                    logger.warning(status_message)
-                    self.root.after(0, lambda: self.status_var.set(status_message))
-                
-                if process.returncode == 0:
-                    source_name = selected_source
-                    if selected_source.startswith("color_"):
-                        source_name = selected_source.replace("color_", "")
-                    
-                    status_message = f"Success: Updated wallpaper source to {source_name.replace('_', ' ').title()}"
-                    logger.debug(status_message)
-                    self.root.after(0, lambda: self.status_var.set(status_message))
-                else:
-                    status_message = f"Error: Failed to apply wallpaper source. See log for details."
-                    logger.error(status_message)
-                    logger.error(f"Error output from refresh_wallpaper.py: {stderr}")
-                    self.root.after(0, lambda: self.status_var.set(status_message))
+                logger.warning(f"[{operation_id}] _update_wallpaper_source: No color or colors specified. Relying on refresh_wallpaper.py default behavior.")
+                cmd = ["python3", script_path] # Default call
+                final_colors_for_status = ["default (weekly habits)"]
+
+            logger.info(f"[{operation_id}] _update_wallpaper_source: Running command: {' '.join(cmd)}")
+            
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            logger.debug(f"[{operation_id}] Process started with PID: {process.pid}")
+            
+            stdout_data, stderr_data = "", ""
+            try:
+                stdout_data, stderr_data = process.communicate(timeout=15)  # Increased timeout
+                logger.debug(f"[{operation_id}] Process completed with return code: {process.returncode}")
+                if stdout_data: logger.debug(f"[{operation_id}] stdout: {stdout_data.strip()}")
+                if stderr_data: logger.error(f"[{operation_id}] stderr: {stderr_data.strip()}")
+            except subprocess.TimeoutExpired:
+                logger.warning(f"[{operation_id}] Process timed out after 15 seconds, terminating")
+                process.kill()
+                stdout_data, stderr_data = process.communicate()
+                if stdout_data: logger.debug(f"[{operation_id}] After kill - stdout: {stdout_data.strip()}")
+                if stderr_data: logger.error(f"[{operation_id}] After kill - stderr: {stderr_data.strip()}")
+            
+            if process.returncode == 0:
+                status_message = f"Success: Updated wallpaper source."
+                if final_colors_for_status:
+                    status_message += f" Colors: {', '.join(final_colors_for_status)}"
+                # Check stdout for more specific success messages from refresh_wallpaper.py
+                if "Wallpaper directory updated with images from:" in stdout_data:
+                    status_message = stdout_data.strip().splitlines()[-1] # Get last line
+                elif "Wallpaper color changed from" in stdout_data:
+                     status_message = stdout_data.strip().splitlines()[-2] + "; " + stdout_data.strip().splitlines()[-1]
+                elif "Wallpaper directory updated with" in stdout_data and "images" in stdout_data:
+                     status_message = stdout_data.strip().splitlines()[-2] + "; " + stdout_data.strip().splitlines()[-1]
+
+
+                logger.info(f"[{operation_id}] {status_message}")
+                self.root.after(0, lambda: self.status_var.set(status_message))
+            else:
+                error_detail = stderr_data.strip() if stderr_data else "Unknown error (see log)."
+                status_message = f"Error: Failed to apply wallpaper source. {error_detail}"
+                logger.error(f"[{operation_id}] {status_message}")
+                self.root.after(0, lambda: self.status_var.set(status_message))
             
         except Exception as e:
-            logger.error(f"Error in wallpaper source update: {e}")
+            logger.error(f"[{params.get('operation_id', 'N/A')}] Error in wallpaper source update: {e}")
             logger.error(traceback.format_exc())
             self.root.after(0, lambda: self.status_var.set(f"Error: {e}"))
             self.root.after(0, self._safe_enable_ui)

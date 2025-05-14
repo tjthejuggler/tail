@@ -105,7 +105,7 @@ def clear_target_directory():
 
 def create_symlinks_from_folder(source_folder):
     """Create symlinks in the target directory for all images in the source folder."""
-    logger.info(f"Creating symlinks from folder: {source_folder}")
+    logger.info(f"refresh_wallpaper.py: create_symlinks_from_folder: Received source_folder: {source_folder}") # ADDED LOG
     try:
         # Ensure target directory exists
         os.makedirs(TARGET_DIR, exist_ok=True)
@@ -118,11 +118,13 @@ def create_symlinks_from_folder(source_folder):
             image_files.extend(glob.glob(os.path.join(source_folder, f"*{ext}")))
             image_files.extend(glob.glob(os.path.join(source_folder, f"*{ext.upper()}")))
         
+        logger.info(f"refresh_wallpaper.py: create_symlinks_from_folder: Found {len(image_files)} images in {source_folder}") # ADDED LOG
         # Create symlinks for each image file
         count = 0
         for image_path in image_files:
             filename = os.path.basename(image_path)
             symlink_path = os.path.join(TARGET_DIR, filename)
+            logger.info(f"refresh_wallpaper.py: create_symlinks_from_folder: Linking '{image_path}' to '{symlink_path}'") # ADDED LOG
             
             # Create symlink if it doesn't exist
             if not os.path.exists(symlink_path):
@@ -345,127 +347,133 @@ def create_symlinks_from_recent_folders(days_back=7):
         logger.error(f"Error creating symlinks from recent folders: {e}")
         return False
 
-def update_wallpaper_folder(color=None, latest_folder=None, days_back=None):
+def update_wallpaper_folder(color=None, latest_folder=None, days_back=None, source_colors_str=None):
     """
     Update the wallpaper folder with images from the specified source.
     
     Args:
-        color: Color category to use
+        color: Color category to use (single color)
         latest_folder: Path to the latest folder to use
         days_back: Number of days to look back for folders
+        source_colors_str: Comma-separated string of color names to use as sources
         
     Returns:
         tuple: (success, changed, previous_color)
     """
-    logger.info(f"Updating wallpaper folder: color={color}, latest_folder={latest_folder}, days_back={days_back}")
+    logger.info(f"Updating wallpaper folder: color={color}, latest_folder={latest_folder}, days_back={days_back}, source_colors_str={source_colors_str}")
     
-    # Get the current color
     prev_color = get_current_color()
-    
-    # Load config to check for wallpaper source setting
     config = load_config()
-    
+    current_selection_primary_color = None # Used to determine if color 'changed'
+
+    if source_colors_str:
+        selected_colors = [c.strip() for c in source_colors_str.split(',') if c.strip()]
+        if not selected_colors:
+            logger.error("No valid colors provided in --source-colors argument.")
+            return False, False, prev_color
+        
+        logger.info(f"Using --source-colors: {selected_colors}")
+        if not clear_target_directory():
+            return False, False, prev_color
+        success = create_symlinks_from_multiple_colors(selected_colors)
+        if success and selected_colors:
+            current_selection_primary_color = selected_colors[0] # Use first color for 'changed' status
+            save_current_color(current_selection_primary_color)
+        return success, current_selection_primary_color != prev_color, prev_color
+
     # If no specific source is provided via arguments, check the config
     if not color and latest_folder is None and days_back is None and config:
         wallpaper_source = config.get("wallpaper_source")
         logger.info(f"Using wallpaper source from config: {wallpaper_source}")
         
         if wallpaper_source == "direct_color_selection" and "direct_color_selection" in config:
-            # Use the selected colors from direct color selection
-            selected_colors = config.get("direct_color_selection", [])
-            if selected_colors:
-                logger.info(f"Using direct color selection with colors: {selected_colors}")
-                
-                # Clear the target directory first
-                if not clear_target_directory():
-                    return False, False, prev_color
-                
-                # Create symlinks from all selected color folders
-                success = create_symlinks_from_multiple_colors(selected_colors)
-                
-                # Save the current color (use the first color as the "current" one)
+            selected_colors_cfg = config.get("direct_color_selection", [])
+            if selected_colors_cfg:
+                logger.info(f"Using direct color selection from config with colors: {selected_colors_cfg}")
+                if not clear_target_directory(): return False, False, prev_color
+                success = create_symlinks_from_multiple_colors(selected_colors_cfg)
                 if success:
-                    save_current_color(selected_colors[0])
-                
-                # Return success, whether the color changed, and the previous color
-                return success, selected_colors[0] != prev_color, prev_color
+                    current_selection_primary_color = selected_colors_cfg[0]
+                    save_current_color(current_selection_primary_color)
+                return success, current_selection_primary_color != prev_color, prev_color
             else:
-                logger.warning("No colors selected in direct_color_selection")
+                logger.warning("No colors selected in direct_color_selection (config)")
         elif wallpaper_source == "latest_by_date":
-            # Use folders from the last X days
             days_setting = config.get("latest_by_date_settings", {}).get("days_back", 7)
-            days_back = days_setting
-            logger.info(f"Using latest by date with days_back={days_back}")
+            days_back = days_setting # This will be handled by the days_back logic below
+            logger.info(f"Config: Using latest by date with days_back={days_back}")
         elif wallpaper_source == "latest":
-            # Use the most recent folder
-            latest_folder = get_most_recent_folder()
+            latest_folder = get_most_recent_folder() # This will be handled by latest_folder logic
             if latest_folder:
-                logger.info(f"Using most recent folder: {latest_folder}")
-            else:
-                logger.warning("No recent folders found, falling back to weekly habits")
+                logger.info(f"Config: Using most recent folder: {latest_folder}")
+            else: # Fallback if no recent folder found
+                logger.warning("Config: No recent folders found, falling back to weekly habits")
                 weekly_count = get_weekly_habit_count()
                 color = get_color_from_count(weekly_count)
+                current_selection_primary_color = color
         elif wallpaper_source == "weekly_habits_inclusive":
-            # Use weekly habits but include all colors up to the determined color
             weekly_count = get_weekly_habit_count()
             habit_color = get_color_from_count(weekly_count)
-            logger.info(f"Using weekly habits inclusive with habit color: {habit_color}")
-            
-            # Get all colors up to and including the habit color
+            logger.info(f"Config: Using weekly habits inclusive with habit color: {habit_color}")
             if habit_color in COLOR_ORDER:
                 index = COLOR_ORDER.index(habit_color)
                 inclusive_colors = COLOR_ORDER[:index+1]
-                logger.info(f"Using colors up to index {index}: {inclusive_colors}")
-                
-                # Clear the target directory first
-                if not clear_target_directory():
-                    return False, False, prev_color
-                
-                # Create symlinks from all color folders
+                logger.info(f"Config: Using inclusive colors: {inclusive_colors}")
+                if not clear_target_directory(): return False, False, prev_color
                 success = create_symlinks_from_multiple_colors(inclusive_colors)
-                
-                # Save the current color
                 if success:
-                    save_current_color(habit_color)
-                
-                # Return success, whether the color changed, and the previous color
-                return success, habit_color != prev_color, prev_color
-            else:
-                # Fallback to just the habit color if it's not in the color order
+                    current_selection_primary_color = habit_color
+                    save_current_color(current_selection_primary_color)
+                return success, current_selection_primary_color != prev_color, prev_color
+            else: # Fallback
                 color = habit_color
-                logger.info(f"Habit color not in color order, using single color: {color}")
-        elif wallpaper_source != "weekly_habits":
-            # For any other source or if source is not specified, fall back to weekly habits
+                current_selection_primary_color = color
+                logger.info(f"Config: Habit color not in order, using single color: {color}")
+        elif wallpaper_source == "weekly_habits": # Default/fallback if other specific config options don't set color/latest_folder/days_back
             weekly_count = get_weekly_habit_count()
             color = get_color_from_count(weekly_count)
-            logger.info(f"Using weekly habits with color: {color}")
-    elif not color:
-        # If no source is specified in config or arguments, fall back to weekly habits
+            current_selection_primary_color = color
+            logger.info(f"Config: Using weekly habits with color: {color}")
+        else: # True fallback if wallpaper_source is unrecognized
+            weekly_count = get_weekly_habit_count()
+            color = get_color_from_count(weekly_count)
+            current_selection_primary_color = color
+            logger.info(f"Config: Unrecognized source '{wallpaper_source}', falling back to weekly habits: {color}")
+
+    # If color is still not set (e.g. only days_back or latest_folder was set from config, or no config path hit)
+    if not color and not latest_folder and days_back is None and source_colors_str is None:
         weekly_count = get_weekly_habit_count()
         color = get_color_from_count(weekly_count)
-        logger.info(f"Falling back to weekly habits with color: {color}")
+        current_selection_primary_color = color
+        logger.info(f"No specific source determined, falling back to weekly habits: {color}")
+    elif color: # If color was set by an earlier fallback or directly
+        current_selection_primary_color = color
+
+    # Clear the target directory first (if not already cleared by multi-color paths)
+    if not source_colors_str and not (wallpaper_source == "direct_color_selection" and selected_colors_cfg) and not (wallpaper_source == "weekly_habits_inclusive" and habit_color in COLOR_ORDER) :
+        if not clear_target_directory():
+            return False, False, prev_color
     
-    # Clear the target directory first
-    if not clear_target_directory():
-        return False, False, prev_color
-    
-    # Update based on the specified source
+    # Update based on the determined source
     if latest_folder:
-        # Use the latest folder
         success = create_symlinks_from_folder(latest_folder)
+        # For latest_folder, we don't have a specific 'color' to save, so don't update current_color.txt
+        # The 'changed' status will depend on whether TARGET_DIR content actually changed, which is hard to track here.
+        # We'll assume it changed if successful.
+        return success, True if success else False, prev_color
     elif days_back is not None:
-        # Use folders from the last X days
         success = create_symlinks_from_recent_folders(days_back)
-    else:
-        # Use the color folder
+        # Similar to latest_folder, no specific color to save.
+        return success, True if success else False, prev_color
+    elif color: # This handles single color cases
         success = create_symlinks_from_color_folder(color)
+        if success and current_selection_primary_color and current_selection_primary_color != prev_color:
+            save_current_color(current_selection_primary_color)
+        return success, current_selection_primary_color != prev_color if current_selection_primary_color else False, prev_color
     
-    # Save the current color if it changed
-    if success and color != prev_color:
-        save_current_color(color)
-    
-    # Return success, whether the color changed, and the previous color
-    return success, color != prev_color, prev_color
+    # Fallback if no specific action was taken (should ideally not be reached if logic is correct)
+    logger.warning("No specific update action taken in update_wallpaper_folder.")
+    return False, False, prev_color
 
 def get_most_recent_folder():
     """Get the most recent folder based on date in folder name."""
@@ -510,37 +518,62 @@ if __name__ == "__main__":
     force_refresh = '--force-refresh' in args
     skip_refresh = '--no-refresh' in args
     most_recent_only = '--most-recent-only' in args
+    source_colors_arg = None
 
     latest_folder = None
     color_arg = None
     days_back = None
 
+    # New argument parsing for --source-colors
+    if '--source-colors' in args:
+        try:
+            idx = args.index('--source-colors')
+            if len(args) > idx + 1:
+                source_colors_arg = args[idx + 1]
+                logger.info(f"CLI arg --source-colors provided: {source_colors_arg}")
+        except ValueError: # Should not happen if '--source-colors' is in args
+            pass
+            
     if '--latest-folder' in args:
-        idx = args.index('--latest-folder')
-        if len(args) > idx + 1:
-            latest_folder = args[idx + 1]
+        try:
+            idx = args.index('--latest-folder')
+            if len(args) > idx + 1:
+                latest_folder = args[idx + 1]
+        except ValueError:
+            pass
     
     if '--days-back' in args:
-        idx = args.index('--days-back')
-        if len(args) > idx + 1:
-            try:
-                days_back = int(args[idx + 1])
-            except ValueError:
-                logger.error(f"Invalid days_back value: {args[idx + 1]}")
-    
-    # If most-recent-only flag is set, get the most recent folder
-    if most_recent_only:
-        latest_folder = get_most_recent_folder()
-        if not latest_folder:
-            print("No folders with valid date format found")
+        try:
+            idx = args.index('--days-back')
+            if len(args) > idx + 1:
+                try:
+                    days_back = int(args[idx + 1])
+                except ValueError:
+                    logger.error(f"Invalid days_back value: {args[idx + 1]}")
+        except ValueError:
+            pass
+            
+    if most_recent_only: # This implies --days-back should be ignored if latest_folder is found
+        latest_folder_temp = get_most_recent_folder()
+        if not latest_folder_temp:
+            print("No folders with valid date format found for --most-recent-only")
             sys.exit(1)
-        logger.info(f"Using most recent folder: {latest_folder}")
+        latest_folder = latest_folder_temp # Override if found
+        days_back = None # Ensure days_back is not used if most_recent_only finds a folder
+        logger.info(f"Using most recent folder (due to --most-recent-only): {latest_folder}")
 
-    for arg in args:
-        if not arg.startswith('--') and arg != latest_folder and (not days_back or arg != str(days_back)):
-            color_arg = arg
-
-    success, changed, prev_color = update_wallpaper_folder(color_arg, latest_folder, days_back)
+    # Positional argument for single color (if not using other specific args)
+    if not source_colors_arg and not latest_folder and days_back is None:
+        for arg_idx, arg_val in enumerate(args):
+            is_option_value = False
+            if arg_idx > 0: # Check if it's a value for a preceding option
+                if args[arg_idx-1] in ['--latest-folder', '--days-back', '--source-colors']:
+                    is_option_value = True
+            if not arg_val.startswith('--') and not is_option_value:
+                color_arg = arg_val
+                break
+                
+    success, changed, prev_color = update_wallpaper_folder(color_arg, latest_folder, days_back, source_colors_str=source_colors_arg)
 
     weekly_count = get_weekly_habit_count()
     current_color = get_color_from_count(weekly_count)
