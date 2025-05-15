@@ -210,9 +210,11 @@ def parse_folder_date(folder_name):
     Parse a folder name in the format 'lbm-M-D-YY' to extract the date.
     Also handles other common date formats in folder names.
     """
+    logger.info(f"Attempting to parse date from folder name: '{folder_name}'")
     try:
         # Split by '-' to handle variable-length month and day parts
         parts = folder_name.split('-')
+        logger.info(f"Split parts: {parts}")
         
         # Check if we have the expected format (lbm-M-D-YY)
         if len(parts) >= 3:  # More flexible format checking
@@ -220,22 +222,27 @@ def parse_folder_date(folder_name):
             
             # Pattern: lbm-M-D-YY
             if len(parts) == 4 and parts[0] == 'lbm':
+                logger.info(f"Matched pattern: lbm-M-D-YY")
                 month_part, day_part, year_part = parts[1], parts[2], parts[3]
             # Pattern: M-D-YY (without prefix)
             elif len(parts) == 3 and all(p.isdigit() for p in parts):
+                logger.info(f"Matched pattern: M-D-YY")
                 month_part, day_part, year_part = parts[0], parts[1], parts[2]
             # Pattern: YYYY-MM-DD
             elif len(parts) == 3 and len(parts[0]) == 4 and parts[0].isdigit():
+                logger.info(f"Matched pattern: YYYY-MM-DD")
                 year_part, month_part, day_part = parts[0], parts[1], parts[2]
                 # Convert 4-digit year to 2-digit for consistency
                 year_part = year_part[2:]
             else:
                 # Try to find any sequence of 3 numbers that could be a date
                 digit_parts = [p for p in parts if p.isdigit()]
+                logger.info(f"Looking for digit parts, found: {digit_parts}")
                 if len(digit_parts) >= 3:
+                    logger.info(f"Using digit parts as date components")
                     month_part, day_part, year_part = digit_parts[0], digit_parts[1], digit_parts[2]
                 else:
-                    logger.debug(f"No recognizable date pattern in folder name: {folder_name}")
+                    logger.info(f"No recognizable date pattern in folder name: {folder_name}")
                     return None
             
             # Validate parts are numeric
@@ -282,6 +289,7 @@ def get_recent_folders(days_back=7):
         today = datetime.now().date()
         cutoff_date = today - timedelta(days=days_back)
         logger.info(f"Today's date: {today}, cutoff date: {cutoff_date}")
+        logger.info(f"LBM_DIRS_PATH is set to: {LBM_DIRS_PATH}")
         
         # Get all subdirectories in the lbm_dirs path
         folders = []
@@ -291,6 +299,7 @@ def get_recent_folders(days_back=7):
             logger.error(f"LBM directories path does not exist: {LBM_DIRS_PATH}")
             # Try to find any directory with "lbm" in the name as a fallback
             base_pictures_dir = os.path.dirname(LBM_DIRS_PATH)
+            logger.info(f"Base pictures directory: {base_pictures_dir}")
             if os.path.exists(base_pictures_dir):
                 logger.info(f"Trying to find alternative directories in {base_pictures_dir}")
                 for item in os.listdir(base_pictures_dir):
@@ -515,7 +524,10 @@ def update_wallpaper_folder(color=None, latest_folder=None, days_back=None, sour
         current_selection_primary_color = color
 
     # Clear the target directory first (if not already cleared by multi-color paths)
-    if not source_colors_str and not (wallpaper_source == "direct_color_selection" and selected_colors_cfg) and not (wallpaper_source == "weekly_habits_inclusive" and habit_color in COLOR_ORDER) :
+    # Only check wallpaper_source if config was loaded and it exists in config
+    if not source_colors_str and not (config and "wallpaper_source" in config and
+                                     ((config["wallpaper_source"] == "direct_color_selection" and "direct_color_selection" in config and config["direct_color_selection"]) or
+                                      (config["wallpaper_source"] == "weekly_habits_inclusive" and "habit_color" in locals() and habit_color in COLOR_ORDER))):
         if not clear_target_directory():
             return False, False, prev_color
     
@@ -545,7 +557,9 @@ def get_most_recent_folder():
     logger.info("Getting the most recent folder by date")
     try:
         # Get all folders with dates (using a large days_back value to include all)
+        logger.info("Calling get_recent_folders with days_back=36500 (100 years)")
         folders = get_recent_folders(days_back=36500)  # ~100 years
+        logger.info(f"get_recent_folders returned {len(folders)} folders")
         
         if not folders:
             logger.warning("No folders with valid dates found")

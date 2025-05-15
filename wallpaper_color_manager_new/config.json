@@ -14236,7 +14236,7 @@
       }
     }
   },
-  "wallpaper_source": "direct_color_selection",
+  "wallpaper_source": "latest",
   "direct_color_selection": [
     "green"
   ],

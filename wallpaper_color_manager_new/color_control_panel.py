@@ -2893,7 +2893,7 @@ class ColorControlPanel:
         # Apply button
         apply_button = ttk.Button(
             button_frame,
-            text="Apply and Refresh Plasma",
+            text="Apply and Restart Slideshow",
             command=self.apply_wallpaper_source
         )
         apply_button.pack(side=tk.RIGHT, padx=5)
@@ -2901,7 +2901,7 @@ class ColorControlPanel:
         # Help text
         help_text = ttk.Label(
             main_frame,
-            text="Note: Clicking 'Apply and Refresh Plasma' will update the active wallpaper folder and refresh the KDE Plasma desktop to apply the changes.\n\n"
+            text="Note: Clicking 'Apply and Restart Slideshow' will update the active wallpaper folder and restart the wallpaper slideshow to apply the changes.\n\n"
                  "Inclusive options include all colors up to the current color in the order: red, orange, green, blue, pink, yellow, white_gray_black.\n\n"
                  "The date-based folder selection looks for folders in /home/twain/Pictures/lbm_dirs with names like 'lbm-3-18-25' (month-day-year).",
             wraplength=800,
@@ -3518,18 +3518,18 @@ class ColorControlPanel:
                     import time
                     time.sleep(2)  # 2-second delay
                     
-                    # Run the plasma refresh in a separate process
-                    logger.debug(f"[{operation_id}] Running plasma refresh in separate process")
-                    self.status_var.set("Changes applied successfully. Refreshing plasma shell...")
+                    # Run the slideshow restart in a separate process
+                    logger.debug(f"[{operation_id}] Running slideshow restart in separate process")
+                    self.status_var.set("Changes applied successfully. Restarting slideshow...")
                     
-                    # Use the _safe_refresh_plasma method to refresh plasma in a separate process
-                    self._safe_refresh_plasma(callback=lambda: self.status_var.set(f"Plasma shell refreshed successfully. Using folder: {folder_name}"))
+                    # Use the _restart_slideshow method to restart the slideshow
+                    self._restart_slideshow(callback=lambda: self.status_var.set(f"Slideshow restarted successfully. Using folder: {folder_name}"))
                     
                     # Show success message
                     messagebox.showinfo(
                         "Success",
                         f"Wallpaper source updated to use folder: {folder_name}\n\n"
-                        "The plasma shell is being refreshed in a separate process.\n"
+                        "The wallpaper slideshow is being restarted in a separate process.\n"
                         "Your desktop wallpaper should update momentarily."
                     )
                     
@@ -3589,18 +3589,18 @@ class ColorControlPanel:
                     import time
                     time.sleep(2)  # 2-second delay
                     
-                    # Run the plasma refresh in a separate process
-                    logger.debug(f"[{operation_id}] Running plasma refresh in separate process")
-                    self.status_var.set("Changes applied successfully. Refreshing plasma shell...")
+                    # Run the slideshow restart in a separate process
+                    logger.debug(f"[{operation_id}] Running slideshow restart in separate process")
+                    self.status_var.set("Changes applied successfully. Restarting slideshow...")
                     
-                    # Use the _safe_refresh_plasma method to refresh plasma in a separate process
-                    self._safe_refresh_plasma(callback=lambda: self.status_var.set(f"Plasma shell refreshed successfully. Using folder: {folder_name}"))
+                    # Use the _restart_slideshow method to restart the slideshow
+                    self._restart_slideshow(callback=lambda: self.status_var.set(f"Slideshow restarted successfully. Using folder: {folder_name}"))
                     
                     # Show success message
                     messagebox.showinfo(
                         "Success",
                         f"Wallpaper source updated to use the most recent folder: {folder_name}\n\n"
-                        "The plasma shell is being refreshed in a separate process.\n"
+                        "The wallpaper slideshow is being restarted in a separate process.\n"
                         "Your desktop wallpaper should update momentarily."
                     )
                     
@@ -3647,12 +3647,12 @@ class ColorControlPanel:
                 import time
                 time.sleep(2)  # 2-second delay
                 
-                # Run the plasma refresh in a truly separate process
-                logger.debug(f"[{operation_id}] Running plasma refresh in separate process")
-                self.status_var.set("Changes applied successfully. Refreshing plasma shell...")
+                # Run the slideshow restart in a separate process
+                logger.debug(f"[{operation_id}] Running slideshow restart in separate process")
+                self.status_var.set("Changes applied successfully. Restarting slideshow...")
                 
-                # Use the _safe_refresh_plasma method to refresh plasma in a separate process
-                self._safe_refresh_plasma(callback=lambda: self.status_var.set("Plasma shell refreshed successfully"))
+                # Use the _restart_slideshow method to restart the slideshow
+                self._restart_slideshow(callback=lambda: self.status_var.set("Slideshow restarted successfully"))
                 
                 # Show a success message
                 if selected_source == "weekly_habits_inclusive" and 'weekly_average' in params and 'colors' in params:
@@ -3661,14 +3661,14 @@ class ColorControlPanel:
                         f"Wallpaper source updated successfully!\n\n"
                         f"Weekly habit count: {params['weekly_average']:.1f}\n"
                         f"Using colors: {', '.join(params['colors'])}\n\n"
-                        "The plasma shell is being refreshed in a separate process.\n"
+                        "The wallpaper slideshow is being restarted in a separate process.\n"
                         "Your desktop wallpaper should update momentarily."
                     )
                 else:
                     messagebox.showinfo(
                         "Success",
                         "Wallpaper source updated successfully!\n\n"
-                        "The plasma shell is being refreshed in a separate process.\n"
+                        "The wallpaper slideshow is being restarted in a separate process.\n"
                         "Your desktop wallpaper should update momentarily."
                     )
                 
@@ -4054,6 +4054,152 @@ exit 0
         self.root.after(2000, check_ui_responsive)  # Check after 2 seconds
         self.root.after(5000, check_ui_responsive)  # Check after 5 seconds
         self.root.after(10000, check_ui_responsive)  # Check after 10 seconds
+    
+    def _restart_slideshow(self, callback=None):
+        """
+        Restart the wallpaper slideshow to apply changes.
+        
+        This method runs the restart_slideshow.sh script in a separate process,
+        which stops the current slideshow, updates the configuration, and starts
+        a new slideshow instance.
+        
+        Args:
+            callback: Optional callback function to call after the restart
+        """
+        import subprocess
+        import threading
+        import traceback
+        import time
+        import uuid
+        
+        # Generate a unique ID for this restart operation
+        restart_id = str(uuid.uuid4())[:8]
+        logger.debug(f"[SLIDESHOW-{restart_id}] Starting slideshow restart")
+        
+        # Explicitly re-enable UI before starting the restart
+        # This ensures the UI is responsive during the restart
+        try:
+            self.root.after(0, self._safe_enable_ui)
+            logger.debug(f"[SLIDESHOW-{restart_id}] UI re-enable scheduled before slideshow restart")
+        except Exception as e:
+            logger.error(f"[SLIDESHOW-{restart_id}] Error scheduling UI re-enable: {e}")
+            logger.error(traceback.format_exc())
+        
+        # Create a watchdog timer to ensure the UI stays responsive
+        def watchdog_timer():
+            try:
+                logger.debug(f"[SLIDESHOW-{restart_id}] Watchdog timer activated")
+                # Force UI update to keep it responsive
+                self.root.after(0, lambda: self.root.update_idletasks())
+            except Exception as e:
+                logger.error(f"[SLIDESHOW-{restart_id}] Error in watchdog timer: {e}")
+        
+        # Start the watchdog timer - only schedule once
+        self.root.after(0, lambda: self.root.after(500, watchdog_timer))
+        logger.debug(f"[SLIDESHOW-{restart_id}] Watchdog timer scheduled once")
+        
+        def restart_thread():
+            try:
+                # Get the path to the restart_slideshow.sh script
+                slideshow_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "wallpaper_slideshow")
+                restart_script_path = os.path.join(slideshow_dir, "restart_slideshow.sh")
+                logger.debug(f"[SLIDESHOW-{restart_id}] Restart script path: {restart_script_path}")
+                
+                # Check if the script exists
+                if not os.path.exists(restart_script_path):
+                    logger.error(f"[SLIDESHOW-{restart_id}] Restart script not found: {restart_script_path}")
+                    self.root.after(0, lambda: self.status_var.set(f"Error: Restart script not found: {restart_script_path}"))
+                    return
+                
+                # Run the restart script
+                logger.debug(f"[SLIDESHOW-{restart_id}] Running restart script")
+                
+                # Use a timeout to prevent hanging
+                try:
+                    process = subprocess.Popen(
+                        ["/bin/bash", restart_script_path],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True
+                    )
+                    
+                    # Set a timeout for the process
+                    try:
+                        stdout, stderr = process.communicate(timeout=15)  # 15 second timeout
+                        logger.debug(f"[SLIDESHOW-{restart_id}] Slideshow restart completed with return code: {process.returncode}")
+                        logger.debug(f"[SLIDESHOW-{restart_id}] stdout: {stdout}")
+                        if stderr:
+                            logger.error(f"[SLIDESHOW-{restart_id}] stderr: {stderr}")
+                    except subprocess.TimeoutExpired:
+                        logger.warning(f"[SLIDESHOW-{restart_id}] Process timed out after 15 seconds, terminating")
+                        process.kill()
+                        stdout, stderr = process.communicate()
+                        logger.debug(f"[SLIDESHOW-{restart_id}] After kill - stdout: {stdout}")
+                        logger.debug(f"[SLIDESHOW-{restart_id}] After kill - stderr: {stderr}")
+                except Exception as e:
+                    logger.error(f"[SLIDESHOW-{restart_id}] Error running restart script: {e}")
+                    logger.error(traceback.format_exc())
+                
+                # Add a small delay to ensure the UI has time to recover
+                time.sleep(1)
+                logger.debug(f"[SLIDESHOW-{restart_id}] Added delay after slideshow restart")
+                
+                # Ensure UI is enabled after restart
+                try:
+                    self.root.after(0, self._safe_enable_ui)
+                    logger.debug(f"[SLIDESHOW-{restart_id}] UI re-enable scheduled after slideshow restart")
+                except Exception as e:
+                    logger.error(f"[SLIDESHOW-{restart_id}] Error scheduling UI re-enable: {e}")
+                    logger.error(traceback.format_exc())
+                
+                # Call the callback if provided
+                if callback:
+                    logger.debug(f"[SLIDESHOW-{restart_id}] Scheduling callback function")
+                    try:
+                        self.root.after(500, callback)  # Add a delay before calling the callback
+                    except Exception as e:
+                        logger.error(f"[SLIDESHOW-{restart_id}] Error scheduling callback: {e}")
+                
+                logger.debug(f"[SLIDESHOW-{restart_id}] Restart thread completed successfully")
+                
+            except Exception as e:
+                logger.error(f"[SLIDESHOW-{restart_id}] Error in restart thread: {e}")
+                logger.error(traceback.format_exc())
+                # Ensure UI is enabled even if there's an error
+                try:
+                    self.root.after(0, self._safe_enable_ui)
+                    logger.debug(f"[SLIDESHOW-{restart_id}] UI re-enable scheduled after error")
+                except Exception as e2:
+                    logger.error(f"[SLIDESHOW-{restart_id}] Error scheduling UI re-enable after error: {e2}")
+                
+                # Still try to call the callback if provided
+                if callback:
+                    try:
+                        self.root.after(500, callback)
+                    except Exception as e2:
+                        logger.error(f"[SLIDESHOW-{restart_id}] Error scheduling callback after error: {e2}")
+        
+        # Start the restart in a separate thread
+        thread = threading.Thread(target=restart_thread, name=f"slideshow-restart-{restart_id}")
+        thread.daemon = True
+        thread.start()
+        logger.debug(f"[SLIDESHOW-{restart_id}] Slideshow restart thread started")
+        
+        # Schedule a check to make sure the UI is still responsive after a few seconds
+        def check_ui_responsive():
+            logger.debug(f"[SLIDESHOW-{restart_id}] Checking UI responsiveness")
+            try:
+                # Force a UI update
+                self.root.update_idletasks()
+                # Try to recover UI if needed
+                self._recover_ui()
+                logger.debug(f"[SLIDESHOW-{restart_id}] UI responsiveness check completed")
+            except Exception as e:
+                logger.error(f"[SLIDESHOW-{restart_id}] Error in UI responsiveness check: {e}")
+        
+        # Schedule multiple checks at different intervals
+        self.root.after(2000, check_ui_responsive)  # Check after 2 seconds
+        self.root.after(5000, check_ui_responsive)  # Check after 5 seconds
     
     def draw_hue_spectrum(self, canvas, highlight_ranges=None):
         """
