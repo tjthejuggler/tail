@@ -3217,7 +3217,8 @@ class ColorControlPanel:
             'selected_source': selected_source,
             'color': None,
             'colors': [],
-            'operation_id': operation_id  # Pass the operation ID to child methods
+            'operation_id': operation_id,  # Pass the operation ID to child methods
+            'force_refresh': True  # Force refresh to ensure slideshow is updated
         }
         logger.debug(f"[{operation_id}] Initial params: {params}")
         
@@ -3703,14 +3704,16 @@ class ColorControlPanel:
             import subprocess
             import os
             import traceback
+            import configparser
             
             logger.debug("Starting _update_wallpaper_source")
             
             selected_source = params['selected_source']
             color = params['color']
             colors = params['colors']
+            force_refresh = params.get('force_refresh', False)
             
-            logger.debug(f"Parameters: selected_source={selected_source}, color={color}, colors={colors}")
+            logger.debug(f"Parameters: selected_source={selected_source}, color={color}, colors={colors}, force_refresh={force_refresh}")
             
             script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "refresh_wallpaper.py")
             logger.debug(f"Script path: {script_path}")
@@ -3734,6 +3737,10 @@ class ColorControlPanel:
                 logger.warning(f"[{operation_id}] _update_wallpaper_source: No color or colors specified. Relying on refresh_wallpaper.py default behavior.")
                 cmd = ["python3", script_path] # Default call
                 final_colors_for_status = ["default (weekly habits)"]
+                
+            # Add force-refresh flag if specified to ensure slideshow is updated
+            if force_refresh:
+                cmd.append("--force-refresh")
 
             logger.info(f"[{operation_id}] _update_wallpaper_source: Running command: {' '.join(cmd)}")
             
@@ -3765,6 +3772,40 @@ class ColorControlPanel:
                 elif "Wallpaper directory updated with" in stdout_data and "images" in stdout_data:
                      status_message = stdout_data.strip().splitlines()[-2] + "; " + stdout_data.strip().splitlines()[-1]
 
+                # Update the slideshow config.ini to use the target directory
+                try:
+                    # Define paths
+                    target_dir = "/home/twain/Pictures/llm_baby_monster"
+                    slideshow_config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                                        "wallpaper_slideshow", "config.ini")
+                    
+                    logger.info(f"[{operation_id}] Updating slideshow config.ini to use target directory: {target_dir}")
+                    
+                    # Read the existing config
+                    config = configparser.ConfigParser()
+                    config.read(slideshow_config_path)
+                    
+                    # Update the image_directory setting
+                    if 'General' not in config:
+                        config['General'] = {}
+                    
+                    # Check if the directory has changed
+                    old_dir = config['General'].get('image_directory', '')
+                    if old_dir != target_dir:
+                        config['General']['image_directory'] = target_dir
+                        
+                        # Write the updated config
+                        with open(slideshow_config_path, 'w') as f:
+                            config.write(f)
+                        
+                        logger.info(f"[{operation_id}] Updated slideshow config.ini: image_directory changed from '{old_dir}' to '{target_dir}'")
+                        status_message += f" Slideshow directory updated."
+                    else:
+                        logger.info(f"[{operation_id}] Slideshow config.ini already using target directory: {target_dir}")
+                except Exception as e:
+                    logger.error(f"[{operation_id}] Error updating slideshow config.ini: {e}")
+                    logger.error(traceback.format_exc())
+                    # Don't fail the whole operation if this part fails
 
                 logger.info(f"[{operation_id}] {status_message}")
                 self.root.after(0, lambda: self.status_var.set(status_message))
