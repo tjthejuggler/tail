@@ -1,0 +1,14 @@
+#!/bin/bash
+# Simple wrapper script for get_current_wallpaper.py
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PYTHON_SCRIPT="$SCRIPT_DIR/get_current_wallpaper.py"
+
+# Check if the Python script exists
+if [ ! -f "$PYTHON_SCRIPT" ]; then
+    echo "Error: Could not find get_current_wallpaper.py in $SCRIPT_DIR"
+    exit 1
+fi
+
+# Pass all arguments to the Python script
+python3 "$PYTHON_SCRIPT" "$@"
