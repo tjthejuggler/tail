@@ -16,6 +16,12 @@ This document provides detailed instructions for installing, configuring, and us
   - [Testing the Slideshow](#testing-the-slideshow)
   - [Controlling the Slideshow](#controlling-the-slideshow)
   - [Autostart on Login](#autostart-on-login)
+- [System Tray Application](#system-tray-application)
+  - [Installation](#system-tray-installation)
+  - [Features](#system-tray-features)
+  - [Notes Window](#notes-window)
+  - [Wallpaper History](#wallpaper-history)
+  - [Autostart](#system-tray-autostart)
 - [Troubleshooting](#troubleshooting)
   - [Common Issues](#common-issues)
   - [Checking Logs](#checking-logs)
@@ -30,6 +36,11 @@ This document provides detailed instructions for installing, configuring, and us
    - On Kubuntu/Debian: `sudo apt install qttools5-dev-tools`
    - On Fedora: `sudo dnf install qt5-qttools-devel`
    - On Arch/Manjaro: `sudo pacman -S qt5-tools`
+3. For the system tray application, you'll need PyQt5:
+   - On Kubuntu/Debian: `sudo apt install python3-pyqt5`
+   - On Fedora: `sudo dnf install python3-pyqt5`
+   - On Arch/Manjaro: `sudo pacman -S python-pyqt5`
+   - Or using pip: `pip install --user PyQt5`
 
 ### Easy Installation
 
@@ -135,7 +146,7 @@ In addition to the slideshow functionality, you can also set a specific wallpape
 ./set_wallpaper.sh /path/to/your/image.jpg
 
 # Or using the Python script directly
-./set_specific_wallpaper_kwrite.py /path/to/your/image.jpg
+./set_specific_wallpaper.py /path/to/your/image.jpg
 ```
 
 These scripts use the KDE configuration system to set the wallpaper directly, without needing to start the slideshow.
@@ -205,6 +216,68 @@ You can also add the slideshow to your application menu:
 cp wallpaper-slideshow.desktop ~/.local/share/applications/
 ```
 
+## System Tray Application
+
+The system tray application provides a convenient way to control the wallpaper slideshow and take notes on wallpapers.
+
+### System Tray Installation
+
+To install the system tray application:
+
+```bash
+./install_tray.sh
+```
+
+This script will:
+- Make the necessary scripts executable
+- Create the tray icon
+- Install the desktop entry for the system tray application
+- Set up autostart for the system tray application
+- Create the notes directory
+
+### System Tray Features
+
+The system tray application provides the following features:
+
+- **Left-click**: Open the notes window for the current wallpaper
+- **Right-click menu**:
+  - **Open Notes**: View and edit notes for the current wallpaper
+  - **Wallpaper History**: View and restore previously shown wallpapers
+  - **Next/Previous Wallpaper**: Navigate through the slideshow
+  - **Pause/Resume**: Toggle the slideshow
+  - **Color Control Panel**: Open the color control panel
+  - **Restart Slideshow**: Restart the slideshow
+  - **Quit**: Exit the system tray application
+
+### Notes Window
+
+The notes window allows you to:
+
+- View and edit notes for the current wallpaper
+- Browse all wallpapers with notes
+- Export and import notes
+- Refresh the current wallpaper
+
+Notes are stored in the `~/.wallpaper_notes` directory in a JSON file. Each note is associated with a specific wallpaper file path.
+
+### Wallpaper History
+
+The wallpaper history window allows you to:
+
+- View recently shown wallpapers
+- Set a specific wallpaper as the current wallpaper
+- Clear the wallpaper history
+
+The history is stored in the `~/.wallpaper_notes/wallpaper_history.json` file and keeps track of the last 50 wallpapers shown.
+
+### System Tray Autostart
+
+The system tray application is automatically configured to start when you log in. If you want to disable this:
+
+1. Go to System Settings -> Startup and Shutdown -> Autostart
+2. Find "Wallpaper Slideshow Tray" in the list
+3. Uncheck the box next to it or remove it
+
 ## Troubleshooting
 
 ### Common Issues
@@ -221,11 +294,20 @@ cp wallpaper-slideshow.desktop ~/.local/share/applications/
    - Add a delay by inserting `time.sleep(10)` at the beginning of the main block
    - Check the log file for errors
 
+5. **System tray icon not appearing**: Make sure PyQt5 is installed correctly:
+   - Check if the tray application is running: `ps aux | grep wallpaper_tray.py`
+   - Check the log file: `cat ~/.wallpaper_tray.log`
+
 ### Checking Logs
 
 If running in the background with the suggested command, check the log file:
 ```bash
 cat ~/.custom_wallpaper.log
+```
+
+For the system tray application, check its log file:
+```bash
+cat ~/.wallpaper_tray.log
 ```
 
 ## Uninstallation
@@ -241,5 +323,16 @@ This script will:
 - Remove desktop entries from applications menu and autostart
 - Remove the command-line shortcut
 - Remove configuration and log files
+
+To uninstall the system tray application:
+
+```bash
+./uninstall_tray.sh
+```
+
+This script will:
+- Remove desktop entries for the system tray application
+- Remove autostart entry for the system tray application
+- Optionally remove all wallpaper notes
 
 You will be asked for confirmation before anything is removed.

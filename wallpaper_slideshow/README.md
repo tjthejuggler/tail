@@ -13,19 +13,23 @@ This program provides a flexible and customizable wallpaper slideshow solution f
 - Pausing and resuming the slideshow
 - Reloading the image list without restarting
 - Detailed logging for troubleshooting
+- Taking notes on wallpapers via the system tray application
 
 It's particularly useful for users who want to use images from removable drives or network locations, as it provides better control over the slideshow process.
 
 ## Key Features
 
 - **Configurable Intervals**: Set your own timing for wallpaper changes
-- **Multiple Control Methods**: Use signals, a control script, or desktop shortcuts
+- **Multiple Control Methods**: Use signals, a control script, desktop shortcuts, or the system tray icon
 - **Format Support**: Works with JPG, PNG, BMP, GIF, WebP images
 - **Shuffle Mode**: Option to display images in random order
 - **Detailed Logging**: Track what's happening with the slideshow
 - **Easy Installation**: Simple setup with an installation script
 - **Desktop Integration**: Includes desktop entry for application menus and autostart
 - **Direct Wallpaper Setting**: Set a specific wallpaper image without using the slideshow
+- **System Tray Integration**: Control the slideshow from the system tray and take notes on wallpapers
+- **Wallpaper Notes**: Associate notes with wallpapers for easy reference
+- **Wallpaper History**: View and restore previously shown wallpapers
 
 ## Getting Started
 
@@ -44,6 +48,45 @@ It's particularly useful for users who want to use images from removable drives 
    ```bash
    ./set_wallpaper.sh /path/to/your/image.jpg
    ```
+
+## System Tray Application
+
+The system tray application provides a convenient way to control the wallpaper slideshow and take notes on wallpapers.
+
+### Installation
+
+1. Navigate to the `wallpaper_slideshow` directory
+2. Run the installation script:
+   ```bash
+   ./install_tray.sh
+   ```
+
+### Features
+
+- **Left-click**: Open the notes window for the current wallpaper
+- **Right-click menu**:
+  - Open Notes: View and edit notes for the current wallpaper
+  - Wallpaper History: View and restore previously shown wallpapers
+  - Next/Previous Wallpaper: Navigate through the slideshow
+  - Pause/Resume: Toggle the slideshow
+  - Color Control Panel: Open the color control panel
+  - Restart Slideshow: Restart the slideshow
+  - Quit: Exit the system tray application
+
+### Notes Window
+
+The notes window allows you to:
+- View and edit notes for the current wallpaper
+- Browse all wallpapers with notes
+- Export and import notes
+- Refresh the current wallpaper
+
+### Wallpaper History
+
+The wallpaper history window allows you to:
+- View recently shown wallpapers
+- Set a specific wallpaper as the current wallpaper
+- Clear the wallpaper history
 
 ## Examples
 
@@ -65,6 +108,7 @@ For detailed instructions on installation, configuration, and usage, please see 
 - KDE Plasma desktop environment
 - Python 3
 - `qdbus` command (part of Qt tools)
+- PyQt5 (for the system tray application)
 
 ## License
 

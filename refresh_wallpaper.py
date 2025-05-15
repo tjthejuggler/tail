@@ -8,6 +8,7 @@ import subprocess
 import logging
 import time
 import glob
+import random
 from pathlib import Path
 from datetime import datetime, timedelta
 
@@ -205,29 +206,54 @@ def create_symlinks_from_multiple_colors(colors):
         return False
 
 def parse_folder_date(folder_name):
-    """Parse a folder name in the format 'lbm-M-D-YY' to extract the date."""
+    """
+    Parse a folder name in the format 'lbm-M-D-YY' to extract the date.
+    Also handles other common date formats in folder names.
+    """
     try:
         # Split by '-' to handle variable-length month and day parts
         parts = folder_name.split('-')
         
         # Check if we have the expected format (lbm-M-D-YY)
-        if len(parts) == 4 and parts[0] == 'lbm':
-            # Validate each part is a number
-            if not parts[1].isdigit() or not parts[2].isdigit() or not parts[3].isdigit():
-                logger.warning(f"Non-numeric date parts in folder name: {folder_name}")
+        if len(parts) >= 3:  # More flexible format checking
+            # Try to extract date parts based on different patterns
+            
+            # Pattern: lbm-M-D-YY
+            if len(parts) == 4 and parts[0] == 'lbm':
+                month_part, day_part, year_part = parts[1], parts[2], parts[3]
+            # Pattern: M-D-YY (without prefix)
+            elif len(parts) == 3 and all(p.isdigit() for p in parts):
+                month_part, day_part, year_part = parts[0], parts[1], parts[2]
+            # Pattern: YYYY-MM-DD
+            elif len(parts) == 3 and len(parts[0]) == 4 and parts[0].isdigit():
+                year_part, month_part, day_part = parts[0], parts[1], parts[2]
+                # Convert 4-digit year to 2-digit for consistency
+                year_part = year_part[2:]
+            else:
+                # Try to find any sequence of 3 numbers that could be a date
+                digit_parts = [p for p in parts if p.isdigit()]
+                if len(digit_parts) >= 3:
+                    month_part, day_part, year_part = digit_parts[0], digit_parts[1], digit_parts[2]
+                else:
+                    logger.debug(f"No recognizable date pattern in folder name: {folder_name}")
+                    return None
+            
+            # Validate parts are numeric
+            if not month_part.isdigit() or not day_part.isdigit() or not year_part.isdigit():
+                logger.debug(f"Non-numeric date parts in folder name: {folder_name}")
                 return None
                 
-            month = int(parts[1])
-            day = int(parts[2])
-            year = int(parts[3])
+            month = int(month_part)
+            day = int(day_part)
+            year = int(year_part)
             
             # Basic validation
             if month < 1 or month > 12:
-                logger.warning(f"Invalid month ({month}) in folder name: {folder_name}")
+                logger.debug(f"Invalid month ({month}) in folder name: {folder_name}")
                 return None
                 
             if day < 1 or day > 31:
-                logger.warning(f"Invalid day ({day}) in folder name: {folder_name}")
+                logger.debug(f"Invalid day ({day}) in folder name: {folder_name}")
                 return None
             
             # Assume 2-digit year format (e.g., 25 -> 2025)
@@ -241,11 +267,11 @@ def parse_folder_date(folder_name):
                 return date_obj
             except ValueError as e:
                 # This catches invalid dates like February 30
-                logger.warning(f"Invalid date combination in folder name: {folder_name}, error: {e}")
+                logger.debug(f"Invalid date combination in folder name: {folder_name}, error: {e}")
                 return None
                 
     except Exception as e:
-        logger.error(f"Error parsing date from folder name {folder_name}: {e}")
+        logger.debug(f"Error parsing date from folder name {folder_name}: {e}")
     
     return None
 
@@ -263,6 +289,14 @@ def get_recent_folders(days_back=7):
         # Check if lbm_dirs path exists
         if not os.path.exists(LBM_DIRS_PATH):
             logger.error(f"LBM directories path does not exist: {LBM_DIRS_PATH}")
+            # Try to find any directory with "lbm" in the name as a fallback
+            base_pictures_dir = os.path.dirname(LBM_DIRS_PATH)
+            if os.path.exists(base_pictures_dir):
+                logger.info(f"Trying to find alternative directories in {base_pictures_dir}")
+                for item in os.listdir(base_pictures_dir):
+                    if "lbm" in item.lower() and os.path.isdir(os.path.join(base_pictures_dir, item)):
+                        logger.info(f"Found alternative LBM directory: {item}")
+                        return [os.path.join(base_pictures_dir, item)]
             return []
         
         # Get all items in the directory
@@ -272,6 +306,7 @@ def get_recent_folders(days_back=7):
         # Log all folder names for debugging
         logger.info(f"All folder names: {', '.join(all_items)}")
         
+        # First pass: Try to find folders with dates in their names
         for item in all_items:
             full_path = os.path.join(LBM_DIRS_PATH, item)
             
@@ -289,6 +324,36 @@ def get_recent_folders(days_back=7):
                         logger.info(f"Folder {item} with date {folder_date} is too old (< {cutoff_date})")
                 else:
                     logger.info(f"Could not parse date from folder {item}")
+        
+        # If no folders with dates found, try to use folder modification times as a fallback
+        if not folders:
+            logger.info("No folders with date in name found, trying modification times")
+            for item in all_items:
+                full_path = os.path.join(LBM_DIRS_PATH, item)
+                
+                if os.path.isdir(full_path):
+                    try:
+                        # Get folder modification time
+                        mod_time = os.path.getmtime(full_path)
+                        mod_date = datetime.fromtimestamp(mod_time).date()
+                        
+                        logger.info(f"Folder {item} has modification date {mod_date}")
+                        if mod_date >= cutoff_date:
+                            logger.info(f"Folder {item} with mod date {mod_date} is within range (>= {cutoff_date})")
+                            folders.append((full_path, mod_date))
+                        else:
+                            logger.info(f"Folder {item} with mod date {mod_date} is too old (< {cutoff_date})")
+                    except Exception as e:
+                        logger.error(f"Error getting modification time for {item}: {e}")
+        
+        # If still no folders found, just use all directories as a last resort
+        if not folders and days_back > 365:  # Only for "all time" queries
+            logger.info("No folders with dates found, using all directories")
+            for item in all_items:
+                full_path = os.path.join(LBM_DIRS_PATH, item)
+                if os.path.isdir(full_path):
+                    # Use current date as a placeholder
+                    folders.append((full_path, today))
         
         # Sort by date (most recent first)
         folders.sort(key=lambda x: x[1], reverse=True)
@@ -476,7 +541,7 @@ def update_wallpaper_folder(color=None, latest_folder=None, days_back=None, sour
     return False, False, prev_color
 
 def get_most_recent_folder():
-    """Get the most recent folder based on date in folder name."""
+    """Get the most recent folder based on date in folder name or modification time."""
     logger.info("Getting the most recent folder by date")
     try:
         # Get all folders with dates (using a large days_back value to include all)
@@ -484,6 +549,42 @@ def get_most_recent_folder():
         
         if not folders:
             logger.warning("No folders with valid dates found")
+            
+            # Fallback: Try to find any directory with images in the Pictures directory
+            pictures_dir = os.path.expanduser("~/Pictures")
+            if os.path.exists(pictures_dir):
+                logger.info(f"Trying to find any directory with images in {pictures_dir}")
+                
+                # Get all subdirectories in Pictures
+                potential_folders = []
+                for item in os.listdir(pictures_dir):
+                    full_path = os.path.join(pictures_dir, item)
+                    if os.path.isdir(full_path):
+                        # Check if directory contains images
+                        image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+                        has_images = False
+                        for ext in image_extensions:
+                            if glob.glob(os.path.join(full_path, f"*{ext}")) or glob.glob(os.path.join(full_path, f"*{ext.upper()}")):
+                                has_images = True
+                                break
+                        
+                        if has_images:
+                            # Get folder modification time
+                            mod_time = os.path.getmtime(full_path)
+                            potential_folders.append((full_path, mod_time))
+                
+                if potential_folders:
+                    # Sort by modification time (most recent first)
+                    potential_folders.sort(key=lambda x: x[1], reverse=True)
+                    most_recent = potential_folders[0][0]
+                    logger.info(f"Found directory with images: {most_recent}")
+                    return most_recent
+            
+            # If still no folders found, try the TARGET_DIR itself
+            if os.path.exists(TARGET_DIR) and os.path.isdir(TARGET_DIR):
+                logger.info(f"Using TARGET_DIR as fallback: {TARGET_DIR}")
+                return TARGET_DIR
+                
             return None
         
         # The first folder is the most recent (already sorted in get_recent_folders)
@@ -494,12 +595,182 @@ def get_most_recent_folder():
         logger.error(f"Error getting most recent folder: {e}")
         import traceback
         logger.error(traceback.format_exc())
+        
+        # Last resort fallback
+        if os.path.exists(TARGET_DIR) and os.path.isdir(TARGET_DIR):
+            logger.info(f"Using TARGET_DIR as emergency fallback after error: {TARGET_DIR}")
+            return TARGET_DIR
+            
         return None
+
+def set_wallpaper_with_slideshow(image_path=None):
+    """
+    Set the wallpaper using the wallpaper_slideshow/set_specific_wallpaper.py script.
+    If image_path is None, it will use a random image from the target directory.
+    
+    Args:
+        image_path: Path to the image to set as wallpaper
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    logger.info(f"Setting wallpaper with slideshow script: {image_path}")
+    try:
+        # If no specific image is provided, choose a random one from the target directory
+        if image_path is None:
+            # Get all image files in the target directory
+            image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+            image_files = []
+            
+            for ext in image_extensions:
+                image_files.extend(glob.glob(os.path.join(TARGET_DIR, f"*{ext}")))
+                image_files.extend(glob.glob(os.path.join(TARGET_DIR, f"*{ext.upper()}")))
+            
+            if not image_files:
+                logger.error("No image files found in target directory")
+                return False
+            
+            # Choose a random image
+            image_path = random.choice(image_files)
+            logger.info(f"Randomly selected image: {image_path}")
+        
+        # Get the absolute path to the set_specific_wallpaper.py script
+        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  "wallpaper_slideshow", "set_specific_wallpaper.py")
+        
+        # Check if the script exists
+        if not os.path.exists(script_path):
+            logger.error(f"Wallpaper script not found: {script_path}")
+            return False
+        
+        # Run the script with the image path
+        logger.info(f"Running: python3 {script_path} {image_path}")
+        result = subprocess.run(
+            ["python3", script_path, image_path],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        
+        if result.returncode != 0:
+            logger.error(f"Error setting wallpaper: {result.stderr}")
+            return False
+        
+        logger.info("Wallpaper set successfully using slideshow script")
+        return True
+    except Exception as e:
+        logger.error(f"Error setting wallpaper with slideshow script: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return False
+
+def start_wallpaper_slideshow():
+    """
+    Start the wallpaper slideshow using the custom_wallpaper.py script.
+    This will automatically change wallpapers at the interval specified in config.ini.
+    
+    Returns:
+        bool: True if slideshow started successfully, False otherwise
+    """
+    logger.info("Starting wallpaper slideshow")
+    try:
+        # First, check if a slideshow is already running by checking the PID file
+        pid_file = os.path.expanduser("~/.config/custom_wallpaper_slideshow.pid")
+        if os.path.exists(pid_file):
+            try:
+                with open(pid_file, 'r') as f:
+                    pid = int(f.read().strip())
+                # Check if process is still running
+                try:
+                    os.kill(pid, 0)  # Signal 0 is used to check if process exists
+                    logger.info(f"Slideshow already running with PID {pid}")
+                    return True
+                except OSError:
+                    # Process not running, remove stale PID file
+                    logger.info(f"Removing stale PID file for non-existent process {pid}")
+                    os.remove(pid_file)
+            except (ValueError, IOError) as e:
+                logger.error(f"Error checking existing slideshow: {e}")
+                # Continue with starting a new slideshow
+        
+        # Get the absolute path to the custom_wallpaper.py script
+        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  "wallpaper_slideshow", "custom_wallpaper.py")
+        
+        # Check if the script exists
+        if not os.path.exists(script_path):
+            logger.error(f"Slideshow script not found: {script_path}")
+            return False
+        
+        # Update the config.ini file to use TARGET_DIR as the image directory
+        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  "wallpaper_slideshow", "config.ini")
+        
+        # Create or update config.ini
+        config = configparser.ConfigParser()
+        if os.path.exists(config_path):
+            config.read(config_path)
+        
+        # Ensure sections exist
+        if 'General' not in config:
+            config['General'] = {}
+        
+        # Set image directory to TARGET_DIR and interval to 15 seconds
+        config['General']['image_directory'] = TARGET_DIR
+        config['General']['interval'] = '15'  # 15 seconds
+        config['General']['shuffle'] = 'true'
+        
+        # Save the config
+        with open(config_path, 'w') as f:
+            config.write(f)
+        
+        logger.info(f"Updated slideshow config to use directory: {TARGET_DIR}")
+        
+        # Start the slideshow in the background
+        logger.info(f"Starting slideshow: python3 {script_path}")
+        process = subprocess.Popen(
+            ["python3", script_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            start_new_session=True  # Detach from parent process
+        )
+        
+        # Wait a moment to see if the process starts successfully
+        time.sleep(1)
+        if process.poll() is None:  # None means process is still running
+            logger.info("Slideshow started successfully")
+            return True
+        else:
+            stdout, stderr = process.communicate()
+            logger.error(f"Slideshow failed to start: {stderr.decode('utf-8')}")
+            return False
+    except Exception as e:
+        logger.error(f"Error starting wallpaper slideshow: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return False
 
 def refresh_plasma_shell():
     """Refresh KDE Plasma shell without freezing the Python script."""
     logger.info("Refreshing KDE Plasma shell...")
     try:
+        # First try starting the wallpaper slideshow
+        if start_wallpaper_slideshow():
+            logger.info("Wallpaper slideshow started successfully")
+            return True
+        
+        # If slideshow fails, try setting a single wallpaper
+        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  "wallpaper_slideshow", "set_specific_wallpaper.py")
+        
+        if os.path.exists(script_path):
+            # Set a random wallpaper from the target directory
+            if set_wallpaper_with_slideshow():
+                logger.info("Plasma shell refreshed using wallpaper slideshow script")
+                return True
+        
+        # Fallback to the old method if both approaches fail
+        logger.warning("Falling back to plasmashell --replace method")
         subprocess.Popen(
             ['nohup', 'plasmashell', '--replace'],
             stdout=subprocess.DEVNULL,
@@ -556,8 +827,51 @@ if __name__ == "__main__":
     if most_recent_only: # This implies --days-back should be ignored if latest_folder is found
         latest_folder_temp = get_most_recent_folder()
         if not latest_folder_temp:
-            print("No folders with valid date format found for --most-recent-only")
-            sys.exit(1)
+            # Instead of failing, use a hardcoded fallback directory
+            logger.warning("No folders with valid date format found for --most-recent-only, using fallback")
+            
+            # Try some common directories
+            fallback_dirs = [
+                os.path.join(BASE_DIR, "llm_baby_monster"),  # TARGET_DIR
+                os.path.join(BASE_DIR, "Wallpapers"),
+                os.path.expanduser("~/Pictures/Wallpapers"),
+                os.path.expanduser("~/Pictures")
+            ]
+            
+            for fallback_dir in fallback_dirs:
+                if os.path.exists(fallback_dir) and os.path.isdir(fallback_dir):
+                    # Check if directory contains images
+                    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+                    has_images = False
+                    for ext in image_extensions:
+                        if glob.glob(os.path.join(fallback_dir, f"*{ext}")) or glob.glob(os.path.join(fallback_dir, f"*{ext.upper()}")):
+                            has_images = True
+                            break
+                    
+                    if has_images:
+                        latest_folder_temp = fallback_dir
+                        logger.info(f"Using fallback directory with images: {fallback_dir}")
+                        break
+            
+            if not latest_folder_temp:
+                # Last resort: Use the TARGET_DIR itself if it exists and has images
+                if os.path.exists(TARGET_DIR) and os.path.isdir(TARGET_DIR):
+                    # Check if TARGET_DIR contains images
+                    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+                    has_images = False
+                    for ext in image_extensions:
+                        if glob.glob(os.path.join(TARGET_DIR, f"*{ext}")) or glob.glob(os.path.join(TARGET_DIR, f"*{ext.upper()}")):
+                            has_images = True
+                            break
+                    
+                    if has_images:
+                        latest_folder_temp = TARGET_DIR
+                        logger.info(f"Using TARGET_DIR as last resort: {TARGET_DIR}")
+                
+            if not latest_folder_temp:
+                print("No suitable fallback directory found. Please check your image directories.")
+                sys.exit(1)
+                
         latest_folder = latest_folder_temp # Override if found
         days_back = None # Ensure days_back is not used if most_recent_only finds a folder
         logger.info(f"Using most recent folder (due to --most-recent-only): {latest_folder}")
