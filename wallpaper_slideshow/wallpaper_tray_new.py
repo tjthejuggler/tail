@@ -90,10 +90,34 @@ class WallpaperTrayApp:
         self.status_timer.timeout.connect(self.check_slideshow_status)
         self.status_timer.start(30000)  # Check every 30 seconds
         
-        # Initial check if slideshow is running
-        QTimer.singleShot(1000, self.check_slideshow_status)
+        # Initial check if slideshow is running and start it if not
+        QTimer.singleShot(1000, self.check_and_start_slideshow)
         
         logger.info("Wallpaper tray application started")
+    
+    def check_and_start_slideshow(self):
+        """Check if slideshow is running and start it if not"""
+        if not os.path.exists(PID_FILE):
+            logger.info("Slideshow not running on startup, starting it automatically")
+            try:
+                # Start the slideshow
+                custom_wallpaper_script = os.path.join(SCRIPT_DIR, "custom_wallpaper.py")
+                subprocess.Popen(["python3", custom_wallpaper_script])
+                
+                # Wait a moment for the slideshow to start
+                time.sleep(1)
+                
+                # Update status
+                self.check_slideshow_status()
+                
+                # Show notification
+                self.tray_icon.showMessage("Slideshow", "Wallpaper slideshow started automatically")
+            except Exception as e:
+                logger.error(f"Error starting slideshow on startup: {e}")
+                self.tray_icon.showMessage("Error", f"Failed to start slideshow: {str(e)}")
+        else:
+            # Just check status if already running
+            self.check_slideshow_status()
     
     def setup_icon(self):
         """Set up the system tray icon"""
@@ -224,14 +248,27 @@ class WallpaperTrayApp:
     def restart_slideshow(self):
         """Restart the slideshow"""
         try:
-            # First stop the slideshow
-            subprocess.run([CONTROL_SCRIPT, "stop"], check=True)
-            logger.info("Stopping slideshow")
+            # Check if the slideshow is running by checking for PID file
+            if os.path.exists(PID_FILE):
+                try:
+                    # Try to stop the slideshow
+                    subprocess.run([CONTROL_SCRIPT, "stop"], check=True)
+                    logger.info("Stopping slideshow")
+                    
+                    # Wait a moment for the slideshow to stop
+                    time.sleep(1)
+                except Exception as e:
+                    logger.warning(f"Error stopping slideshow: {e}")
+                    # If stopping fails, try to remove the PID file
+                    try:
+                        os.remove(PID_FILE)
+                        logger.info("Removed stale PID file")
+                    except Exception as pid_e:
+                        logger.error(f"Error removing PID file: {pid_e}")
+            else:
+                logger.info("Slideshow not running, starting fresh")
             
-            # Wait a moment for the slideshow to stop
-            time.sleep(1)
-            
-            # Start the slideshow again
+            # Start the slideshow
             custom_wallpaper_script = os.path.join(SCRIPT_DIR, "custom_wallpaper.py")
             subprocess.Popen(["python3", custom_wallpaper_script])
             logger.info("Starting slideshow")
@@ -241,6 +278,9 @@ class WallpaperTrayApp:
             
             # Update status
             self.check_slideshow_status()
+            
+            # Show success message
+            self.tray_icon.showMessage("Slideshow", "Slideshow restarted successfully")
         except Exception as e:
             logger.error(f"Error restarting slideshow: {e}")
             self.tray_icon.showMessage("Error", f"Failed to restart slideshow: {str(e)}")
