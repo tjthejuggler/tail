@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Wallpaper Slideshow
+Comment=Custom wallpaper slideshow for KDE Plasma
+Exec=/bin/bash -c "cd %k && ./custom_wallpaper.py"
+Icon=preferences-desktop-wallpaper
+Terminal=false
+Categories=Utility;
+StartupNotify=false
+X-GNOME-Autostart-enabled=true
