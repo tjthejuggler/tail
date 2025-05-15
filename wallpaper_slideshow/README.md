@@ -14,6 +14,7 @@ This program provides a flexible and customizable wallpaper slideshow solution f
 - Reloading the image list without restarting
 - Detailed logging for troubleshooting
 - Taking notes on wallpapers via the system tray application
+- Configuring slideshow settings through a user-friendly interface
 
 It's particularly useful for users who want to use images from removable drives or network locations, as it provides better control over the slideshow process.
 
@@ -30,6 +31,7 @@ It's particularly useful for users who want to use images from removable drives 
 - **System Tray Integration**: Control the slideshow from the system tray and take notes on wallpapers
 - **Wallpaper Notes**: Associate notes with wallpapers for easy reference
 - **Wallpaper History**: View and restore previously shown wallpapers
+- **Tabbed Interface**: Access history, notes, and settings in a single window
 
 ## Getting Started
 
@@ -61,8 +63,14 @@ The system tray application provides a convenient way to control the wallpaper s
    ./install_tray.sh
    ```
 
+   Or for the new tabbed interface:
+   ```bash
+   ./install_tray_new.sh
+   ```
+
 ### Features
 
+#### Classic Interface
 - **Left-click**: Open the notes window for the current wallpaper
 - **Right-click menu**:
   - Open Notes: View and edit notes for the current wallpaper
@@ -73,7 +81,42 @@ The system tray application provides a convenient way to control the wallpaper s
   - Restart Slideshow: Restart the slideshow
   - Quit: Exit the system tray application
 
-### Notes Window
+#### New Tabbed Interface
+- **Left-click**: Open the main window with tabs for history, notes, and settings
+- **Right-click menu**:
+  - Open Wallpaper Manager: Open the main window with tabs
+  - Next/Previous Wallpaper: Navigate through the slideshow
+  - Pause/Resume: Toggle the slideshow
+  - Color Control Panel: Open the color control panel
+  - Restart Slideshow: Restart the slideshow
+  - Quit: Exit the system tray application
+
+### Main Window (Tabbed Interface)
+
+The new tabbed interface combines multiple features in a single window:
+
+#### History Tab
+- View recently shown wallpapers
+- Set a specific wallpaper as the current wallpaper
+- Clear the wallpaper history
+
+#### Notes Tab
+- View and edit notes for the current wallpaper
+- Browse all wallpapers with notes
+- Export and import notes
+- Refresh the current wallpaper
+
+#### Settings Tab
+- Configure slideshow settings:
+  - Image directory
+  - Change interval
+  - Shuffle mode
+  - Supported file extensions
+  - Log and PID file locations
+- Apply settings without restarting the application
+- Reset to default settings
+
+### Notes Window (Classic Interface)
 
 The notes window allows you to:
 - View and edit notes for the current wallpaper
@@ -81,7 +124,7 @@ The notes window allows you to:
 - Export and import notes
 - Refresh the current wallpaper
 
-### Wallpaper History
+### Wallpaper History (Classic Interface)
 
 The wallpaper history window allows you to:
 - View recently shown wallpapers

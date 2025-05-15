@@ -19,8 +19,12 @@ This document provides detailed instructions for installing, configuring, and us
 - [System Tray Application](#system-tray-application)
   - [Installation](#system-tray-installation)
   - [Features](#system-tray-features)
-  - [Notes Window](#notes-window)
-  - [Wallpaper History](#wallpaper-history)
+  - [Notes Window (Classic Interface)](#notes-window)
+  - [Wallpaper History (Classic Interface)](#wallpaper-history)
+  - [Tabbed Interface](#tabbed-interface)
+    - [History Tab](#history-tab)
+    - [Notes Tab](#notes-tab)
+    - [Settings Tab](#settings-tab)
   - [Autostart](#system-tray-autostart)
 - [Troubleshooting](#troubleshooting)
   - [Common Issues](#common-issues)
@@ -218,17 +222,23 @@ cp wallpaper-slideshow.desktop ~/.local/share/applications/
 
 ## System Tray Application
 
-The system tray application provides a convenient way to control the wallpaper slideshow and take notes on wallpapers.
+The system tray application provides a convenient way to control the wallpaper slideshow and take notes on wallpapers. There are two versions available: the classic interface and the new tabbed interface.
 
 ### System Tray Installation
 
-To install the system tray application:
+To install the classic system tray application:
 
 ```bash
 ./install_tray.sh
 ```
 
-This script will:
+To install the new tabbed interface:
+
+```bash
+./install_tray_new.sh
+```
+
+These scripts will:
 - Make the necessary scripts executable
 - Create the tray icon
 - Install the desktop entry for the system tray application
@@ -237,12 +247,27 @@ This script will:
 
 ### System Tray Features
 
-The system tray application provides the following features:
+#### Classic Interface
+
+The classic system tray application provides the following features:
 
 - **Left-click**: Open the notes window for the current wallpaper
 - **Right-click menu**:
   - **Open Notes**: View and edit notes for the current wallpaper
   - **Wallpaper History**: View and restore previously shown wallpapers
+  - **Next/Previous Wallpaper**: Navigate through the slideshow
+  - **Pause/Resume**: Toggle the slideshow
+  - **Color Control Panel**: Open the color control panel
+  - **Restart Slideshow**: Restart the slideshow
+  - **Quit**: Exit the system tray application
+
+#### New Tabbed Interface
+
+The new tabbed interface provides the following features:
+
+- **Left-click**: Open the main window with tabs for history, notes, and settings
+- **Right-click menu**:
+  - **Open Wallpaper Manager**: Open the main window with tabs
   - **Next/Previous Wallpaper**: Navigate through the slideshow
   - **Pause/Resume**: Toggle the slideshow
   - **Color Control Panel**: Open the color control panel
@@ -269,6 +294,47 @@ The wallpaper history window allows you to:
 - Clear the wallpaper history
 
 The history is stored in the `~/.wallpaper_notes/wallpaper_history.json` file and keeps track of the last 50 wallpapers shown.
+
+### Tabbed Interface
+
+The new tabbed interface combines multiple features in a single window, making it easier to manage your wallpaper slideshow.
+
+#### History Tab
+
+The History tab provides the same functionality as the standalone Wallpaper History window:
+
+- View recently shown wallpapers with thumbnails
+- Set a specific wallpaper as the current wallpaper by double-clicking or using the "Set as Current Wallpaper" button
+- Clear the wallpaper history
+- Refresh the history list
+
+#### Notes Tab
+
+The Notes tab provides the same functionality as the standalone Notes window:
+
+- View and edit notes for the current wallpaper
+- Browse all wallpapers with notes
+- Export and import notes
+- Refresh the current wallpaper
+
+#### Settings Tab
+
+The Settings tab provides a user-friendly interface for configuring the slideshow:
+
+- **General Settings**:
+  - Image directory: Set the directory containing your wallpaper images
+  - Change interval: Set the time between wallpaper changes (in seconds)
+  - Shuffle images: Enable or disable random shuffling of wallpapers
+
+- **Advanced Settings**:
+  - Supported extensions: Configure which file extensions are recognized as wallpapers
+  - PID file: Set the location of the PID file
+  - Log file: Set the location of the log file
+
+- **Actions**:
+  - Save Settings: Save the settings without applying them
+  - Apply Settings: Save the settings and restart the slideshow to apply them
+  - Reset to Defaults: Reset all settings to their default values
 
 ### System Tray Autostart
 
@@ -324,15 +390,22 @@ This script will:
 - Remove the command-line shortcut
 - Remove configuration and log files
 
-To uninstall the system tray application:
+To uninstall the classic system tray application:
 
 ```bash
 ./uninstall_tray.sh
 ```
 
-This script will:
+To uninstall the new tabbed interface:
+
+```bash
+./uninstall_tray_new.sh
+```
+
+These scripts will:
 - Remove desktop entries for the system tray application
 - Remove autostart entry for the system tray application
 - Optionally remove all wallpaper notes
+- Optionally restore the other version if you're switching between versions
 
 You will be asked for confirmation before anything is removed.
