@@ -31,7 +31,9 @@ It's particularly useful for users who want to use images from removable drives 
 - **System Tray Integration**: Control the slideshow from the system tray and take notes on wallpapers
 - **Wallpaper Notes**: Associate notes with wallpapers for easy reference
 - **Wallpaper History**: View and restore previously shown wallpapers
+- **File Browser**: Browse and select image files directly within the notes interface
 - **Tabbed Interface**: Access history, notes, and settings in a single window
+- **Dolphin Integration**: Right-click on image files in Dolphin to add notes directly
 
 ## Getting Started
 
@@ -90,6 +92,20 @@ The system tray application provides a convenient way to control the wallpaper s
   - Color Control Panel: Open the color control panel
   - Restart Slideshow: Restart the slideshow
   - Quit: Exit the system tray application
+|
+### Dolphin File Manager Integration
+|
+The KDE Dolphin integration allows you to:
+- Right-click on any image file in Dolphin
+- Select "Add a note to this wallpaper" from the context menu
+- The tray app will open to the notes tab with the selected image loaded
+|
+To install the Dolphin integration:
+```bash
+./install_dolphin_integration.sh
+```
+|
+This integration is also offered during the tray app installation.
 
 ### Main Window (Tabbed Interface)
 
@@ -103,6 +119,11 @@ The new tabbed interface combines multiple features in a single window:
 #### Notes Tab
 - View and edit notes for the current wallpaper
 - Browse all wallpapers with notes
+- Browse and select image files with the integrated file browser
+- View thumbnails for image files in the file browser
+- Navigate through directories with back, forward, up, and home buttons
+- Filter for image files based on supported extensions
+- Set any image as the current wallpaper by double-clicking
 - Export and import notes
 - Refresh the current wallpaper
 
@@ -121,6 +142,11 @@ The new tabbed interface combines multiple features in a single window:
 The notes window allows you to:
 - View and edit notes for the current wallpaper
 - Browse all wallpapers with notes
+- Browse and select image files with the integrated file browser
+- View thumbnails for image files in the file browser
+- Navigate through directories with back, forward, up, and home buttons
+- Filter for image files based on supported extensions
+- Set any image as the current wallpaper by double-clicking
 - Export and import notes
 - Refresh the current wallpaper
 
@@ -146,12 +172,43 @@ See the [Examples README](examples/README.md) for more details.
 
 For detailed instructions on installation, configuration, and usage, please see the [full documentation](DOCUMENTATION.md).
 
+## Troubleshooting
+
+### Known Issues and Fixes
+
+#### Refresh Current Wallpaper in Notes Tab
+
+**Issue**: Prior to version 1.2.3, clicking "Refresh Current Wallpaper" while in the notes tab could cause the application to crash.
+
+**Fix**: This issue has been resolved by:
+- Adding robust error handling in the refresh_current_wallpaper() method
+- Improving the screenshot comparison logic in get_current_wallpaper.py
+- Adding fallback mechanisms when wallpaper detection fails
+- Implementing better thread safety for background operations
+
+If you experience any crashes, please update to the latest version.
+
+### Debugging
+
+If you encounter issues:
+1. Check the log files:
+   - Main application: `~/.custom_wallpaper.log`
+   - Tray application: `~/.wallpaper_tray.log`
+   - Main window: `~/.wallpaper_main_window.log`
+2. Enable debug mode for the wallpaper detection:
+   ```bash
+   python3 get_current_wallpaper.py --debug
+   ```
+   This will save debug screenshots to your home directory.
+
 ## Requirements
 
 - KDE Plasma desktop environment
 - Python 3
 - `qdbus` command (part of Qt tools)
 - PyQt5 (for the system tray application)
+- psutil (for the Dolphin integration)
+- OpenCV and scikit-image (for wallpaper detection)
 
 ## License
 

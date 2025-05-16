@@ -139,62 +139,110 @@ def compare_images(img1, img2, method="ssim", resize_to=(800, 600)):
     try:
         # Open images if paths are provided
         if isinstance(img1, str):
-            img1 = Image.open(img1)
+            try:
+                img1 = Image.open(img1)
+            except Exception as e:
+                logger.error(f"Failed to open first image {img1}: {e}")
+                if method == "ssim":
+                    return 0.0  # Worst SSIM score
+                else:
+                    return float('inf')  # Worst MSE score
+                
         if isinstance(img2, str):
-            img2 = Image.open(img2)
+            try:
+                img2 = Image.open(img2)
+            except Exception as e:
+                logger.error(f"Failed to open second image {img2}: {e}")
+                if method == "ssim":
+                    return 0.0  # Worst SSIM score
+                else:
+                    return float('inf')  # Worst MSE score
         
         # Convert to RGB if needed
-        if img1.mode != 'RGB':
-            img1 = img1.convert('RGB')
-        if img2.mode != 'RGB':
-            img2 = img2.convert('RGB')
+        try:
+            if img1.mode != 'RGB':
+                img1 = img1.convert('RGB')
+            if img2.mode != 'RGB':
+                img2 = img2.convert('RGB')
+        except Exception as e:
+            logger.error(f"Failed to convert images to RGB: {e}")
+            if method == "ssim":
+                return 0.0
+            else:
+                return float('inf')
         
         # Resize images to the same dimensions
-        img1 = img1.resize(resize_to)
-        img2 = img2.resize(resize_to)
+        try:
+            img1 = img1.resize(resize_to)
+            img2 = img2.resize(resize_to)
+        except Exception as e:
+            logger.error(f"Failed to resize images: {e}")
+            if method == "ssim":
+                return 0.0
+            else:
+                return float('inf')
         
         # Convert to numpy arrays
-        arr1 = np.array(img1)
-        arr2 = np.array(img2)
+        try:
+            arr1 = np.array(img1)
+            arr2 = np.array(img2)
+        except Exception as e:
+            logger.error(f"Failed to convert images to numpy arrays: {e}")
+            if method == "ssim":
+                return 0.0
+            else:
+                return float('inf')
         
         # Calculate histogram similarity (more robust to scaling and positioning)
-        hist_score = 0.0
-        for i in range(3):  # For each RGB channel
-            hist1 = cv2.calcHist([arr1], [i], None, [256], [0, 256])
-            hist2 = cv2.calcHist([arr2], [i], None, [256], [0, 256])
-            hist1 = cv2.normalize(hist1, hist1).flatten()
-            hist2 = cv2.normalize(hist2, hist2).flatten()
-            hist_score += cv2.compareHist(hist1, hist2, cv2.HISTCMP_CORREL)
-        
-        hist_score /= 3.0  # Average across channels
+        try:
+            hist_score = 0.0
+            for i in range(3):  # For each RGB channel
+                hist1 = cv2.calcHist([arr1], [i], None, [256], [0, 256])
+                hist2 = cv2.calcHist([arr2], [i], None, [256], [0, 256])
+                hist1 = cv2.normalize(hist1, hist1).flatten()
+                hist2 = cv2.normalize(hist2, hist2).flatten()
+                hist_score += cv2.compareHist(hist1, hist2, cv2.HISTCMP_CORREL)
+            
+            hist_score /= 3.0  # Average across channels
+        except Exception as e:
+            logger.error(f"Failed to calculate histogram similarity: {e}")
+            hist_score = 0.0 if method == "ssim" else 1.0
         
         if method == "ssim":
-            # Convert to grayscale for SSIM
-            gray1 = cv2.cvtColor(arr1, cv2.COLOR_RGB2GRAY)
-            gray2 = cv2.cvtColor(arr2, cv2.COLOR_RGB2GRAY)
-            
-            # Calculate SSIM (higher is better)
-            ssim_score, _ = ssim(gray1, gray2, full=True)
-            
-            # Combine SSIM and histogram scores (both higher is better)
-            combined_score = 0.7 * ssim_score + 0.3 * hist_score
-            logger.debug(f"SSIM: {ssim_score:.4f}, Hist: {hist_score:.4f}, Combined: {combined_score:.4f}")
-            return combined_score
+            try:
+                # Convert to grayscale for SSIM
+                gray1 = cv2.cvtColor(arr1, cv2.COLOR_RGB2GRAY)
+                gray2 = cv2.cvtColor(arr2, cv2.COLOR_RGB2GRAY)
+                
+                # Calculate SSIM (higher is better)
+                ssim_score, _ = ssim(gray1, gray2, full=True)
+                
+                # Combine SSIM and histogram scores (both higher is better)
+                combined_score = 0.7 * ssim_score + 0.3 * hist_score
+                logger.debug(f"SSIM: {ssim_score:.4f}, Hist: {hist_score:.4f}, Combined: {combined_score:.4f}")
+                return combined_score
+            except Exception as e:
+                logger.error(f"Failed to calculate SSIM: {e}")
+                return 0.0
         else:
-            # Calculate mean squared error (lower is better)
-            mse = np.mean((arr1 - arr2) ** 2)
-            
-            # Normalize to 0-1 range
-            max_possible_mse = 255 ** 2 * 3  # Max possible difference per pixel (RGB)
-            normalized_mse = mse / max_possible_mse
-            
-            # For MSE, lower is better, but for hist_score higher is better
-            # So we invert hist_score and combine (both lower is better)
-            combined_score = 0.7 * normalized_mse + 0.3 * (1.0 - hist_score)
-            logger.debug(f"MSE: {normalized_mse:.4f}, Hist: {1.0-hist_score:.4f}, Combined: {combined_score:.4f}")
-            return combined_score
+            try:
+                # Calculate mean squared error (lower is better)
+                mse = np.mean((arr1 - arr2) ** 2)
+                
+                # Normalize to 0-1 range
+                max_possible_mse = 255 ** 2 * 3  # Max possible difference per pixel (RGB)
+                normalized_mse = mse / max_possible_mse
+                
+                # For MSE, lower is better, but for hist_score higher is better
+                # So we invert hist_score and combine (both lower is better)
+                combined_score = 0.7 * normalized_mse + 0.3 * (1.0 - hist_score)
+                logger.debug(f"MSE: {normalized_mse:.4f}, Hist: {1.0-hist_score:.4f}, Combined: {combined_score:.4f}")
+                return combined_score
+            except Exception as e:
+                logger.error(f"Failed to calculate MSE: {e}")
+                return float('inf')
     except Exception as e:
-        logger.error(f"Error comparing images: {e}")
+        logger.error(f"Unexpected error comparing images: {e}")
         if method == "ssim":
             return 0.0  # Worst SSIM score
         else:
@@ -315,30 +363,48 @@ def find_current_wallpaper(screenshot_path, args, slideshow_images):
     if not slideshow_images:
         logger.warning("No slideshow images provided for comparison.")
         return None, 0.0 if args.method == "ssim" else float('inf')
+    
+    # Ensure screenshot_path exists
+    if not os.path.exists(screenshot_path):
+        logger.error(f"Screenshot path does not exist: {screenshot_path}")
+        return None, 0.0 if args.method == "ssim" else float('inf')
+    
     if args.fast:
         args.resolution = "400x300"
         args.confidence = 0.7
         if args.max_images == 0 or args.max_images > 20:
             args.max_images = 20
+    
     try:
         width, height = map(int, args.resolution.split('x'))
         resize_to = (width, height)
     except ValueError:
         logger.warning(f"Invalid resolution format: {args.resolution}, using default 800x600")
         resize_to = (800, 600)
-    if args.crop:
-        screenshot_img = crop_image(
-            screenshot_path,
-            top=args.crop_top,
-            bottom=args.crop_bottom,
-            left=args.crop_left,
-            right=args.crop_right
-        )
-    else:
-        screenshot_img = Image.open(screenshot_path)
+    
+    try:
+        if args.crop:
+            screenshot_img = crop_image(
+                screenshot_path,
+                top=args.crop_top,
+                bottom=args.crop_bottom,
+                left=args.crop_left,
+                right=args.crop_right
+            )
+        else:
+            try:
+                screenshot_img = Image.open(screenshot_path)
+            except Exception as e:
+                logger.error(f"Failed to open screenshot: {e}")
+                return None, 0.0 if args.method == "ssim" else float('inf')
+    except Exception as e:
+        logger.error(f"Error processing screenshot: {e}")
+        return None, 0.0 if args.method == "ssim" else float('inf')
+    
     if args.max_images > 0 and args.max_images < len(slideshow_images):
         logger.debug(f"Limiting comparison to {args.max_images} images")
         slideshow_images = slideshow_images[:args.max_images]
+    
     best_match = None
     if args.method == "ssim":
         best_score = 0.0
@@ -346,22 +412,41 @@ def find_current_wallpaper(screenshot_path, args, slideshow_images):
     else:
         best_score = float('inf')
         confidence_threshold = 1.0 - args.confidence
-    for _, target in slideshow_images:
-        score = compare_images(screenshot_img, target, method=args.method, resize_to=resize_to)
-        if args.method == "ssim":
-            if score > best_score:
-                best_score = score
-                best_match = target
-                if score >= confidence_threshold:
-                    logger.debug(f"Confidence threshold reached: {score:.4f} >= {confidence_threshold}")
-                    break
+    
+    # Validate slideshow images before comparison
+    valid_slideshow_images = []
+    for orig, target in slideshow_images:
+        if os.path.exists(target):
+            valid_slideshow_images.append((orig, target))
         else:
-            if score < best_score:
-                best_score = score
-                best_match = target
-                if score <= confidence_threshold:
-                    logger.debug(f"Confidence threshold reached: {score:.4f} <= {confidence_threshold}")
-                    break
+            logger.warning(f"Skipping non-existent wallpaper image: {target}")
+    
+    if not valid_slideshow_images:
+        logger.error("No valid wallpaper images found for comparison")
+        return None, 0.0 if args.method == "ssim" else float('inf')
+    
+    for _, target in valid_slideshow_images:
+        try:
+            score = compare_images(screenshot_img, target, method=args.method, resize_to=resize_to)
+            
+            if args.method == "ssim":
+                if score > best_score:
+                    best_score = score
+                    best_match = target
+                    if score >= confidence_threshold:
+                        logger.debug(f"Confidence threshold reached: {score:.4f} >= {confidence_threshold}")
+                        break
+            else:
+                if score < best_score:
+                    best_score = score
+                    best_match = target
+                    if score <= confidence_threshold:
+                        logger.debug(f"Confidence threshold reached: {score:.4f} <= {confidence_threshold}")
+                        break
+        except Exception as e:
+            logger.error(f"Error comparing with image {target}: {e}")
+            continue
+    
     logger.debug(f"Best match: {os.path.basename(best_match) if best_match else None} with score {best_score:.4f}")
     return best_match, best_score
 
@@ -415,8 +500,20 @@ def main():
         logger.info("Proceeding with screenshot comparison for slideshow.")
         screenshot_path = take_screenshot()
         if not screenshot_path:
+            logger.error("Failed to take a screenshot for slideshow comparison.")
             if not args.name_only:
                 print("Failed to take a screenshot for slideshow comparison.")
+            # Fallback to KDE config if available
+            if current_wallpaper_path:
+                logger.info(f"Falling back to KDE config wallpaper: {current_wallpaper_path}")
+                filename = os.path.basename(current_wallpaper_path)
+                if args.name_only:
+                    print(filename)
+                else:
+                    print(f"Current wallpaper (from KDE config, fallback): {filename}")
+                    if args.verbose or args.debug:
+                        print(f"Full path: {current_wallpaper_path}")
+                sys.exit(0)
             sys.exit(1)
         try:
             if args.debug:
@@ -427,11 +524,25 @@ def main():
                     logger.debug(f"Saved debug screenshot to {debug_screenshot}")
                 except Exception as e:
                     logger.error(f"Failed to save debug screenshot: {e}")
+            
             potential_images = get_potential_wallpaper_images(logger, kde_discovered_dirs=slideshow_dirs_from_kde, user_scan_dir=None)
             if not potential_images:
+                logger.error(f"No images found in slideshow directories {slideshow_dirs_from_kde} for comparison.")
                 if not args.name_only:
                     print(f"No images found in slideshow directories {slideshow_dirs_from_kde} for comparison.")
+                # Fallback to KDE config if available
+                if current_wallpaper_path:
+                    logger.info(f"Falling back to KDE config wallpaper: {current_wallpaper_path}")
+                    filename = os.path.basename(current_wallpaper_path)
+                    if args.name_only:
+                        print(filename)
+                    else:
+                        print(f"Current wallpaper (from KDE config, fallback): {filename}")
+                        if args.verbose or args.debug:
+                            print(f"Full path: {current_wallpaper_path}")
+                    sys.exit(0)
                 sys.exit(1)
+            
             wallpaper_path_sc, score_sc = find_current_wallpaper(screenshot_path, args, potential_images)
             if wallpaper_path_sc:
                 filename = os.path.basename(wallpaper_path_sc)
@@ -454,11 +565,23 @@ def main():
                     except Exception as e:
                         logger.error(f"Failed to save matched wallpaper: {e}")
             else:
-                if not args.name_only:
-                    print("Could not determine current wallpaper using screenshot comparison for slideshow.")
+                logger.warning("Could not determine current wallpaper using screenshot comparison.")
+                # Fallback to KDE config if available
                 if current_wallpaper_path:
+                    logger.info(f"Falling back to KDE config wallpaper: {current_wallpaper_path}")
+                    filename = os.path.basename(current_wallpaper_path)
+                    if args.name_only:
+                        print(filename)
+                    else:
+                        print(f"Current wallpaper (from KDE config, fallback): {filename}")
+                        if args.verbose or args.debug:
+                            print(f"Full path: {current_wallpaper_path}")
+                else:
                     if not args.name_only:
-                        print(f"(Config reported: {os.path.basename(current_wallpaper_path)})")
+                        print("Could not determine current wallpaper using screenshot comparison for slideshow.")
+                    if current_wallpaper_path:
+                        if not args.name_only:
+                            print(f"(Config reported: {os.path.basename(current_wallpaper_path)})")
         finally:
             if screenshot_path and os.path.exists(screenshot_path):
                 os.unlink(screenshot_path)

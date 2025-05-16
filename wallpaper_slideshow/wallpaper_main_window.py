@@ -28,9 +28,9 @@ from PyQt5.QtWidgets import (QMainWindow, QWidget, QTabWidget, QVBoxLayout, QHBo
                             QLabel, QLineEdit, QTextEdit, QPushButton, QListWidget,
                             QListWidgetItem, QSplitter, QFileDialog, QMessageBox,
                             QCheckBox, QSpinBox, QComboBox, QFormLayout, QGroupBox,
-                            QDialogButtonBox)
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import Qt, QSize, pyqtSignal, QObject, QTimer
+                            QDialogButtonBox, QTreeView, QHeaderView, QToolBar, QAction)
+from PyQt5.QtGui import QIcon, QPixmap, QImageReader
+from PyQt5.QtCore import Qt, QSize, pyqtSignal, QObject, QTimer, QDir, QFileSystemModel, QModelIndex
 
 # Set up logging
 logging.basicConfig(
@@ -44,6 +44,24 @@ logger = logging.getLogger(__name__)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 NOTES_DIR = os.path.expanduser("~/.wallpaper_notes")
 CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.ini")
+
+# Load supported image extensions from config
+SUPPORTED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp"]
+if os.path.exists(CONFIG_FILE):
+    try:
+        config = configparser.ConfigParser()
+        config.read(CONFIG_FILE)
+        if 'Advanced' in config and 'supported_extensions' in config['Advanced']:
+            SUPPORTED_EXTENSIONS = [ext.strip() for ext in config['Advanced']['supported_extensions'].split(',')]
+        
+        # Get default image directory
+        DEFAULT_IMAGE_DIR = os.path.expanduser("~/Pictures")
+        if 'General' in config and 'image_directory' in config['General']:
+            DEFAULT_IMAGE_DIR = os.path.expanduser(config['General']['image_directory'])
+    except Exception as e:
+        logger.error(f"Error reading config.ini: {e}")
+else:
+    DEFAULT_IMAGE_DIR = os.path.expanduser("~/Pictures")
 class HistoryTab(QWidget):
     """Tab for viewing the history of wallpapers shown in the slideshow"""
     
@@ -237,6 +255,9 @@ class NotesTab(QWidget):
         self.current_wallpaper = None
         self.notes_data = {}
         self.load_notes_data()
+        self.current_directory = DEFAULT_IMAGE_DIR
+        self.navigation_history = []
+        self.navigation_position = -1
         
         # Set up UI
         self.setup_ui()
@@ -247,6 +268,9 @@ class NotesTab(QWidget):
         # Populate the list
         self.populate_wallpaper_list()
         
+        # Initialize file browser
+        self.initialize_file_browser()
+        
         # Get current wallpaper
         self.refresh_current_wallpaper()
     
@@ -254,9 +278,88 @@ class NotesTab(QWidget):
         """Set up the UI elements"""
         main_layout = QVBoxLayout(self)
         
+        # Create main splitter for file browser and notes area
+        main_splitter = QSplitter(Qt.Horizontal)
+        main_layout.addWidget(main_splitter)
+        
+        # Create file browser widget
+        file_browser_widget = QWidget()
+        file_browser_layout = QVBoxLayout(file_browser_widget)
+        file_browser_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Add navigation toolbar
+        nav_toolbar = QToolBar()
+        nav_toolbar.setIconSize(QSize(16, 16))
+        
+        # Back button
+        self.back_button = QAction(QIcon.fromTheme("go-previous"), "Back", self)
+        self.back_button.triggered.connect(self.navigate_back)
+        self.back_button.setEnabled(False)
+        nav_toolbar.addAction(self.back_button)
+        
+        # Forward button
+        self.forward_button = QAction(QIcon.fromTheme("go-next"), "Forward", self)
+        self.forward_button.triggered.connect(self.navigate_forward)
+        self.forward_button.setEnabled(False)
+        nav_toolbar.addAction(self.forward_button)
+        
+        # Up button
+        up_button = QAction(QIcon.fromTheme("go-up"), "Up", self)
+        up_button.triggered.connect(self.navigate_up)
+        nav_toolbar.addAction(up_button)
+        
+        # Home button
+        home_button = QAction(QIcon.fromTheme("go-home"), "Home", self)
+        home_button.triggered.connect(self.navigate_home)
+        nav_toolbar.addAction(home_button)
+        
+        # Add path display
+        self.path_display = QLineEdit()
+        self.path_display.setReadOnly(True)
+        nav_toolbar.addSeparator()
+        nav_toolbar.addWidget(self.path_display)
+        
+        file_browser_layout.addWidget(nav_toolbar)
+        
+        # Create file system model
+        self.file_model = QFileSystemModel()
+        self.file_model.setReadOnly(True)
+        
+        # Set filter for image files
+        self.file_model.setNameFilters([f"*{ext}" for ext in SUPPORTED_EXTENSIONS])
+        self.file_model.setNameFilterDisables(False)  # Hide non-matching files
+        
+        # Create tree view for file browser
+        self.file_view = QTreeView()
+        self.file_view.setModel(self.file_model)
+        self.file_view.setRootIndex(self.file_model.setRootPath(self.current_directory))
+        
+        # Configure tree view
+        self.file_view.setAnimated(False)
+        self.file_view.setIndentation(20)
+        self.file_view.setSortingEnabled(True)
+        self.file_view.sortByColumn(0, Qt.AscendingOrder)
+        
+        # Hide unnecessary columns and adjust header
+        self.file_view.setColumnWidth(0, 250)  # Name column
+        self.file_view.header().setSectionResizeMode(0, QHeaderView.Stretch)
+        for i in range(1, self.file_model.columnCount()):
+            self.file_view.setColumnWidth(i, 100)
+        
+        # Connect signals
+        self.file_view.clicked.connect(self.on_file_clicked)
+        self.file_view.doubleClicked.connect(self.on_file_double_clicked)
+        
+        file_browser_layout.addWidget(self.file_view)
+        
+        # Create right side widget with splitter for list and notes
+        right_widget = QWidget()
+        right_layout = QVBoxLayout(right_widget)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        
         # Create splitter for list and notes
-        splitter = QSplitter(Qt.Horizontal)
-        main_layout.addWidget(splitter)
+        notes_splitter = QSplitter(Qt.Horizontal)
+        right_layout.addWidget(notes_splitter)
         
         # Create list widget for wallpapers with notes
         list_widget = QWidget()
@@ -264,7 +367,7 @@ class NotesTab(QWidget):
         list_layout.setContentsMargins(0, 0, 0, 0)
         
         self.wallpaper_list = QListWidget()
-        self.wallpaper_list.setMinimumWidth(250)
+        self.wallpaper_list.setMinimumWidth(200)
         self.wallpaper_list.currentItemChanged.connect(self.on_wallpaper_selected)
         list_layout.addWidget(QLabel("Wallpapers with Notes:"))
         list_layout.addWidget(self.wallpaper_list)
@@ -314,10 +417,18 @@ class NotesTab(QWidget):
         
         notes_layout.addLayout(button_layout)
         
-        # Add widgets to splitter
-        splitter.addWidget(list_widget)
-        splitter.addWidget(notes_widget)
-        splitter.setStretchFactor(1, 1)  # Make notes side expandable
+        # Add widgets to notes splitter
+        notes_splitter.addWidget(list_widget)
+        notes_splitter.addWidget(notes_widget)
+        notes_splitter.setStretchFactor(1, 1)  # Make notes side expandable
+        
+        # Add widgets to main splitter
+        main_splitter.addWidget(file_browser_widget)
+        main_splitter.addWidget(right_widget)
+        main_splitter.setStretchFactor(1, 1)  # Make notes area expandable
+        
+        # Set initial splitter sizes (40% file browser, 60% notes area)
+        main_splitter.setSizes([400, 600])
     
     def load_notes_data(self):
         """Load notes data from JSON file"""
@@ -413,24 +524,40 @@ class NotesTab(QWidget):
     
     def refresh_current_wallpaper(self):
         """Get the current wallpaper and load its notes"""
+        logger.info("Starting refresh_current_wallpaper in NotesTab")
         try:
             # Run get_current_wallpaper.py to get the current wallpaper
-            result = subprocess.run(
-                ["python3", GET_CURRENT_WALLPAPER, "--name-only"],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            
-            wallpaper_name = result.stdout.strip()
-            
-            if not wallpaper_name:
-                logger.warning("Could not determine current wallpaper")
+            logger.debug("Running get_current_wallpaper.py with --name-only flag")
+            try:
+                result = subprocess.run(
+                    ["python3", GET_CURRENT_WALLPAPER, "--name-only"],
+                    capture_output=True,
+                    text=True,
+                    check=False  # Changed to False to handle errors manually
+                )
+                
+                # Check return code manually
+                if result.returncode != 0:
+                    logger.warning(f"get_current_wallpaper.py exited with code {result.returncode}: {result.stderr}")
+                    if self.parent_window:
+                        self.parent_window.statusBar().showMessage("Could not determine current wallpaper", 3000)
+                    return
+                
+                wallpaper_name = result.stdout.strip()
+                
+                if not wallpaper_name:
+                    logger.warning("get_current_wallpaper.py returned empty output")
+                    if self.parent_window:
+                        self.parent_window.statusBar().showMessage("Could not determine current wallpaper", 3000)
+                    return
+            except Exception as e:
+                logger.error(f"Exception running get_current_wallpaper.py: {e}")
                 if self.parent_window:
-                    self.parent_window.statusBar().showMessage("Could not determine current wallpaper", 3000)
+                    self.parent_window.statusBar().showMessage("Error getting current wallpaper", 3000)
                 return
             
             # Find the full path to the wallpaper
+            logger.debug(f"Finding full path for wallpaper: {wallpaper_name}")
             wallpaper_path = self.find_wallpaper_path(wallpaper_name)
             
             if not wallpaper_path:
@@ -473,6 +600,10 @@ class NotesTab(QWidget):
             logger.error(f"Error getting current wallpaper: {e}")
             if self.parent_window:
                 self.parent_window.statusBar().showMessage("Error getting current wallpaper", 3000)
+        except Exception as e:
+            logger.error(f"Unexpected error in refresh_current_wallpaper: {e}")
+            if self.parent_window:
+                self.parent_window.statusBar().showMessage("Unexpected error refreshing wallpaper", 3000)
     
     def find_wallpaper_path(self, wallpaper_name):
         """Find the full path to a wallpaper by its filename"""
@@ -597,6 +728,156 @@ class NotesTab(QWidget):
                 f"Failed to import notes: {str(e)}"
             )
             logger.error(f"Error importing notes: {e}")
+    
+    def initialize_file_browser(self):
+        """Initialize the file browser with the default directory"""
+        self.navigate_to_directory(self.current_directory)
+        
+    def navigate_to_directory(self, directory):
+        """Navigate to a specific directory in the file browser"""
+        if not os.path.exists(directory) or not os.path.isdir(directory):
+            logger.warning(f"Directory does not exist: {directory}")
+            directory = os.path.expanduser("~/Pictures")
+            if not os.path.exists(directory):
+                directory = os.path.expanduser("~")
+        
+        # Update current directory
+        self.current_directory = directory
+        
+        # Update file view
+        index = self.file_model.setRootPath(directory)
+        self.file_view.setRootIndex(index)
+        
+        # Update path display
+        self.path_display.setText(directory)
+        
+        # Add to navigation history if this is a new navigation
+        if self.navigation_position == len(self.navigation_history) - 1:
+            # Remove any forward history
+            if self.navigation_position < len(self.navigation_history) - 1:
+                self.navigation_history = self.navigation_history[:self.navigation_position + 1]
+            
+            # Add current directory to history
+            self.navigation_history.append(directory)
+            self.navigation_position = len(self.navigation_history) - 1
+        
+        # Update navigation buttons
+        self.update_navigation_buttons()
+        
+    def navigate_back(self):
+        """Navigate to the previous directory in history"""
+        if self.navigation_position > 0:
+            self.navigation_position -= 1
+            directory = self.navigation_history[self.navigation_position]
+            
+            # Update without adding to history
+            self.current_directory = directory
+            index = self.file_model.setRootPath(directory)
+            self.file_view.setRootIndex(index)
+            self.path_display.setText(directory)
+            
+            # Update navigation buttons
+            self.update_navigation_buttons()
+    
+    def navigate_forward(self):
+        """Navigate to the next directory in history"""
+        if self.navigation_position < len(self.navigation_history) - 1:
+            self.navigation_position += 1
+            directory = self.navigation_history[self.navigation_position]
+            
+            # Update without adding to history
+            self.current_directory = directory
+            index = self.file_model.setRootPath(directory)
+            self.file_view.setRootIndex(index)
+            self.path_display.setText(directory)
+            
+            # Update navigation buttons
+            self.update_navigation_buttons()
+    
+    def navigate_up(self):
+        """Navigate to the parent directory"""
+        parent_dir = os.path.dirname(self.current_directory)
+        if parent_dir and parent_dir != self.current_directory:
+            self.navigate_to_directory(parent_dir)
+    
+    def navigate_home(self):
+        """Navigate to the home directory (default image directory)"""
+        self.navigate_to_directory(DEFAULT_IMAGE_DIR)
+    
+    def update_navigation_buttons(self):
+        """Update the state of navigation buttons"""
+        self.back_button.setEnabled(self.navigation_position > 0)
+        self.forward_button.setEnabled(self.navigation_position < len(self.navigation_history) - 1)
+    
+    def on_file_clicked(self, index):
+        """Handle file selection in the file browser"""
+        file_path = self.file_model.filePath(index)
+        
+        if os.path.isfile(file_path) and self.is_image_file(file_path):
+            # Load the image preview
+            self.load_image_preview(file_path)
+            
+            # Load notes if they exist
+            if file_path in self.notes_data:
+                self.load_wallpaper_notes(file_path)
+            else:
+                # Create a new entry
+                self.current_wallpaper = file_path
+                self.wallpaper_label.setText(f"Wallpaper: {os.path.basename(file_path)}")
+                self.notes_edit.clear()
+    
+    def on_file_double_clicked(self, index):
+        """Handle double-click on file or directory in the file browser"""
+        file_path = self.file_model.filePath(index)
+        
+        if os.path.isdir(file_path):
+            # Navigate to the directory
+            self.navigate_to_directory(file_path)
+        elif os.path.isfile(file_path) and self.is_image_file(file_path):
+            # Set as wallpaper
+            self.set_as_wallpaper(file_path)
+    
+    def is_image_file(self, file_path):
+        """Check if a file is an image based on its extension"""
+        _, ext = os.path.splitext(file_path.lower())
+        return ext in SUPPORTED_EXTENSIONS
+    
+    def load_image_preview(self, image_path):
+        """Load an image preview into the preview label"""
+        if os.path.exists(image_path):
+            pixmap = QPixmap(image_path)
+            if not pixmap.isNull():
+                pixmap = pixmap.scaled(400, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                self.preview_label.setPixmap(pixmap)
+            else:
+                self.preview_label.setText("Preview not available")
+        else:
+            self.preview_label.setText("Image file not found")
+    
+    def set_as_wallpaper(self, wallpaper_path):
+        """Set the selected image as the current wallpaper"""
+        if not wallpaper_path or not os.path.exists(wallpaper_path):
+            if self.parent_window:
+                self.parent_window.statusBar().showMessage("Wallpaper file not found", 3000)
+            return
+        
+        try:
+            # Use set_specific_wallpaper.py to set the wallpaper
+            subprocess.run(
+                ["python3", SET_WALLPAPER_SCRIPT, wallpaper_path],
+                check=True
+            )
+            
+            if self.parent_window:
+                self.parent_window.statusBar().showMessage(f"Set wallpaper to {os.path.basename(wallpaper_path)}", 3000)
+            logger.info(f"Set wallpaper to {wallpaper_path}")
+            
+            # Refresh current wallpaper
+            QTimer.singleShot(500, self.refresh_current_wallpaper)
+        except Exception as e:
+            if self.parent_window:
+                self.parent_window.statusBar().showMessage(f"Error setting wallpaper: {str(e)}", 3000)
+            logger.error(f"Error setting wallpaper: {e}")
 class SettingsTab(QWidget):
     """Tab for configuring slideshow settings"""
     
@@ -831,7 +1112,7 @@ class WallpaperMainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Wallpaper Slideshow Manager")
-        self.resize(900, 700)
+        self.resize(1100, 800)  # Increased size to accommodate file browser
         
         # Create central widget and tab widget
         central_widget = QWidget()

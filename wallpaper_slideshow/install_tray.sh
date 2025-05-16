@@ -8,18 +8,19 @@ RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}Installing Wallpaper Slideshow System Tray Application...${NC}"
+echo -e "${BLUE}Installing Wallpaper Slideshow Manager...${NC}"
 
 # Get the script directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-# Make sure the script is executable
+# Make sure the scripts are executable
 echo -e "${BLUE}Making scripts executable...${NC}"
 chmod +x wallpaper_tray.py
 chmod +x control_slideshow.sh
 chmod +x custom_wallpaper.py
 chmod +x set_specific_wallpaper.py
+chmod +x restart_slideshow.sh
 
 # Create the tray icon if it doesn't exist
 if [ ! -f "wallpaper_tray_icon.png" ]; then
@@ -60,11 +61,28 @@ else
     sleep 2
 fi
 
+# Check if the old version files exist and remove them
+echo -e "${BLUE}Checking for old version files...${NC}"
+if [ -f ~/.local/share/applications/wallpaper-tray-new.desktop ]; then
+    echo -e "${BLUE}Removing old desktop files...${NC}"
+    rm -f ~/.local/share/applications/wallpaper-tray-new.desktop
+    rm -f ~/.config/autostart/wallpaper-tray-new.desktop
+fi
+
 # Start the tray application
 echo -e "${GREEN}Installation complete!${NC}"
 echo -e "${BLUE}Starting tray application...${NC}"
 python3 wallpaper_tray.py &
 
-echo -e "${GREEN}Wallpaper Slideshow System Tray Application has been installed and started.${NC}"
+echo -e "${GREEN}Wallpaper Slideshow Manager has been installed and started.${NC}"
 echo -e "${BLUE}The application will automatically start when you log in to KDE.${NC}"
 echo -e "${BLUE}You can access it from the system tray icon.${NC}"
+
+# Ask if user wants to install Dolphin integration
+echo -e "${BLUE}Would you like to install the KDE Dolphin right-click menu integration? (y/n)${NC}"
+read -r install_dolphin
+
+if [[ "$install_dolphin" =~ ^[Yy]$ ]]; then
+    # Run the Dolphin integration installer
+    ./install_dolphin_integration.sh
+fi

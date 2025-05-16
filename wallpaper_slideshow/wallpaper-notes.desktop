@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Service
+X-KDE-ServiceTypes=KonqPopupMenu/Plugin
+MimeType=image/jpeg;image/png;image/gif;image/bmp;image/webp;image/tiff;
+Actions=AddNote;
+X-KDE-Priority=TopLevel
+
+[Desktop Action AddNote]
+Name=Add a note to this wallpaper
+Icon=accessories-text-editor
+Exec=python3 SCRIPT_DIR/open_notes_for_wallpaper.py %f

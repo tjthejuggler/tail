@@ -2,7 +2,7 @@
 Type=Application
 Name=Wallpaper Slideshow Manager
 Comment=Control the wallpaper slideshow with tabbed interface for history, notes, and settings
-Exec=python3 /home/twain/Projects/tail/wallpaper_slideshow/wallpaper_tray_new.py
+Exec=python3 /home/twain/Projects/tail/wallpaper_slideshow/wallpaper_tray.py
 Icon=/home/twain/Projects/tail/wallpaper_slideshow/wallpaper_tray_icon.png
 Terminal=false
 Categories=Utility;Graphics;
