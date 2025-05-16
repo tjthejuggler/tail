@@ -25,6 +25,7 @@ import signal
 import subprocess
 import threading
 import configparser
+import importlib.util
 from pathlib import Path
 import logging
 from datetime import datetime
@@ -53,6 +54,8 @@ NOTES_DIR = os.path.expanduser("~/.wallpaper_notes")
 CONTROL_SCRIPT = os.path.join(SCRIPT_DIR, "control_slideshow.sh")
 COLOR_CONTROL_PANEL = os.path.join(os.path.dirname(SCRIPT_DIR), "wallpaper_color_manager_new/color_control_panel.py")
 GET_CURRENT_WALLPAPER = os.path.join(os.path.dirname(SCRIPT_DIR), "get_current_wallpaper.py")
+TRACK_CURRENT_WALLPAPER = os.path.join(SCRIPT_DIR, "track_current_wallpaper.py")
+CURRENT_WALLPAPER_FILE = os.path.expanduser("~/.current_wallpaper")
 PID_FILE = os.path.expanduser("~/.config/custom_wallpaper_slideshow.pid")
 ICON_PATH = os.path.join(SCRIPT_DIR, "wallpaper_tray_icon.png")
 DEFAULT_ICON = "preferences-desktop-wallpaper"
@@ -358,47 +361,88 @@ class NotesTab(QWidget):
     
     def refresh_current_wallpaper(self):
         """Get the current wallpaper and load its notes"""
-        logger.info("Starting refresh_current_wallpaper in WallpaperNotesWindow")
+        # Check if we're in the main thread
+        if threading.current_thread() is not threading.main_thread():
+            logger.warning("refresh_current_wallpaper called from non-main thread!")
+            # Use QTimer to call this method from the main thread
+            QTimer.singleShot(0, self.refresh_current_wallpaper)
+            return
+            
+        logger.info("Starting refresh_current_wallpaper in WallpaperNotesWindow (main thread)")
         try:
-            # Run get_current_wallpaper.py to get the current wallpaper
-            logger.debug("Running get_current_wallpaper.py with --name-only flag")
-            try:
-                result = subprocess.run(
-                    ["python3", GET_CURRENT_WALLPAPER, "--name-only"],
-                    capture_output=True,
-                    text=True,
-                    check=False  # Changed to False to handle errors manually
-                )
-                
-                # Check return code manually
-                if result.returncode != 0:
-                    logger.warning(f"get_current_wallpaper.py exited with code {result.returncode}: {result.stderr}")
-                    if self.parent_window:
-                        self.parent_window.statusBar().showMessage("Could not determine current wallpaper", 3000)
-                    return
-                
-                wallpaper_name = result.stdout.strip()
-                
-                if not wallpaper_name:
-                    logger.warning("get_current_wallpaper.py returned empty output")
-                    if self.parent_window:
-                        self.parent_window.statusBar().showMessage("Could not determine current wallpaper", 3000)
-                    return
-            except Exception as e:
-                logger.error(f"Exception running get_current_wallpaper.py: {e}")
-                if self.parent_window:
-                    self.parent_window.statusBar().showMessage("Error getting current wallpaper", 3000)
-                return
+            # First try to get the current wallpaper from the tracking file
+            wallpaper_path = None
             
-            # Find the full path to the wallpaper
-            logger.debug(f"Finding full path for wallpaper: {wallpaper_name}")
-            wallpaper_path = self.find_wallpaper_path(wallpaper_name)
+            if os.path.exists(CURRENT_WALLPAPER_FILE):
+                try:
+                    with open(CURRENT_WALLPAPER_FILE, 'r') as f:
+                        wallpaper_path = f.read().strip()
+                    
+                    if wallpaper_path and os.path.exists(wallpaper_path):
+                        logger.info(f"Got current wallpaper from tracking file: {wallpaper_path}")
+                    else:
+                        logger.warning(f"Invalid wallpaper path in tracking file: {wallpaper_path}")
+                        wallpaper_path = None
+                except Exception as e:
+                    logger.error(f"Error reading current wallpaper file: {e}")
+                    wallpaper_path = None
             
+            # If tracking file didn't work, try the tracking module
             if not wallpaper_path:
-                logger.warning(f"Could not find full path for wallpaper: {wallpaper_name}")
-                if self.parent_window:
-                    self.parent_window.statusBar().showMessage(f"Could not find wallpaper: {wallpaper_name}", 3000)
-                return
+                try:
+                    if os.path.exists(TRACK_CURRENT_WALLPAPER):
+                        # Import the module dynamically
+                        spec = importlib.util.spec_from_file_location("track_current_wallpaper", TRACK_CURRENT_WALLPAPER)
+                        tracker = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(tracker)
+                        
+                        # Get the current wallpaper
+                        wallpaper_path = tracker.get_current_wallpaper()
+                        if wallpaper_path:
+                            logger.info(f"Got current wallpaper from tracking module: {wallpaper_path}")
+                except Exception as e:
+                    logger.error(f"Error using tracking module: {e}")
+                    wallpaper_path = None
+            
+            # If tracking system didn't work, fall back to the old method
+            if not wallpaper_path:
+                logger.debug("Tracking system failed, falling back to get_current_wallpaper.py")
+                try:
+                    result = subprocess.run(
+                        ["python3", GET_CURRENT_WALLPAPER, "--name-only"],
+                        capture_output=True,
+                        text=True,
+                        check=False
+                    )
+                    
+                    if result.returncode != 0:
+                        logger.warning(f"get_current_wallpaper.py exited with code {result.returncode}: {result.stderr}")
+                        if self.parent_window:
+                            self.parent_window.statusBar().showMessage("Could not determine current wallpaper", 3000)
+                        return
+                    
+                    wallpaper_name = result.stdout.strip()
+                    
+                    if not wallpaper_name:
+                        logger.warning("get_current_wallpaper.py returned empty output")
+                        if self.parent_window:
+                            self.parent_window.statusBar().showMessage("Could not determine current wallpaper", 3000)
+                        return
+                    
+                    # Find the full path to the wallpaper
+                    logger.debug(f"Finding full path for wallpaper: {wallpaper_name}")
+                    wallpaper_path = self.find_wallpaper_path(wallpaper_name)
+                    
+                    if not wallpaper_path:
+                        logger.warning(f"Could not find full path for wallpaper: {wallpaper_name}")
+                        if self.parent_window:
+                            self.parent_window.statusBar().showMessage(f"Could not find wallpaper: {wallpaper_name}", 3000)
+                        return
+                except Exception as e:
+                    logger.error(f"Exception running get_current_wallpaper.py: {e}")
+                    if self.parent_window:
+                        self.parent_window.statusBar().showMessage("Error getting current wallpaper", 3000)
+                    return
             
             logger.info(f"Current wallpaper: {wallpaper_path}")
             
@@ -407,25 +451,34 @@ class NotesTab(QWidget):
                 # Select the item in the list
                 for i in range(self.wallpaper_list.count()):
                     item = self.wallpaper_list.item(i)
-                    if item.data(Qt.UserRole) == wallpaper_path:
+                    if item and item.data(Qt.UserRole) == wallpaper_path:
                         self.wallpaper_list.setCurrentItem(item)
+                        logger.info("Selected existing wallpaper in list")
                         break
             else:
                 # Create a new entry
                 self.current_wallpaper = wallpaper_path
                 self.wallpaper_label.setText(f"Wallpaper: {os.path.basename(wallpaper_path)}")
                 self.notes_edit.clear()
+                logger.info("Created new entry for wallpaper")
                 
                 # Load preview
-                if os.path.exists(wallpaper_path):
-                    pixmap = QPixmap(wallpaper_path)
-                    if not pixmap.isNull():
-                        pixmap = pixmap.scaled(400, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                        self.preview_label.setPixmap(pixmap)
+                try:
+                    if os.path.exists(wallpaper_path):
+                        pixmap = QPixmap(wallpaper_path)
+                        if not pixmap.isNull():
+                            pixmap = pixmap.scaled(400, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                            self.preview_label.setPixmap(pixmap)
+                            logger.info("Loaded preview image successfully")
+                        else:
+                            self.preview_label.setText("Preview not available (null pixmap)")
+                            logger.warning("Failed to load preview - null pixmap")
                     else:
-                        self.preview_label.setText("Preview not available")
-                else:
-                    self.preview_label.setText("Image file not found")
+                        self.preview_label.setText("Image file not found")
+                        logger.warning(f"Image file not found: {wallpaper_path}")
+                except Exception as e:
+                    self.preview_label.setText("Error loading preview")
+                    logger.error(f"Error loading preview: {e}")
             
             if self.parent_window:
                 self.parent_window.statusBar().showMessage(f"Current wallpaper: {os.path.basename(wallpaper_path)}", 3000)
@@ -1210,6 +1263,9 @@ class WallpaperTrayApp:
         # Initial check if slideshow is running and start it if not
         QTimer.singleShot(1000, self.check_and_start_slideshow)
         
+        # Variable to store image path from signal handler
+        self.signal_image_path = None
+        
         # Set up signal handler for SIGUSR1 (used by open_notes_for_wallpaper.py)
         signal.signal(signal.SIGUSR1, self.handle_sigusr1)
         
@@ -1321,6 +1377,15 @@ class WallpaperTrayApp:
         try:
             # Small delay to ensure window is visible first
             time.sleep(0.1)
+            
+            # Use QTimer to call UI methods from the main thread
+            QTimer.singleShot(0, self._refresh_window_in_main_thread)
+        except Exception as e:
+            logger.error(f"Error in refresh window thread: {e}")
+            
+    def _refresh_window_in_main_thread(self):
+        """Refresh the window in the main thread"""
+        try:
             # Refresh the current wallpaper in the notes tab
             self.main_window.notes_tab.refresh_current_wallpaper()
             # Refresh the history tab
@@ -1479,49 +1544,94 @@ class WallpaperTrayApp:
         try:
             logger.debug("Starting wallpaper change check in background thread")
             
-            # Run get_current_wallpaper.py to get the current wallpaper
-            try:
-                result = subprocess.run(
-                    ["python3", GET_CURRENT_WALLPAPER, "--name-only", "--fast"],
-                    capture_output=True,
-                    text=True,
-                    check=False  # Changed to False to handle errors manually
-                )
-                
-                # Check return code manually
-                if result.returncode != 0:
-                    logger.warning(f"get_current_wallpaper.py exited with code {result.returncode}: {result.stderr}")
-                    return
-                
-                wallpaper_name = result.stdout.strip()
-                
-                if not wallpaper_name:
-                    logger.debug("get_current_wallpaper.py returned empty output")
-                    return
-            except Exception as e:
-                logger.error(f"Exception running get_current_wallpaper.py in background thread: {e}")
-                return
+            # First try to get the current wallpaper from the tracking file
+            wallpaper_path = None
             
-            # Find the full path to the wallpaper
-            wallpaper_path = self._find_wallpaper_path_cached(wallpaper_name)
+            if os.path.exists(CURRENT_WALLPAPER_FILE):
+                try:
+                    with open(CURRENT_WALLPAPER_FILE, 'r') as f:
+                        wallpaper_path = f.read().strip()
+                    
+                    if wallpaper_path and os.path.exists(wallpaper_path):
+                        logger.debug(f"Got current wallpaper from tracking file: {wallpaper_path}")
+                    else:
+                        logger.debug(f"Invalid wallpaper path in tracking file: {wallpaper_path}")
+                        wallpaper_path = None
+                except Exception as e:
+                    logger.error(f"Error reading current wallpaper file: {e}")
+                    wallpaper_path = None
             
+            # If tracking file didn't work, try the tracking module
             if not wallpaper_path:
-                logger.debug(f"Could not find full path for wallpaper: {wallpaper_name}")
-                return
+                try:
+                    if os.path.exists(TRACK_CURRENT_WALLPAPER):
+                        # Import the module dynamically
+                        spec = importlib.util.spec_from_file_location("track_current_wallpaper", TRACK_CURRENT_WALLPAPER)
+                        tracker = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(tracker)
+                        
+                        # Get the current wallpaper
+                        wallpaper_path = tracker.get_current_wallpaper()
+                        if wallpaper_path:
+                            logger.debug(f"Got current wallpaper from tracking module: {wallpaper_path}")
+                except Exception as e:
+                    logger.error(f"Error using tracking module: {e}")
+                    wallpaper_path = None
+            
+            # If tracking system didn't work, fall back to the old method
+            if not wallpaper_path:
+                logger.debug("Tracking system failed, falling back to get_current_wallpaper.py")
+                try:
+                    result = subprocess.run(
+                        ["python3", GET_CURRENT_WALLPAPER, "--name-only", "--fast"],
+                        capture_output=True,
+                        text=True,
+                        check=False
+                    )
+                    
+                    if result.returncode != 0:
+                        logger.warning(f"get_current_wallpaper.py exited with code {result.returncode}: {result.stderr}")
+                        return
+                    
+                    wallpaper_name = result.stdout.strip()
+                    
+                    if not wallpaper_name:
+                        logger.debug("get_current_wallpaper.py returned empty output")
+                        return
+                    
+                    # Find the full path to the wallpaper
+                    wallpaper_path = self._find_wallpaper_path_cached(wallpaper_name)
+                    
+                    if not wallpaper_path:
+                        logger.debug(f"Could not find full path for wallpaper: {wallpaper_name}")
+                        return
+                except Exception as e:
+                    logger.error(f"Exception running get_current_wallpaper.py in background thread: {e}")
+                    return
+            
+            # Store the wallpaper path for the main thread to use
+            self.detected_wallpaper_path = wallpaper_path
             
             # Check if the wallpaper has changed
             if wallpaper_path != self.current_wallpaper:
                 logger.info(f"Wallpaper changed to: {wallpaper_path}")
                 self.current_wallpaper = wallpaper_path
                 
-                # Update the main window if it's visible
+                # Update the main window if it's visible - but do it in the main thread
                 if self.main_window.isVisible():
-                    self.app.processEvents()  # Process any pending events first
-                    self.main_window.check_wallpaper_changed(wallpaper_path)
+                    # Use QTimer to update UI in the main thread
+                    QTimer.singleShot(0, lambda: self._update_main_window_wallpaper(wallpaper_path))
             else:
                 logger.debug("Wallpaper has not changed")
         except Exception as e:
             logger.error(f"Unexpected error checking wallpaper change: {e}")
+            
+    def _update_main_window_wallpaper(self, wallpaper_path):
+        """Update the main window with the new wallpaper in the main thread"""
+        try:
+            self.main_window.check_wallpaper_changed(wallpaper_path)
+        except Exception as e:
+            logger.error(f"Error updating main window with new wallpaper: {e}")
     
     # Cache for wallpaper paths to avoid repeated filesystem operations
     _wallpaper_path_cache = {}
@@ -1552,6 +1662,9 @@ class WallpaperTrayApp:
         """Handle SIGUSR1 signal (used to open notes for a specific image)"""
         logger.info("Received SIGUSR1 signal")
         
+        # Since this is called from a signal handler (different thread context),
+        # we need to be careful about thread safety
+        
         # Check for temporary file with image path
         temp_file = os.path.join(NOTES_DIR, "open_image.tmp")
         if os.path.exists(temp_file):
@@ -1559,65 +1672,177 @@ class WallpaperTrayApp:
                 with open(temp_file, 'r') as f:
                     image_path = f.read().strip()
                 
-                # Remove the temporary file
-                os.remove(temp_file)
+                logger.info(f"Read image path from temp file: {image_path}")
                 
-                if image_path and os.path.exists(image_path):
-                    logger.info(f"Opening notes for image: {image_path}")
-                    
-                    # Show the main window and ensure it's visible and active
-                    self.main_window.show()
-                    self.main_window.setWindowState(self.main_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive)
-                    self.main_window.raise_()
-                    self.main_window.activateWindow()
-                    
-                    # Force processing of events to ensure window activation
-                    self.app.processEvents()
-                    
-                    # Select the notes tab
-                    for i in range(self.main_window.tab_widget.count()):
-                        if self.main_window.tab_widget.tabText(i) == "Image Notes":
-                            self.main_window.tab_widget.setCurrentIndex(i)
-                            break
-                    
-                    # Load the image in the notes tab
-                    # First check if it's already in the notes data
-                    if image_path in self.main_window.notes_tab.notes_data:
-                        # Find and select the item in the list
-                        for i in range(self.main_window.notes_tab.wallpaper_list.count()):
-                            item = self.main_window.notes_tab.wallpaper_list.item(i)
-                            if item.data(Qt.UserRole) == image_path:
-                                self.main_window.notes_tab.wallpaper_list.setCurrentItem(item)
-                                break
-                    else:
-                        # Create a new entry
-                        self.main_window.notes_tab.current_wallpaper = image_path
-                        self.main_window.notes_tab.wallpaper_label.setText(f"Wallpaper: {os.path.basename(image_path)}")
-                        self.main_window.notes_tab.notes_edit.clear()
-                        
-                        # Load preview
-                        if os.path.exists(image_path):
-                            pixmap = QPixmap(image_path)
-                            if not pixmap.isNull():
-                                pixmap = pixmap.scaled(400, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                                self.main_window.notes_tab.preview_label.setPixmap(pixmap)
-                            else:
-                                self.main_window.notes_tab.preview_label.setText("Preview not available")
-                        else:
-                            self.main_window.notes_tab.preview_label.setText("Image file not found")
+                # Don't remove the temp file immediately in case we need to retry
+                
+                if not image_path:
+                    logger.error("Empty image path in temp file")
+                    return
+                
+                if not os.path.exists(image_path):
+                    logger.error(f"Image file does not exist: {image_path}")
+                    return
+                
+                logger.info(f"Opening notes for image: {image_path}")
+                
+                # Store the path in a class variable
+                self.signal_image_path = image_path
+                
+                # Use QTimer to safely call the method from the main thread
+                # This is crucial for thread safety in Qt
+                QTimer.singleShot(100, self._handle_sigusr1_in_main_thread)
+                
             except Exception as e:
                 logger.error(f"Error handling SIGUSR1 signal: {e}")
     
+    def _handle_sigusr1_in_main_thread(self):
+        """Handle the SIGUSR1 signal processing in the main thread"""
+        try:
+            # Get the image path from the class variable
+            image_path = self.signal_image_path
+            
+            # Open notes for the wallpaper
+            self.open_notes_for_wallpaper(image_path)
+            
+            # Only remove the temp file after successful processing
+            temp_file = os.path.join(NOTES_DIR, "open_image.tmp")
+            if os.path.exists(temp_file):
+                try:
+                    os.remove(temp_file)
+                    logger.info("Removed temporary file after successful processing")
+                except Exception as e:
+                    logger.error(f"Error removing temporary file: {e}")
+        except Exception as e:
+            logger.error(f"Error in _handle_sigusr1_in_main_thread: {e}")
     def run(self):
         """Run the application"""
         return self.app.exec_()
+    
+    def open_notes_for_wallpaper(self, wallpaper_path):
+        """Open notes for a specific wallpaper"""
+        # This method must be called from the main thread
+        if threading.current_thread() is not threading.main_thread():
+            logger.error("open_notes_for_wallpaper called from non-main thread!")
+            # Use QTimer to call this method from the main thread
+            QTimer.singleShot(0, lambda: self.open_notes_for_wallpaper(wallpaper_path))
+            return
+            
+        logger.info(f"Opening notes for wallpaper: {wallpaper_path}")
+        
+        # Validate the wallpaper path
+        if not wallpaper_path:
+            logger.error("Empty wallpaper path provided")
+            return
+            
+        if not os.path.exists(wallpaper_path):
+            logger.error(f"Wallpaper file does not exist: {wallpaper_path}")
+            if self.main_window.isVisible():
+                self.main_window.statusBar().showMessage(f"Error: Wallpaper file not found: {wallpaper_path}", 3000)
+            return
+            
+        # Get absolute path to ensure consistency
+        wallpaper_path = os.path.abspath(wallpaper_path)
+        logger.info(f"Using absolute path: {wallpaper_path}")
+        
+        try:
+            # Show the main window
+            self.main_window.show()
+            self.main_window.setWindowState(self.main_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive)
+            self.main_window.raise_()
+            self.main_window.activateWindow()
+            
+            # Force processing of events to ensure window activation
+            self.app.processEvents()
+            
+            # Select the notes tab
+            for i in range(self.main_window.tab_widget.count()):
+                if self.main_window.tab_widget.tabText(i) == "Image Notes":
+                    self.main_window.tab_widget.setCurrentIndex(i)
+                    break
+            
+            # Process events again to ensure tab switch is complete
+            self.app.processEvents()
+            
+            # Check if this wallpaper already has notes
+            if wallpaper_path in self.main_window.notes_tab.notes_data:
+                # Find and select the item in the list
+                for i in range(self.main_window.notes_tab.wallpaper_list.count()):
+                    item = self.main_window.notes_tab.wallpaper_list.item(i)
+                    if item and item.data(Qt.UserRole) == wallpaper_path:
+                        self.main_window.notes_tab.wallpaper_list.setCurrentItem(item)
+                        logger.info("Selected existing wallpaper in list")
+                        break
+            else:
+                # Create a new entry
+                self.main_window.notes_tab.current_wallpaper = wallpaper_path
+                self.main_window.notes_tab.wallpaper_label.setText(f"Wallpaper: {os.path.basename(wallpaper_path)}")
+                self.main_window.notes_tab.notes_edit.clear()
+                logger.info("Created new entry for wallpaper")
+                
+                # Load preview
+                try:
+                    pixmap = QPixmap(wallpaper_path)
+                    if not pixmap.isNull():
+                        pixmap = pixmap.scaled(400, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                        self.main_window.notes_tab.preview_label.setPixmap(pixmap)
+                        logger.info("Loaded preview image successfully")
+                    else:
+                        self.main_window.notes_tab.preview_label.setText("Preview not available (null pixmap)")
+                        logger.warning("Failed to load preview - null pixmap")
+                except Exception as e:
+                    self.main_window.notes_tab.preview_label.setText("Error loading preview")
+                    logger.error(f"Error loading preview: {e}")
+            
+            # Focus on the notes edit field
+            self.main_window.notes_tab.notes_edit.setFocus()
+            
+            # Show status message
+            self.main_window.statusBar().showMessage(f"Ready to add notes for {os.path.basename(wallpaper_path)}", 3000)
+            
+            # Process events again to ensure UI is updated
+            self.app.processEvents()
+            
+        except Exception as e:
+            logger.error(f"Error in open_notes_for_wallpaper: {e}")
+
 
 
 def main():
     """Main function"""
-    # Create and run the application
-    app = WallpaperTrayApp()
-    return app.run()
+    # Check for command line arguments
+    import argparse
+    parser = argparse.ArgumentParser(description="Wallpaper Slideshow Tray Application")
+    parser.add_argument("--open-notes", metavar="PATH", help="Open notes for the specified wallpaper")
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    args = parser.parse_args()
+    
+    # Set up logging level
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+        logger.debug("Debug logging enabled")
+    
+    try:
+        # Create the application
+        app = WallpaperTrayApp()
+        
+        # If --open-notes is specified, open notes for the specified wallpaper
+        if args.open_notes:
+            # Validate the path
+            if not args.open_notes:
+                logger.error("Empty path provided with --open-notes")
+            elif not os.path.exists(args.open_notes):
+                logger.error(f"File not found: {args.open_notes}")
+            else:
+                # Wait a moment for the app to initialize
+                logger.info(f"Will open notes for {args.open_notes} after initialization")
+                QTimer.singleShot(1000, lambda: app.open_notes_for_wallpaper(args.open_notes))
+        
+        # Run the application
+        return app.run()
+    except Exception as e:
+        logger.error(f"Unhandled exception in main: {e}")
+        return 1
 
 
 if __name__ == "__main__":

@@ -3,12 +3,14 @@
 """
 Script to set a specific wallpaper using the KDE Plasma D-Bus interface.
 This demonstrates the core functionality of the wallpaper slideshow program.
+Also tracks the current wallpaper for instant access by other scripts.
 """
 
 import os
 import subprocess
 import sys
 from pathlib import Path
+import importlib.util
 
 def set_kde_wallpaper(image_path):
     """Set the KDE Plasma wallpaper to the specified image."""
@@ -74,6 +76,28 @@ def main():
 
     image_path = sys.argv[1]
     success = set_kde_wallpaper(image_path)
+    
+    # Track the current wallpaper
+    if success:
+        try:
+            # Try to import the track_current_wallpaper module
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            tracker_path = os.path.join(script_dir, "track_current_wallpaper.py")
+            
+            if os.path.exists(tracker_path):
+                # Import the module dynamically
+                spec = importlib.util.spec_from_file_location("track_current_wallpaper", tracker_path)
+                tracker = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(tracker)
+                
+                # Save the current wallpaper
+                tracker.save_current_wallpaper(image_path)
+                print(f"Tracked current wallpaper: {image_path}")
+            else:
+                print(f"Warning: track_current_wallpaper.py not found at {tracker_path}")
+        except Exception as e:
+            print(f"Warning: Failed to track current wallpaper: {e}")
+    
     return 0 if success else 1
 
 if __name__ == "__main__":

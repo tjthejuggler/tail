@@ -16,6 +16,10 @@ This document provides detailed instructions for installing, configuring, and us
   - [Testing the Slideshow](#testing-the-slideshow)
   - [Controlling the Slideshow](#controlling-the-slideshow)
   - [Autostart on Login](#autostart-on-login)
+- [Wallpaper Tracking System](#wallpaper-tracking-system)
+  - [How It Works](#how-it-works)
+  - [Benefits](#benefits)
+  - [Manual Usage](#manual-usage)
 - [System Tray Application](#system-tray-application)
   - [Installation](#system-tray-installation)
   - [Features](#system-tray-features)
@@ -220,6 +224,44 @@ You can also add the slideshow to your application menu:
 cp wallpaper-slideshow.desktop ~/.local/share/applications/
 ```
 
+## Wallpaper Tracking System
+
+The wallpaper tracking system is a new feature that provides instant access to the current wallpaper path, making operations like adding notes much faster and more reliable.
+
+### How It Works
+
+1. Whenever a wallpaper is set (either by the slideshow or manually), its path is saved to a tracking file at `~/.current_wallpaper`
+2. When you want to add a note to the current wallpaper, the system reads this file to instantly get the wallpaper path
+3. This eliminates the need for slow and potentially unreliable methods like parsing log files or taking screenshots
+
+The tracking system is implemented in the following components:
+
+- `track_current_wallpaper.py`: A standalone script that provides functions for saving and retrieving the current wallpaper path
+- `set_specific_wallpaper.py`: Updated to track the wallpaper whenever it's set manually
+- `custom_wallpaper.py`: Updated to track the wallpaper whenever it changes during the slideshow
+- `add_note.sh`: Updated to use the tracking system for instant access to the current wallpaper
+- `open_notes_for_wallpaper.py`: Updated to use the tracking system when no specific wallpaper is provided
+- `wallpaper_tray.py`: Updated to use the tracking system for faster and more reliable wallpaper detection
+
+### Benefits
+
+- **Speed**: Adding notes to the current wallpaper is now instantaneous
+- **Reliability**: No more issues with log file parsing or screenshot comparison
+- **Simplicity**: The system uses a simple text file that can be easily read by any script or program
+- **Fallbacks**: If the tracking file is unavailable, the system falls back to the previous methods
+
+### Manual Usage
+
+You can manually use the tracking system with the following commands:
+
+```bash
+# Get the current wallpaper path
+python3 track_current_wallpaper.py
+
+# Set the current wallpaper path
+python3 track_current_wallpaper.py /path/to/wallpaper.jpg
+```
+
 ## System Tray Application
 
 The system tray application provides a convenient way to control the wallpaper slideshow and take notes on wallpapers. There are two versions available: the classic interface and the new tabbed interface.
@@ -284,6 +326,8 @@ The notes window allows you to:
 - Refresh the current wallpaper
 
 Notes are stored in the `~/.wallpaper_notes` directory in a JSON file. Each note is associated with a specific wallpaper file path.
+
+The notes window now uses the new wallpaper tracking system for instant access to the current wallpaper, making it much faster and more reliable when adding notes to the current wallpaper.
 
 ### Wallpaper History
 
@@ -363,6 +407,12 @@ The system tray application is automatically configured to start when you log in
 5. **System tray icon not appearing**: Make sure PyQt5 is installed correctly:
    - Check if the tray application is running: `ps aux | grep wallpaper_tray.py`
    - Check the log file: `cat ~/.wallpaper_tray.log`
+
+6. **Tracking file issues**: If the wallpaper tracking system isn't working:
+   - Check if the tracking file exists: `cat ~/.current_wallpaper`
+   - Ensure the file has the correct permissions: `chmod 644 ~/.current_wallpaper`
+   - Try manually updating it: `python3 track_current_wallpaper.py /path/to/wallpaper.jpg`
+   - Check if the scripts have been updated to use the tracking system
 
 ### Checking Logs
 

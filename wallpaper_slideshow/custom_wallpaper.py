@@ -7,6 +7,7 @@ import subprocess
 import signal
 import glob
 import configparser
+import importlib.util
 from pathlib import Path
 
 # --- Configuration ---
@@ -177,9 +178,30 @@ def change_wallpaper_and_update_state(new_index):
         return
 
     current_index = new_index % len(image_files)  # Wrap around
-    set_kde_wallpaper(image_files[current_index])
+    current_wallpaper = image_files[current_index]
+    set_kde_wallpaper(current_wallpaper)
     last_change_time = time.time()
-    log(f"Current wallpaper index: {current_index}, Image: {os.path.basename(image_files[current_index])}")
+    log(f"Current wallpaper index: {current_index}, Image: {os.path.basename(current_wallpaper)}")
+    
+    # Track the current wallpaper
+    try:
+        # Try to import the track_current_wallpaper module
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        tracker_path = os.path.join(script_dir, "track_current_wallpaper.py")
+        
+        if os.path.exists(tracker_path):
+            # Import the module dynamically
+            spec = importlib.util.spec_from_file_location("track_current_wallpaper", tracker_path)
+            tracker = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(tracker)
+            
+            # Save the current wallpaper
+            tracker.save_current_wallpaper(current_wallpaper)
+            log(f"Tracked current wallpaper: {current_wallpaper}")
+        else:
+            log(f"Warning: track_current_wallpaper.py not found at {tracker_path}")
+    except Exception as e:
+        log(f"Warning: Failed to track current wallpaper: {e}")
 
 def show_next_image(force_change=False):
     global paused

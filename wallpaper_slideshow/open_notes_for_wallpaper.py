@@ -18,6 +18,7 @@ import signal
 import psutil
 from pathlib import Path
 import logging
+import importlib.util
 
 # Set up logging
 logging.basicConfig(
@@ -33,6 +34,8 @@ TRAY_APP_SCRIPT = os.path.join(SCRIPT_DIR, "wallpaper_tray.py")
 PID_FILE = os.path.expanduser("~/.config/custom_wallpaper_slideshow.pid")
 NOTES_DIR = os.path.expanduser("~/.wallpaper_notes")
 CUSTOM_WALLPAPER_SCRIPT = os.path.join(SCRIPT_DIR, "custom_wallpaper.py")
+TRACK_CURRENT_WALLPAPER = os.path.join(SCRIPT_DIR, "track_current_wallpaper.py")
+CURRENT_WALLPAPER_FILE = os.path.expanduser("~/.current_wallpaper")
 
 def is_tray_app_running():
     """Check if the tray app is already running"""
@@ -148,23 +151,62 @@ def open_notes_tab(image_path):
         logger.error(f"Error opening notes tab: {e}")
         return False
 
+def get_current_wallpaper():
+    """Get the current wallpaper path using the tracking system"""
+    # First try to read from the tracking file
+    if os.path.exists(CURRENT_WALLPAPER_FILE):
+        try:
+            with open(CURRENT_WALLPAPER_FILE, 'r') as f:
+                wallpaper_path = f.read().strip()
+            
+            if wallpaper_path and os.path.exists(wallpaper_path):
+                logger.info(f"Got current wallpaper from tracking file: {wallpaper_path}")
+                return wallpaper_path
+            else:
+                logger.warning(f"Invalid wallpaper path in tracking file: {wallpaper_path}")
+        except Exception as e:
+            logger.error(f"Error reading current wallpaper file: {e}")
+    
+    # If that fails, try to use the tracking module
+    try:
+        if os.path.exists(TRACK_CURRENT_WALLPAPER):
+            # Import the module dynamically
+            spec = importlib.util.spec_from_file_location("track_current_wallpaper", TRACK_CURRENT_WALLPAPER)
+            tracker = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(tracker)
+            
+            # Get the current wallpaper
+            wallpaper_path = tracker.get_current_wallpaper()
+            if wallpaper_path:
+                logger.info(f"Got current wallpaper from tracking module: {wallpaper_path}")
+                return wallpaper_path
+    except Exception as e:
+        logger.error(f"Error using tracking module: {e}")
+    
+    logger.warning("Could not determine current wallpaper using tracking system")
+    return None
+
 def main():
     """Main function"""
     # Check if an image path was provided
     if len(sys.argv) < 2:
-        print("Error: No image path provided")
-        print(f"Usage: {sys.argv[0]} /path/to/image.jpg")
-        return 1
+        # No image path provided, try to get the current wallpaper
+        image_path = get_current_wallpaper()
+        if not image_path:
+            print("Error: Could not determine current wallpaper and no image path provided")
+            print(f"Usage: {sys.argv[0]} [/path/to/image.jpg]")
+            return 1
+    else:
+        image_path = sys.argv[1]
+        
+        # Check if the file exists and is an image
+        if not os.path.isfile(image_path):
+            print(f"Error: File not found: {image_path}")
+            return 1
+        
+        # Get the absolute path
+        image_path = os.path.abspath(image_path)
     
-    image_path = sys.argv[1]
-    
-    # Check if the file exists and is an image
-    if not os.path.isfile(image_path):
-        print(f"Error: File not found: {image_path}")
-        return 1
-    
-    # Get the absolute path
-    image_path = os.path.abspath(image_path)
     logger.info(f"Opening notes for image: {image_path}")
     
     # Start the slideshow if it's not running

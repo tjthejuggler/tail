@@ -314,7 +314,7 @@
       100,
       100
     ],
-    "timestamp": 1747025393.8190022
+    "timestamp": 1747380734.2727985
   },
   "processed_files": {
     "2258131521865409635": {
@@ -14234,6 +14234,1693 @@
           "white_gray_black": 11.581685481223325
         }
       }
+    },
+    "-6062931324359743638": {
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/E13VYXET5355SQSWXXCSWMK7V0.jpeg": {
+        "timestamp": 1747380734.4992132,
+        "categories": [
+          "orange",
+          "yellow",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 3.3587786259541987,
+          "orange": 32.4236641221374,
+          "green": 0.0,
+          "blue": 0.25763358778625955,
+          "pink": 0.0,
+          "yellow": 4.770992366412214,
+          "white_gray_black": 59.18893129770992
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/3YGJJEGYTFQ1VWY0N15N0X3530.jpeg": {
+        "timestamp": 1747380734.5724041,
+        "categories": [
+          "red",
+          "pink"
+        ],
+        "color_percentages": {
+          "red": 8.269273006808698,
+          "orange": 3.4336335017204775,
+          "green": 0.1500841935720038,
+          "blue": 1.7753861922541914,
+          "pink": 61.406398711472285,
+          "yellow": 4.575737608902555,
+          "white_gray_black": 20.389486785269785
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/JRD4TVET9DMENS952HNQP2RXB0.jpeg": {
+        "timestamp": 1747380734.635412,
+        "categories": [
+          "red",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 11.156449044585989,
+          "orange": 2.607484076433121,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.49761146496815284,
+          "white_gray_black": 85.73845541401273
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/AAWP8699VZS1ANWC5M4AR2ZYX0.jpeg": {
+        "timestamp": 1747380734.7041464,
+        "categories": [
+          "red",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 12.873836403248168,
+          "orange": 0.8813626460685284,
+          "green": 0.019805902158843335,
+          "blue": 0.029708853238265005,
+          "pink": 0.0,
+          "yellow": 0.9902951079421667,
+          "white_gray_black": 85.20499108734403
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/1FAM1YZMED5YAW80ADGDJ53BF0.jpeg": {
+        "timestamp": 1747380734.762951,
+        "categories": [
+          "white_gray_black",
+          "red",
+          "orange"
+        ],
+        "color_percentages": {
+          "red": 12.74187306501548,
+          "orange": 7.817337461300309,
+          "green": 0.0,
+          "blue": 3.618421052631579,
+          "pink": 3.144349845201239,
+          "yellow": 0.2418730650154799,
+          "white_gray_black": 72.43614551083591
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/J44AQ4H4YTT8RB047QH08516V0.jpeg": {
+        "timestamp": 1747380734.8212914,
+        "categories": [
+          "red",
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 10.620000000000001,
+          "orange": 19.66,
+          "green": 0.0,
+          "blue": 3.49,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 66.23
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/RGZW61FQQZQ7NBFD188KM56480.jpeg": {
+        "timestamp": 1747380734.8810227,
+        "categories": [
+          "white_gray_black",
+          "red",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 12.130361424385045,
+          "orange": 2.6995826303170234,
+          "green": 5.150519492052216,
+          "blue": 3.7296865287274668,
+          "pink": 0.0,
+          "yellow": 11.544267827013586,
+          "white_gray_black": 64.74558209750467
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/E5JTF4X5R4XVS6P2XF5B40VJG0.jpeg": {
+        "timestamp": 1747380734.9740012,
+        "categories": [
+          "red",
+          "pink"
+        ],
+        "color_percentages": {
+          "red": 19.48368241597662,
+          "orange": 0.5632001948368242,
+          "green": 0.0030443253774963468,
+          "blue": 0.46578178275694104,
+          "pink": 72.45494398441306,
+          "yellow": 0.0,
+          "white_gray_black": 7.029347296639064
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/27KCWBMXKS7TF3FZPMN8F44BY0.jpeg": {
+        "timestamp": 1747380735.0395365,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 100.0
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/R71PEV0VCDDKP1WVT2700DCR50.jpeg": {
+        "timestamp": 1747380735.0948827,
+        "categories": [
+          "red",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 18.61066878980892,
+          "orange": 1.8610668789808917,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.49761146496815284,
+          "yellow": 0.0,
+          "white_gray_black": 79.03065286624204
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/E765E2VASDSEQ3Q4JG5QPC1MT0.jpeg": {
+        "timestamp": 1747380735.150944,
+        "categories": [
+          "orange",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 19.13375477248545,
+          "green": 0.03129498654315579,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 38.962258246228956,
+          "white_gray_black": 41.872691994742446
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/V977M0EDE5Q74E78TK97D998D0.jpeg": {
+        "timestamp": 1747380735.205812,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.02,
+          "orange": 0.08,
+          "green": 0.0,
+          "blue": 0.37,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 99.53
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/KVWM2V2RGYFWGGQD7ZS9BFQ450.jpeg": {
+        "timestamp": 1747380735.293811,
+        "categories": [
+          "red"
+        ],
+        "color_percentages": {
+          "red": 50.739999999999995,
+          "orange": 0.32,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 48.94
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/39XP88PEEHDJKVTDY6WCJXV070.jpeg": {
+        "timestamp": 1747380735.3563921,
+        "categories": [
+          "orange",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 1.489971346704871,
+          "orange": 21.224928366762178,
+          "green": 1.0888252148997135,
+          "blue": 0.501432664756447,
+          "pink": 0.0,
+          "yellow": 29.369627507163326,
+          "white_gray_black": 46.325214899713465
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/1ZMDD6W8QF3N086TER15GB2EF0.jpeg": {
+        "timestamp": 1747380735.4137323,
+        "categories": [
+          "red",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 39.89,
+          "orange": 0.11,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 60.0
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/2EMY9Q3GY235CV4706F80QGAV0.jpeg": {
+        "timestamp": 1747380735.4738045,
+        "categories": [
+          "white_gray_black",
+          "orange",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 6.305234534330388,
+          "orange": 16.170972127804216,
+          "green": 9.43235893949694,
+          "blue": 3.0166553365057784,
+          "pink": 0.2124405166553365,
+          "yellow": 14.233514615907547,
+          "white_gray_black": 50.62882392929979
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/DQJ78X8NYPD7H7NPHXYFCPC6G0.jpeg": {
+        "timestamp": 1747380735.5379171,
+        "categories": [
+          "red"
+        ],
+        "color_percentages": {
+          "red": 79.52,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 20.48
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/6GE2TBZGBMA9P9GT7JJ3F862M0.jpeg": {
+        "timestamp": 1747380735.6351156,
+        "categories": [
+          "blue"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 0.05985634477254589,
+          "green": 0.08978451715881883,
+          "blue": 91.24102154828412,
+          "pink": 0.0,
+          "yellow": 0.24940143655227454,
+          "white_gray_black": 8.359936153232242
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/D3A7SGY6RG01S8KGWKJX3A8BQ0.jpeg": {
+        "timestamp": 1747380735.6965954,
+        "categories": [
+          "red",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 42.44,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 0.03,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 57.53
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/8PY0F8SRVS0XT5ZCFMV5BYYQE0.jpeg": {
+        "timestamp": 1747380735.7523148,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 0.06,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 99.94
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/ZT9JEH7Q2S2YD03P8S6A572GS0.jpeg": {
+        "timestamp": 1747380735.8127482,
+        "categories": [
+          "red",
+          "pink"
+        ],
+        "color_percentages": {
+          "red": 17.41329479768786,
+          "orange": 0.9893285904846598,
+          "green": 0.0,
+          "blue": 0.19453090262338818,
+          "pink": 46.131614050689194,
+          "yellow": 0.13895064473099156,
+          "white_gray_black": 35.1322810137839
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/Y1509MTVY5SX602W96RCDJXYN0.jpeg": {
+        "timestamp": 1747380735.8756523,
+        "categories": [
+          "orange",
+          "yellow",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.0335255464664074,
+          "orange": 10.889097492289125,
+          "green": 0.5498189620490814,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 34.19605739573555,
+          "white_gray_black": 54.33150060345984
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/B476ASXRZ4ZPQ1PJWGWJ4QRZ20.jpeg": {
+        "timestamp": 1747380735.938634,
+        "categories": [
+          "pink"
+        ],
+        "color_percentages": {
+          "red": 1.9548531024312774,
+          "orange": 0.2684614512042954,
+          "green": 0.07562294400120996,
+          "blue": 2.5144628880402315,
+          "pink": 62.767043521004275,
+          "yellow": 1.9851022800317617,
+          "white_gray_black": 30.43445381328695
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/W0A9BC9R3REWG4WCY544263ZW0.jpeg": {
+        "timestamp": 1747380736.0028539,
+        "categories": [
+          "blue",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 3.830369357045144,
+          "green": 1.1909551782409271,
+          "blue": 27.037901343848077,
+          "pink": 0.0,
+          "yellow": 20.117486118934576,
+          "white_gray_black": 47.82328800193128
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/JMWQFAXHXKC2AQMYVFFRCENWW0.jpeg": {
+        "timestamp": 1747380736.0926785,
+        "categories": [
+          "yellow",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.03451608449537485,
+          "orange": 1.4496755488057436,
+          "green": 0.4141930139444981,
+          "blue": 0.006903216899074968,
+          "pink": 0.0,
+          "yellow": 32.099958580698605,
+          "white_gray_black": 65.9947535551567
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/1T4A6WPN5M382R834R8DABHZQ0.jpeg": {
+        "timestamp": 1747380736.1431143,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.019904458598726117,
+          "orange": 1.2241242038216562,
+          "green": 0.0,
+          "blue": 1.910828025477707,
+          "pink": 0.0,
+          "yellow": 0.49761146496815284,
+          "white_gray_black": 96.34753184713377
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/9E4C9DJ2WAEDTDKK7QYJA73KS0.jpeg": {
+        "timestamp": 1747380736.1997197,
+        "categories": [
+          "red",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 11.12,
+          "orange": 4.68,
+          "green": 0.0,
+          "blue": 1.06,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 83.14
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/2TPTW2EAPKJM9CPVC5YJR1V5S0.jpeg": {
+        "timestamp": 1747380736.251138,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 1.52,
+          "orange": 0.01,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 98.47
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/15FE82H1RRH6Q8HZNPT2X2QRE0.jpeg": {
+        "timestamp": 1747380736.3184752,
+        "categories": [
+          "red",
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 31.230000000000004,
+          "orange": 12.5,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 56.269999999999996
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/K9TVRW6T659GZ3RCV4W4D04NN0.jpeg": {
+        "timestamp": 1747380736.3765485,
+        "categories": [
+          "red",
+          "blue",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 5.473726114649682,
+          "orange": 1.0051751592356688,
+          "green": 0.0,
+          "blue": 8.339968152866243,
+          "pink": 0.0,
+          "yellow": 0.49761146496815284,
+          "white_gray_black": 84.68351910828027
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/BQPH4M803BNMAR14BF1Q5Q18H0.jpeg": {
+        "timestamp": 1747380736.441435,
+        "categories": [
+          "green",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 0.2057530156937104,
+          "orange": 2.6868923225884536,
+          "green": 2.983418727558801,
+          "blue": 0.0020171864283697097,
+          "pink": 0.0,
+          "yellow": 82.55335458103038,
+          "white_gray_black": 11.568564166700286
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/GD96TDBSCM8FJ16ER6WKRR1NR0.jpeg": {
+        "timestamp": 1747380736.4996,
+        "categories": [
+          "red",
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 10.535990712074303,
+          "orange": 25.096749226006192,
+          "green": 0.6772445820433437,
+          "blue": 0.14512383900928794,
+          "pink": 0.0,
+          "yellow": 3.3862229102167185,
+          "white_gray_black": 60.158668730650156
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/SMY9B1MP7M808602ZQKQ8DXH40.jpeg": {
+        "timestamp": 1747380736.610962,
+        "categories": [
+          "red"
+        ],
+        "color_percentages": {
+          "red": 92.47,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 7.53
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/7T70270PR5BBTT6RRT5GVS0BB0.jpeg": {
+        "timestamp": 1747380736.6727593,
+        "categories": [
+          "blue",
+          "pink",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 4.3026969481902055,
+          "orange": 0.8161816891412349,
+          "green": 0.0,
+          "blue": 27.785663591199434,
+          "pink": 11.754790631653655,
+          "yellow": 0.0,
+          "white_gray_black": 55.340667139815466
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/2V9DQ5NCQN672S84WE86G8KRY0.jpeg": {
+        "timestamp": 1747380736.7350636,
+        "categories": [
+          "orange",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 2.8177668539325844,
+          "orange": 72.13834269662921,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 12.728230337078653,
+          "white_gray_black": 12.31566011235955
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/GRT6VYHAC49RGKYXXKJN0DXP90.jpeg": {
+        "timestamp": 1747380736.7994895,
+        "categories": [
+          "blue",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 0.04200974626113258,
+          "orange": 2.0920853638044026,
+          "green": 4.343807763401109,
+          "blue": 49.63031423290204,
+          "pink": 0.0,
+          "yellow": 15.963703579230382,
+          "white_gray_black": 27.92807931440094
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/W1QN94Y57NFK9RS36BKKHX9JH0.jpeg": {
+        "timestamp": 1747380736.8547287,
+        "categories": [
+          "red",
+          "blue",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 10.05,
+          "orange": 3.05,
+          "green": 0.0,
+          "blue": 9.67,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 77.23
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/XE900JPRNF6PT6N1QWXAT5T2Z0.jpeg": {
+        "timestamp": 1747380736.9151938,
+        "categories": [
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.8818173104572032,
+          "orange": 5.913926962522764,
+          "green": 0.3546439183360491,
+          "blue": 2.616697019074092,
+          "pink": 0.0,
+          "yellow": 4.313236844627624,
+          "white_gray_black": 85.91967794498227
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/ZTVWE9GCTBDDH4QJSD475X2SE0.jpeg": {
+        "timestamp": 1747380736.97537,
+        "categories": [
+          "pink",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 6.33976323538249,
+          "orange": 4.603088756685295,
+          "green": 0.5408328826392644,
+          "blue": 2.0792019710353946,
+          "pink": 28.393726338561386,
+          "yellow": 13.070127997115558,
+          "white_gray_black": 44.97325881858061
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/9ESE9SSNKNSB25P18DY790HR80.jpeg": {
+        "timestamp": 1747380737.0379853,
+        "categories": [
+          "red"
+        ],
+        "color_percentages": {
+          "red": 57.11000000000001,
+          "orange": 2.69,
+          "green": 0.04,
+          "blue": 0.22,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 39.94
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/MJMFYB7MV99FVY0C46091G5TM0.jpeg": {
+        "timestamp": 1747380737.087681,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 100.0
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/HN1VPH4Q2DC1F0Q7T6305781Y0.jpeg": {
+        "timestamp": 1747380737.1536295,
+        "categories": [
+          "blue",
+          "pink"
+        ],
+        "color_percentages": {
+          "red": 2.0757506824385805,
+          "orange": 0.648316651501365,
+          "green": 0.10236578707916288,
+          "blue": 28.935395814376708,
+          "pink": 43.789808917197455,
+          "yellow": 1.1373976342129208,
+          "white_gray_black": 23.310964513193813
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/PV2EEKB83V5HBQ378YCHGQ1QS0.jpeg": {
+        "timestamp": 1747380737.218748,
+        "categories": [
+          "yellow",
+          "orange"
+        ],
+        "color_percentages": {
+          "red": 1.6270409624749356,
+          "orange": 21.57547980521341,
+          "green": 12.947579490117445,
+          "blue": 11.079919793755371,
+          "pink": 0.0,
+          "yellow": 38.097966198796904,
+          "white_gray_black": 14.672013749641936
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/RZRJEJRWQ25A9F96ZW15EX4430.jpeg": {
+        "timestamp": 1747380737.3192499,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.54,
+          "orange": 0.06999999999999999,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 99.39
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/5D51E0YDKNVV02R4B652W4ZA80.jpeg": {
+        "timestamp": 1747380737.3898706,
+        "categories": [
+          "yellow",
+          "orange"
+        ],
+        "color_percentages": {
+          "red": 0.3034696698924369,
+          "orange": 11.420575243618707,
+          "green": 2.299625720740466,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 68.44926998684964,
+          "white_gray_black": 17.527059378898745
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/RRYHJVGJ43ZVVAHEXYV2C1TEX0.jpeg": {
+        "timestamp": 1747380737.4497278,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 4.539106145251397,
+          "orange": 2.5139664804469275,
+          "green": 0.03990422984836393,
+          "blue": 2.653631284916201,
+          "pink": 0.0,
+          "yellow": 0.24940143655227454,
+          "white_gray_black": 90.00399042298484
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/YN9GZD2F2G1TFJF56MJNHADTX0.jpeg": {
+        "timestamp": 1747380737.5108185,
+        "categories": [
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.04905808477237048,
+          "orange": 18.161302982731552,
+          "green": 0.04905808477237048,
+          "blue": 2.217425431711146,
+          "pink": 0.0,
+          "yellow": 1.9623233908948194,
+          "white_gray_black": 77.56083202511775
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/W0DY5F1PJB0RAVKQ6C60774S90.jpeg": {
+        "timestamp": 1747380737.5844078,
+        "categories": [
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 4.66,
+          "orange": 12.49,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 82.85
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/CX3EGK65MFTBBS88526MQ2B3Y0.jpeg": {
+        "timestamp": 1747380737.6460197,
+        "categories": [
+          "blue",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 1.06,
+          "orange": 0.9400000000000001,
+          "green": 0.0,
+          "blue": 12.94,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 85.06
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/79ZY3DPP3ER7E26NCRD10FYJJ0.jpeg": {
+        "timestamp": 1747380737.6953406,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 100.0
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/QR08QS1K4YSQXHYCGFC4V9AFA0.jpeg": {
+        "timestamp": 1747380737.7555745,
+        "categories": [
+          "blue",
+          "pink",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 1.8032630474191396,
+          "orange": 1.3357504054956588,
+          "green": 0.6964984257227363,
+          "blue": 18.35702700124034,
+          "pink": 4.532010304360271,
+          "yellow": 0.23852685812422478,
+          "white_gray_black": 73.03692395763764
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/AR01913YESSNSNNPQSW6K62D00.jpeg": {
+        "timestamp": 1747380737.8201106,
+        "categories": [
+          "red",
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 11.666004765687052,
+          "orange": 28.375694996028596,
+          "green": 0.009928514694201748,
+          "blue": 0.029785544082605246,
+          "pink": 0.0,
+          "yellow": 0.7446386020651311,
+          "white_gray_black": 59.17394757744241
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/2266T4VKNDMZ9SHX6VHSKA35S0.jpeg": {
+        "timestamp": 1747380737.8719509,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 100.0
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/TA0H6R1S2GGV8G3M1TEH44XDX0.jpeg": {
+        "timestamp": 1747380737.922954,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 100.0
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/Z4Z6PYMYNP1J509B5XTNGYB2B0.jpeg": {
+        "timestamp": 1747380737.9777904,
+        "categories": [
+          "blue",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.05,
+          "orange": 0.42,
+          "green": 0.01,
+          "blue": 9.94,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 89.58
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/6SCM9CR64XJ6PENK1GPEK33SC0.jpeg": {
+        "timestamp": 1747380738.046173,
+        "categories": [
+          "pink"
+        ],
+        "color_percentages": {
+          "red": 2.2765741367637102,
+          "orange": 0.47816519972918076,
+          "green": 0.0,
+          "blue": 2.670108327691266,
+          "pink": 60.08801624915369,
+          "yellow": 0.0,
+          "white_gray_black": 34.487136086662154
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/5YHRZY8WPTTY3SMS8KVR5PB390.jpeg": {
+        "timestamp": 1747380738.1758287,
+        "categories": [
+          "blue"
+        ],
+        "color_percentages": {
+          "red": 2.9244913928012517,
+          "orange": 3.599374021909233,
+          "green": 1.3693270735524257,
+          "blue": 55.30125195618153,
+          "pink": 0.7335680751173709,
+          "yellow": 1.2226134585289514,
+          "white_gray_black": 34.849374021909235
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/6EZJJYT2CCD3PTRVSE8JM16FM0.jpeg": {
+        "timestamp": 1747380738.2294238,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.13999999999999999,
+          "orange": 0.02,
+          "green": 0.0,
+          "blue": 0.02,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 99.82
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/ZSNQ1P3WP3E2AWVR7HV0SD7SZ0.jpeg": {
+        "timestamp": 1747380738.3020024,
+        "categories": [
+          "green",
+          "blue"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 0.0,
+          "green": 7.382355783167456,
+          "blue": 81.2349019228911,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 11.382742293941444
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/DHBSNVMQZXRBY35K04HC7M4H60.jpeg": {
+        "timestamp": 1747380738.3583145,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.03,
+          "orange": 0.49,
+          "green": 0.0,
+          "blue": 1.23,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 98.25
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/11N17KGJJNJHWKACT8M1S4XTT0.jpeg": {
+        "timestamp": 1747380738.4177701,
+        "categories": [
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 2.56,
+          "orange": 12.86,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 84.58
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-12-25/XPY2NDBX3B4XFC23HQ3Q3DKZ10.jpeg": {
+        "timestamp": 1747380738.4760938,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 1.7334360554699537,
+          "orange": 2.282357473035439,
+          "green": 0.009630200308166411,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 3.8520801232665636,
+          "white_gray_black": 92.12249614791988
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/AN3B8BM2PPQ26WKZ7M2H599BH0.jpeg": {
+        "timestamp": 1747380738.537118,
+        "categories": [
+          "red",
+          "orange"
+        ],
+        "color_percentages": {
+          "red": 5.8125972006220845,
+          "orange": 48.4059097978227,
+          "green": 0.0,
+          "blue": 0.06804043545878694,
+          "pink": 0.0,
+          "yellow": 2.91601866251944,
+          "white_gray_black": 42.79743390357698
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/MEQ69R7QZQWY60FQXJ86HMRND0.jpeg": {
+        "timestamp": 1747380738.6142583,
+        "categories": [
+          "blue"
+        ],
+        "color_percentages": {
+          "red": 0.16554679131366248,
+          "orange": 0.0,
+          "green": 1.5775635407537247,
+          "blue": 83.89327100983543,
+          "pink": 1.9476093095724998,
+          "yellow": 0.0,
+          "white_gray_black": 12.416009348524685
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/K75J3P90KG97NDTFB6NC5489H0.jpeg": {
+        "timestamp": 1747380738.6718,
+        "categories": [
+          "white_gray_black",
+          "orange",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 5.837706146926537,
+          "orange": 10.644677661169414,
+          "green": 0.0,
+          "blue": 0.0937031484257871,
+          "pink": 0.0,
+          "yellow": 6.5592203898050965,
+          "white_gray_black": 76.86469265367316
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/22D036Y95MBM5YW40YJKXEB730.jpeg": {
+        "timestamp": 1747380738.7308037,
+        "categories": [
+          "red",
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 10.5,
+          "orange": 25.61,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 63.89
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/NYEWCJ0HBR091P18AS5B5X5JH0.jpeg": {
+        "timestamp": 1747380738.7838724,
+        "categories": [
+          "blue",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.4169976171564733,
+          "orange": 0.6155679110405083,
+          "green": 0.1687847498014297,
+          "blue": 9.640587768069897,
+          "pink": 0.0,
+          "yellow": 0.7446386020651311,
+          "white_gray_black": 88.41342335186656
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/8DD2CZ9N8YRTX8398Y52H4X3Y0.jpeg": {
+        "timestamp": 1747380738.8458648,
+        "categories": [
+          "orange"
+        ],
+        "color_percentages": {
+          "red": 3.0736100234925607,
+          "orange": 48.51213782302271,
+          "green": 0.0,
+          "blue": 0.3817541111981206,
+          "pink": 0.9788566953797965,
+          "yellow": 1.2235708692247456,
+          "white_gray_black": 45.830070477682064
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/7Z43E3XEPBC3WQQZT13HTR7R70.jpeg": {
+        "timestamp": 1747380738.9023345,
+        "categories": [
+          "red",
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 12.21,
+          "orange": 7.6,
+          "green": 0.0,
+          "blue": 0.18,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 80.01
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/5XSC7N5M89KCJ8ERACW5TRKGV0.jpeg": {
+        "timestamp": 1747380738.9707582,
+        "categories": [
+          "blue"
+        ],
+        "color_percentages": {
+          "red": 0.05,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 64.85,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 35.099999999999994
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/EPVKMDCS2G6PVP2PDH3KW30VW0.jpeg": {
+        "timestamp": 1747380739.0290709,
+        "categories": [
+          "blue",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.16,
+          "orange": 0.19,
+          "green": 0.0,
+          "blue": 23.9,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 75.75
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/6EAWWNXYG971X7A1FTWXCA5BS0.jpeg": {
+        "timestamp": 1747380739.0787191,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.02,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 0.02,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 99.96000000000001
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/V5C1Y7DSQWM20E0PY76M387VY0.jpeg": {
+        "timestamp": 1747380739.212206,
+        "categories": [
+          "pink"
+        ],
+        "color_percentages": {
+          "red": 1.5418162595537543,
+          "orange": 0.26210876412413825,
+          "green": 0.030836325191075088,
+          "blue": 0.2797295213761812,
+          "pink": 79.78899143190678,
+          "yellow": 1.4316865267284862,
+          "white_gray_black": 16.66483117111958
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/1V7WBJEAV21FBNCRM8WS07JFJ0.jpeg": {
+        "timestamp": 1747380739.2724917,
+        "categories": [
+          "red",
+          "pink",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 10.410334346504559,
+          "orange": 4.24582066869301,
+          "green": 0.0,
+          "blue": 2.9065349544072947,
+          "pink": 5.2241641337386024,
+          "yellow": 0.0,
+          "white_gray_black": 77.21314589665653
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/Q2FVTK621W5D1A001HSANC9QW0.jpeg": {
+        "timestamp": 1747380739.3391423,
+        "categories": [
+          "pink",
+          "yellow",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 3.517075657176145,
+          "orange": 2.5777324692346903,
+          "green": 0.31311439598048496,
+          "blue": 0.5752566809874026,
+          "pink": 2.7306488021553923,
+          "yellow": 25.48605548678366,
+          "white_gray_black": 64.80011650768222
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/GE4K0N56ST2YWGYDSG4KWVMN60.jpeg": {
+        "timestamp": 1747380739.3958037,
+        "categories": [
+          "red",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 27.08,
+          "orange": 3.39,
+          "green": 0.0,
+          "blue": 0.27999999999999997,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 69.25
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/4RKBX4MA7QAMTHYWQVW1ZQ2W30.jpeg": {
+        "timestamp": 1747380739.4602692,
+        "categories": [
+          "red",
+          "pink"
+        ],
+        "color_percentages": {
+          "red": 51.79186767746382,
+          "orange": 6.9090282563749135,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 14.429703652653341,
+          "yellow": 0.0,
+          "white_gray_black": 26.869400413507925
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/BD6T252QZBY7N6G3YWN9PWMMP0.jpeg": {
+        "timestamp": 1747380739.5143626,
+        "categories": [
+          "blue",
+          "pink",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.3608778907055531,
+          "orange": 0.007364854912358227,
+          "green": 0.3977021652673442,
+          "blue": 6.3116806598910005,
+          "pink": 26.145234938871702,
+          "yellow": 1.2888496096626896,
+          "white_gray_black": 65.48828988068935
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/GCZSRMXF06Z0H0G7DYJE9B9B60.jpeg": {
+        "timestamp": 1747380739.5676873,
+        "categories": [
+          "red",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 9.32,
+          "orange": 0.11,
+          "green": 0.0,
+          "blue": 2.93,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 87.64
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/0QK4A3PTADYAT2BSH3RS28YPQ0.jpeg": {
+        "timestamp": 1747380739.6312625,
+        "categories": [
+          "orange",
+          "yellow",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 1.8448795180722892,
+          "orange": 32.793674698795186,
+          "green": 0.09412650602409639,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 6.118222891566265,
+          "white_gray_black": 59.149096385542165
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/Q5J3QWSKN6JYSJ6D62ZNR4YSB0.jpeg": {
+        "timestamp": 1747380739.691609,
+        "categories": [
+          "red",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 10.15,
+          "orange": 1.54,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 88.31
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/K00MN2YYPZ70M6KF499AYJ54Y0.jpeg": {
+        "timestamp": 1747380739.7507074,
+        "categories": [
+          "blue",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 16.05,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 83.95
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/X355D9FVX7MQG4F4G2524D4A90.jpeg": {
+        "timestamp": 1747380739.8056686,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.01,
+          "orange": 0.0,
+          "green": 0.01,
+          "blue": 4.2299999999999995,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 95.75
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/X7W5QQ6B0S30RKV5PGF1AK6JS0.jpeg": {
+        "timestamp": 1747380739.8644273,
+        "categories": [
+          "red",
+          "blue",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 7.090000000000001,
+          "orange": 3.3099999999999996,
+          "green": 0.0,
+          "blue": 5.72,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 83.88
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/AR3TNVM7S39D2EQDT1M8KDZZM0.jpeg": {
+        "timestamp": 1747380739.931038,
+        "categories": [
+          "white_gray_black",
+          "pink",
+          "blue"
+        ],
+        "color_percentages": {
+          "red": 5.867056720299041,
+          "orange": 1.5764667641800747,
+          "green": 0.0,
+          "blue": 14.163822525597269,
+          "pink": 17.064846416382252,
+          "yellow": 2.437835202340322,
+          "white_gray_black": 58.88997237120104
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/2VA8A64M8KHMFTVG0PWTS3JMC0.jpeg": {
+        "timestamp": 1747380739.9937437,
+        "categories": [
+          "yellow",
+          "blue"
+        ],
+        "color_percentages": {
+          "red": 0.3431494883953082,
+          "orange": 3.4002994759171448,
+          "green": 7.848764661841777,
+          "blue": 15.716246568505115,
+          "pink": 7.954829049163963,
+          "yellow": 29.01172947342151,
+          "white_gray_black": 35.72498128275518
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/RZY94TFCZEXPC5Q8H96KGAEXC0.jpeg": {
+        "timestamp": 1747380740.0539975,
+        "categories": [
+          "orange",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 0.030384054448225572,
+          "orange": 15.982012639766651,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 40.866553232863396,
+          "white_gray_black": 43.12105007292173
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/FRFZE2ACVJGDQ64WDN9D48HPD0.jpeg": {
+        "timestamp": 1747380740.1201189,
+        "categories": [
+          "blue",
+          "pink"
+        ],
+        "color_percentages": {
+          "red": 1.293103448275862,
+          "orange": 1.09026369168357,
+          "green": 1.0431758910460736,
+          "blue": 9.689220515792524,
+          "pink": 63.930744711677775,
+          "yellow": 2.354390031874819,
+          "white_gray_black": 20.59910170964938
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/5QMY95M2Q490R1XRPX3KQ9RCF0.jpeg": {
+        "timestamp": 1747380740.1725883,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 0.5272239263803681,
+          "green": 0.009585889570552147,
+          "blue": 0.393021472392638,
+          "pink": 0.0,
+          "yellow": 4.313650306748467,
+          "white_gray_black": 94.75651840490798
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/13T6P3J0289NBAG5P4TF1995W0.jpeg": {
+        "timestamp": 1747380740.2224596,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.21,
+          "orange": 0.45999999999999996,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 99.33
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/8CC2BTEXWESA07JG8P3J90R3P0.jpeg": {
+        "timestamp": 1747380740.2796283,
+        "categories": [
+          "pink",
+          "orange"
+        ],
+        "color_percentages": {
+          "red": 5.425230590456823,
+          "orange": 19.10087878567797,
+          "green": 0.0,
+          "blue": 0.05810153242791779,
+          "pink": 19.790834483259495,
+          "yellow": 8.715229864187668,
+          "white_gray_black": 46.909724743990125
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/S8J42PE3JWPHAC907HC680P7E0.jpeg": {
+        "timestamp": 1747380740.347453,
+        "categories": [
+          "orange",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 3.786926461345066,
+          "orange": 21.425204274041484,
+          "green": 1.6734758013827782,
+          "blue": 2.6241357636706475,
+          "pink": 0.0,
+          "yellow": 22.195160276555626,
+          "white_gray_black": 48.2950974230044
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/79B3KFT0PPGWGTCMP6RSMRW4W0.jpeg": {
+        "timestamp": 1747380740.3997638,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.12,
+          "orange": 0.7000000000000001,
+          "green": 0.0,
+          "blue": 0.2,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 98.98
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/BG8XRN0ZMV15V40V9GDNDYT070.jpeg": {
+        "timestamp": 1747380740.5531697,
+        "categories": [
+          "pink"
+        ],
+        "color_percentages": {
+          "red": 3.0133633236305903,
+          "orange": 0.019846520243450648,
+          "green": 0.0,
+          "blue": 0.9956337655464409,
+          "pink": 69.71090235512041,
+          "yellow": 0.0,
+          "white_gray_black": 26.26025403545912
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/CCW1TNFK2D2M4QHDQWPA8WVYY0.jpeg": {
+        "timestamp": 1747380740.6050177,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 1.0947452229299361,
+          "orange": 0.44785031847133755,
+          "green": 0.0,
+          "blue": 0.9554140127388535,
+          "pink": 0.49761146496815284,
+          "yellow": 0.0,
+          "white_gray_black": 97.00437898089172
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/WX84H35FWY7RT9BHVNGQJB8NW0.jpeg": {
+        "timestamp": 1747380740.6704886,
+        "categories": [
+          "blue"
+        ],
+        "color_percentages": {
+          "red": 0.0,
+          "orange": 0.0,
+          "green": 0.0,
+          "blue": 50.67,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 49.33
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/TVHSSBXZSXRKVSHSKK54H14N60.jpeg": {
+        "timestamp": 1747380740.7334108,
+        "categories": [
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 2.4299999999999997,
+          "orange": 31.630000000000003,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 65.94
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/QR18XHRT3BF9T86SWXTFZFHRW0.jpeg": {
+        "timestamp": 1747380740.7936034,
+        "categories": [
+          "red",
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 11.44,
+          "orange": 11.83,
+          "green": 0.0,
+          "blue": 1.66,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 75.07000000000001
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-16-25/9HKHRQHBH901W576HJTGQ4VXR0.jpeg": {
+        "timestamp": 1747380740.8568559,
+        "categories": [
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 2.35,
+          "orange": 44.26,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 53.39
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-15-25/1S5H0QEK1V1F984B3JMK8XHCC0.jpeg": {
+        "timestamp": 1747380740.9110193,
+        "categories": [
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.09,
+          "orange": 0.01,
+          "green": 0.0,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 99.9
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-15-25/VPD0SBFJM4H6PZJZK5Z5VT3QA0.jpeg": {
+        "timestamp": 1747380740.9912443,
+        "categories": [
+          "orange",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 6.776494565217392,
+          "orange": 39.50407608695652,
+          "green": 0.1953125,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 15.709918478260871,
+          "white_gray_black": 37.81419836956522
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-15-25/E46BEBFHVDSQ6E08XXF6SJ58E0.jpeg": {
+        "timestamp": 1747380741.0479991,
+        "categories": [
+          "blue",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 0.33,
+          "orange": 0.44,
+          "green": 0.01,
+          "blue": 15.24,
+          "pink": 0.0,
+          "yellow": 0.0,
+          "white_gray_black": 83.98
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-15-25/EMN6ST8NJH9A1VP7YAVC5Q9820.jpeg": {
+        "timestamp": 1747380741.1094134,
+        "categories": [
+          "orange",
+          "blue",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 4.7041984732824424,
+          "orange": 14.017175572519083,
+          "green": 0.20992366412213742,
+          "blue": 13.797709923664122,
+          "pink": 0.7156488549618321,
+          "yellow": 4.055343511450381,
+          "white_gray_black": 62.5
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-15-25/37H6W30R3EYFTSD6ZPEBMTCVD0.jpeg": {
+        "timestamp": 1747380741.1684153,
+        "categories": [
+          "orange",
+          "yellow"
+        ],
+        "color_percentages": {
+          "red": 2.15311004784689,
+          "orange": 7.218899521531101,
+          "green": 0.20933014354066987,
+          "blue": 0.0,
+          "pink": 0.0,
+          "yellow": 41.866028708133975,
+          "white_gray_black": 48.55263157894737
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-15-25/8HDKGV3P4QSBWAKE6SBKS5Y240.jpeg": {
+        "timestamp": 1747380741.223471,
+        "categories": [
+          "orange",
+          "white_gray_black"
+        ],
+        "color_percentages": {
+          "red": 3.194006309148265,
+          "orange": 6.535883280757098,
+          "green": 0.7985015772870663,
+          "blue": 0.6604889589905363,
+          "pink": 0.0,
+          "yellow": 1.4787066246056781,
+          "white_gray_black": 87.33241324921136
+        }
+      },
+      "/home/twain/Pictures/lbm_dirs/lbm-5-15-25/ZTJ2FSSY6E6NBHMDMWZ1QV47P0.jpeg": {
+        "timestamp": 1747380741.2913318,
+        "categories": [
+          "red",
+          "orange"
+        ],
+        "color_percentages": {
+          "red": 20.60128141941843,
+          "orange": 35.27846229669788,
+          "green": 0.07885657959586004,
+          "blue": 0.009857072449482505,
+          "pink": 0.0,
+          "yellow": 1.4785608674223756,
+          "white_gray_black": 42.55298176441597
+        }
+      }
     }
   },
   "wallpaper_source": "latest",
@@ -14241,20 +15928,20 @@
     "green"
   ],
   "last_modified_folders": [
-    "/home/twain/Pictures/lbm_dirs/lbm-5-9-25",
+    "/home/twain/Pictures/lbm_dirs/lbm-5-15-25",
+    "/home/twain/Pictures/lbm_dirs/lbm-5-16-25",
     "/home/twain/Pictures/lbm_dirs/lbm-5-12-25",
+    "/home/twain/Pictures/lbm_dirs/lbm-5-9-25",
     "/home/twain/Pictures/lbm_dirs/lbm-5-10-25",
     "/home/twain/Pictures/lbm_dirs/lbm-5-2-25",
     "/home/twain/Pictures/lbm_dirs/lbm-5-7-25",
     "/home/twain/Pictures/lbm_dirs/lbm-5-4-25",
     "/home/twain/Pictures/lbm_dirs/lbm-5-8-25",
-    "/home/twain/Pictures/lbm_dirs/lbm-5-5-25",
-    "/home/twain/Pictures/lbm_dirs/lbm-4-26-25",
-    "/home/twain/Pictures/lbm_dirs/lbm-5-1-25"
+    "/home/twain/Pictures/lbm_dirs/lbm-5-5-25"
   ],
   "latest_by_date_settings": {
     "days_back": 5
   },
   "latest_folder": "/home/twain/Pictures/lbm_dirs/lbm-5-10-25",
-  "last_directories_after_date": "5-12-25"
+  "last_directories_after_date": "5-16-25"
 }

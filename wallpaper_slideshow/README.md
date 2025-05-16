@@ -34,6 +34,8 @@ It's particularly useful for users who want to use images from removable drives 
 - **File Browser**: Browse and select image files directly within the notes interface
 - **Tabbed Interface**: Access history, notes, and settings in a single window
 - **Dolphin Integration**: Right-click on image files in Dolphin to add notes directly
+- **KDE Mouse Shortcuts**: Control the slideshow with mouse buttons using custom KDE shortcuts
+- **Instant Wallpaper Tracking**: Efficiently tracks the current wallpaper for instant access when adding notes
 
 ## Getting Started
 
@@ -157,6 +159,34 @@ The wallpaper history window allows you to:
 - Set a specific wallpaper as the current wallpaper
 - Clear the wallpaper history
 
+## KDE Mouse Shortcuts
+
+The `kde_shortcuts` directory contains scripts that can be bound to KDE mouse shortcuts to control the wallpaper slideshow:
+
+- **previous_slide.sh** - Show the previous wallpaper in the slideshow
+- **next_slide.sh** - Show the next wallpaper in the slideshow
+- **toggle_pause.sh** - Pause or resume the slideshow
+- **add_note.sh** - Add a note to the current wallpaper (now uses instant tracking for immediate access)
+
+### Setup Instructions
+
+1. Navigate to the `kde_shortcuts` directory and make all scripts executable:
+   ```bash
+   cd kde_shortcuts
+   ./make_executable.sh
+   ```
+
+2. To set up KDE mouse shortcuts:
+   - Open System Settings
+   - Go to Shortcuts > Custom Shortcuts
+   - Click "Edit > New > Global Shortcut > Command/URL"
+   - Give it a name like "Next Wallpaper"
+   - In the "Trigger" tab, click "None" next to "Shortcut" and then press the mouse button combination you want to use
+   - In the "Action" tab, enter the full path to the script
+   - Click "Apply"
+
+See the [KDE Shortcuts README](kde_shortcuts/README.md) for more detailed instructions.
+
 ## Examples
 
 The `examples` directory contains sample scripts demonstrating how to integrate with and control the wallpaper slideshow from your own scripts and applications:
@@ -225,6 +255,23 @@ python3 wallpaper_slideshow/wallpaper_tray.py &
 - Implementing better thread safety for background operations
 
 If you experience any crashes, please update to the latest version.
+
+#### Slow or Unreliable Note Adding
+
+**Issue**: Prior to version 1.3.0, adding notes to the current wallpaper could be slow or unreliable because the system had to determine which wallpaper was currently displayed by analyzing log files or taking screenshots.
+
+**Fix**: This issue has been resolved by implementing a new wallpaper tracking system that:
+- Instantly tracks the current wallpaper whenever it changes
+- Stores the path in a simple file for immediate access
+- Provides fallback mechanisms if the tracking file is unavailable
+- Significantly improves the speed and reliability of adding notes
+
+The new system is used by:
+- The KDE shortcut for adding notes (`add_note.sh`)
+- The tray application when opening notes for the current wallpaper
+- The open_notes_for_wallpaper.py script when called without arguments
+
+This makes adding notes to wallpapers much more responsive and reliable.
 
 ### Debugging
 

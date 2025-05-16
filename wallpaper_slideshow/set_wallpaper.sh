@@ -29,6 +29,20 @@ echo "Setting wallpaper to: $IMAGE_PATH"
 # Check if the command was successful
 if [ $? -eq 0 ]; then
     echo "Wallpaper set successfully!"
+    
+    # Track the current wallpaper
+    if [ -f "$SCRIPT_DIR/track_current_wallpaper.py" ]; then
+        echo "Tracking current wallpaper..."
+        "$SCRIPT_DIR/track_current_wallpaper.py" "$IMAGE_PATH"
+        
+        if [ $? -eq 0 ]; then
+            echo "Tracked current wallpaper: $IMAGE_PATH"
+        else
+            echo "Warning: Failed to track current wallpaper"
+        fi
+    else
+        echo "Warning: Wallpaper tracking script not found"
+    fi
 else
     echo "Failed to set wallpaper."
     exit 1
