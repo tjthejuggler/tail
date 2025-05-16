@@ -87,6 +87,8 @@ def start_tray_app():
         except Exception as e:
             logger.error(f"Error starting tray app: {e}")
             return False
+    else:
+        logger.info("Tray app is already running")
     return True
 
 def open_notes_tab(image_path):
@@ -106,6 +108,7 @@ def open_notes_tab(image_path):
         logger.info(f"Wrote image path to temporary file: {temp_file}")
         
         # Find the tray app process
+        tray_app_found = False
         for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
             try:
                 if proc.info['cmdline'] and 'wallpaper_tray.py' in ' '.join(proc.info['cmdline']):
@@ -113,12 +116,34 @@ def open_notes_tab(image_path):
                     # This will be caught by the tray app to open the notes tab
                     logger.info(f"Sending signal to tray app (PID {proc.info['pid']})")
                     os.kill(proc.info['pid'], signal.SIGUSR1)
+                    tray_app_found = True
+                    
+                    # Wait a moment to ensure the signal is processed
+                    time.sleep(0.5)
+                    
+                    # Try to activate the window using xdotool if available (for X11)
+                    try:
+                        subprocess.run(["xdotool", "search", "--name", "Wallpaper Slideshow Manager", "windowactivate"],
+                                      check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        logger.info("Attempted to activate window using xdotool")
+                    except FileNotFoundError:
+                        # xdotool not available, try using qdbus for KDE
+                        try:
+                            subprocess.run(["qdbus", "org.kde.KWin", "/KWin", "activateWindow", "Wallpaper Slideshow Manager"],
+                                          check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                            logger.info("Attempted to activate window using qdbus")
+                        except FileNotFoundError:
+                            logger.info("Neither xdotool nor qdbus available for window activation")
+                    
                     return True
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 pass
         
-        logger.warning("Could not find tray app process to signal")
-        return False
+        if not tray_app_found:
+            logger.warning("Could not find tray app process to signal")
+            return False
+        
+        return tray_app_found
     except Exception as e:
         logger.error(f"Error opening notes tab: {e}")
         return False

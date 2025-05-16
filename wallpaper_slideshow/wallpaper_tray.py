@@ -1305,8 +1305,13 @@ class WallpaperTrayApp:
         """Show the main window"""
         # Show the window first, then refresh in the background
         self.main_window.show()
+        # Ensure window is not minimized and is active
+        self.main_window.setWindowState(self.main_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive)
         self.main_window.raise_()
         self.main_window.activateWindow()
+        
+        # Force processing of events to ensure window activation
+        self.app.processEvents()
         
         # Refresh in a separate thread to avoid blocking the UI
         threading.Thread(target=self._refresh_window_thread, daemon=True).start()
@@ -1560,10 +1565,14 @@ class WallpaperTrayApp:
                 if image_path and os.path.exists(image_path):
                     logger.info(f"Opening notes for image: {image_path}")
                     
-                    # Show the main window
+                    # Show the main window and ensure it's visible and active
                     self.main_window.show()
+                    self.main_window.setWindowState(self.main_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive)
                     self.main_window.raise_()
                     self.main_window.activateWindow()
+                    
+                    # Force processing of events to ensure window activation
+                    self.app.processEvents()
                     
                     # Select the notes tab
                     for i in range(self.main_window.tab_widget.count()):

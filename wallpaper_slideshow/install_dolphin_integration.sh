@@ -28,7 +28,17 @@ else
 fi
 
 # Create the service menu directory if it doesn't exist
-SERVICE_MENU_DIR="$HOME/.local/share/kservices5/ServiceMenus"
+# Check for both old and new KDE service menu locations
+OLD_SERVICE_MENU_DIR="$HOME/.local/share/kservices5/ServiceMenus"
+NEW_SERVICE_MENU_DIR="$HOME/.local/share/kio/servicemenus"
+
+# Use the new location by default, but check if the old one exists and is not empty
+if [ -d "$OLD_SERVICE_MENU_DIR" ] && [ "$(ls -A "$OLD_SERVICE_MENU_DIR" 2>/dev/null)" ]; then
+    SERVICE_MENU_DIR="$OLD_SERVICE_MENU_DIR"
+else
+    SERVICE_MENU_DIR="$NEW_SERVICE_MENU_DIR"
+fi
+
 echo -e "${BLUE}Creating service menu directory at $SERVICE_MENU_DIR...${NC}"
 mkdir -p "$SERVICE_MENU_DIR"
 
@@ -38,6 +48,10 @@ cp wallpaper-notes.desktop "$SERVICE_MENU_DIR/"
 
 # Update the Exec path in the service menu file
 sed -i "s|SCRIPT_DIR|$SCRIPT_DIR|g" "$SERVICE_MENU_DIR/wallpaper-notes.desktop"
+
+# Make the service menu file executable
+echo -e "${BLUE}Making service menu file executable...${NC}"
+chmod +x "$SERVICE_MENU_DIR/wallpaper-notes.desktop"
 
 echo -e "${GREEN}Installation complete!${NC}"
 echo -e "${BLUE}You can now right-click on image files in Dolphin and select 'Add a note to this wallpaper'${NC}"

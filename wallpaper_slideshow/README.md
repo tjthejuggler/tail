@@ -176,6 +176,44 @@ For detailed instructions on installation, configuration, and usage, please see 
 
 ### Known Issues and Fixes
 
+#### Dolphin Integration Service Menu Not Appearing
+
+**Issue**: The "Add a note to this wallpaper" option may not appear in the Dolphin right-click menu on newer KDE versions.
+
+**Fix**: This issue has been resolved by updating the installation script to use the correct service menu location for modern KDE versions:
+- The script now checks for both old (`~/.local/share/kservices5/ServiceMenus/`) and new (`~/.local/share/kio/servicemenus/`) KDE service menu locations
+- It automatically selects the appropriate location based on your KDE version
+- The service menu file is now made executable during installation
+- The uninstall script has also been updated to check both locations
+
+If you previously installed the Dolphin integration and don't see the menu option, or if you get a "You are not authorized to execute this file" error, simply run the installation script again:
+```bash
+./install_dolphin_integration.sh
+```
+
+If you still get the "not authorized" error after reinstalling, you can manually make the desktop file executable:
+```bash
+chmod +x ~/.local/share/kio/servicemenus/wallpaper-notes.desktop
+kbuildsycoca5  # Refresh KDE service cache
+```
+
+#### Main Window Not Opening or Coming to Front
+
+**Issue**: When using the "Add a note to this wallpaper" option from Dolphin, the main window might not open if the tray app is not running, or it might not come to the front if it's minimized.
+
+**Fix**: This issue has been resolved by:
+- Improving the window activation code to ensure the window is properly shown and brought to the front
+- Adding additional window activation methods using xdotool and qdbus when available
+- Ensuring the window is not left in a minimized state
+- Adding proper event processing to ensure window activation takes effect immediately
+- Improving the tray app detection and startup process
+
+If you experience any issues with the window not appearing, try restarting the tray app:
+```bash
+killall -9 python3 wallpaper_tray.py
+python3 wallpaper_slideshow/wallpaper_tray.py &
+```
+
 #### Refresh Current Wallpaper in Notes Tab
 
 **Issue**: Prior to version 1.2.3, clicking "Refresh Current Wallpaper" while in the notes tab could cause the application to crash.
