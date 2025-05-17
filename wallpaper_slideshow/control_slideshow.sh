@@ -26,12 +26,14 @@ fi
 show_usage() {
     echo "Usage: $0 [command]"
     echo "Commands:"
-    echo "  next      - Show next wallpaper"
-    echo "  prev      - Show previous wallpaper"
-    echo "  pause     - Pause/resume the slideshow"
-    echo "  reload    - Reload the image list"
-    echo "  stop      - Stop the slideshow"
-    echo "  status    - Check if the slideshow is running"
+    echo "  next        - Show next wallpaper"
+    echo "  prev        - Show previous wallpaper"
+    echo "  pause       - Toggle pause/resume the slideshow"
+    echo "  pause_only  - Pause the slideshow (only if running)"
+    echo "  unpause     - Resume the slideshow (only if paused)"
+    echo "  reload      - Reload the image list"
+    echo "  stop        - Stop the slideshow"
+    echo "  status      - Check if the slideshow is running"
 }
 
 # Process command line arguments
@@ -39,6 +41,17 @@ if [ $# -eq 0 ]; then
     show_usage
     exit 0
 fi
+
+# Function to check if slideshow is paused
+is_paused() {
+    # Check if the process is in T (stopped) state
+    state=$(ps -o state= -p "$PID")
+    if [ "$state" = "T" ]; then
+        return 0  # True, is paused
+    else
+        return 1  # False, not paused
+    fi
+}
 
 case "$1" in
     next)
@@ -53,6 +66,22 @@ case "$1" in
         echo "Toggling pause/resume..."
         kill -TSTP "$PID"
         ;;
+    pause_only)
+        if is_paused; then
+            echo "Slideshow is already paused."
+        else
+            echo "Pausing slideshow..."
+            kill -TSTP "$PID"
+        fi
+        ;;
+    unpause)
+        if is_paused; then
+            echo "Resuming slideshow..."
+            kill -TSTP "$PID"
+        else
+            echo "Slideshow is already running."
+        fi
+        ;;
     reload)
         echo "Reloading image list..."
         kill -HUP "$PID"
@@ -62,7 +91,11 @@ case "$1" in
         kill -TERM "$PID"
         ;;
     status)
-        echo "Slideshow is running with PID $PID"
+        if is_paused; then
+            echo "Slideshow is paused with PID $PID"
+        else
+            echo "Slideshow is running with PID $PID"
+        fi
         ;;
     *)
         echo "Unknown command: $1"

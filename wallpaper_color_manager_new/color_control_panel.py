@@ -2746,7 +2746,26 @@ class ColorControlPanel:
         # Define the color order for inclusive options
         self.color_order = ["red", "orange", "green", "blue", "pink", "yellow", "white_gray_black"]
         
+        # Define favorites list
+        self.favorites = []
+        
+        # Load favorites
+        self.load_favorites()
+        
         # Create radio buttons for each option
+        
+        # Favorites section
+        favorites_frame = ttk.LabelFrame(radio_frame, text="Favorites Selection")
+        favorites_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Slideshow favorites
+        slideshow_favorites_radio = ttk.Radiobutton(
+            favorites_frame,
+            text="Use Favorite Wallpapers",
+            variable=self.wallpaper_source_var,
+            value="slideshow_favorites"
+        )
+        slideshow_favorites_radio.pack(anchor=tk.W, padx=20, pady=5)
         
         # Habits section
         habits_frame = ttk.LabelFrame(radio_frame, text="Habits-Based Selection")
@@ -2908,6 +2927,81 @@ class ColorControlPanel:
             font=("Arial", 9, "italic")
         )
         help_text.pack(pady=10)
+        
+        # Favorites section
+        favorites_frame = ttk.LabelFrame(main_frame, text="Slideshow Favorites")
+        favorites_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Use only favorites checkbox
+        self.use_favorites_checkbox = ttk.Checkbutton(
+            favorites_frame,
+            text="Use only favorites for slideshow",
+            command=self.on_use_favorites_changed
+        )
+        self.use_favorites_checkbox.pack(anchor=tk.W, padx=20, pady=5)
+        
+        # Add explanation for favorites
+        favorites_help = ttk.Label(
+            favorites_frame,
+            text="When checked, the slideshow will only show wallpapers from your favorites list.\n"
+                 "Favorites can be added using the 'Add to Favorites' shortcut or from the tray icon menu.",
+            wraplength=800,
+            font=("Arial", 9, "italic")
+        )
+        favorites_help.pack(padx=20, pady=5)
+        
+        # Load the current state of the checkbox
+        self.load_use_favorites_state()
+        
+    def on_use_favorites_changed(self):
+        """
+        Handle changes to the 'Use only favorites' checkbox.
+        Updates the configuration and applies the change.
+        """
+        try:
+            # Get the current state of the checkbox
+            use_favorites = self.use_favorites_checkbox.instate(['selected'])
+            
+            # Update the configuration
+            if "use_favorites" not in self.config:
+                self.config["use_favorites"] = False
+                
+            self.config["use_favorites"] = use_favorites
+            
+            # Save the configuration
+            config_manager.save_config(self.config, self.config_path)
+            
+            # Log the change
+            logger.info(f"Use favorites setting changed to: {use_favorites}")
+            
+            # Update the status
+            if use_favorites:
+                self.status_var.set("Using only favorites for slideshow")
+            else:
+                self.status_var.set("Using all wallpapers for slideshow")
+                
+        except Exception as e:
+            logger.error(f"Error in on_use_favorites_changed: {e}")
+            self.status_var.set(f"Error changing favorites setting: {e}")
+            
+    def load_use_favorites_state(self):
+        """
+        Load the current state of the 'Use only favorites' checkbox from the configuration.
+        """
+        try:
+            # Get the current setting from the configuration
+            use_favorites = self.config.get("use_favorites", False)
+            
+            # Set the checkbox state
+            if use_favorites:
+                self.use_favorites_checkbox.state(['selected'])
+            else:
+                self.use_favorites_checkbox.state(['!selected'])
+                
+            logger.debug(f"Loaded use favorites state: {use_favorites}")
+            
+        except Exception as e:
+            logger.error(f"Error loading use favorites state: {e}")
         
         # Initialize the direct color selection if it's the current selection
         if self.wallpaper_source_var.get() == "direct_color_selection":
@@ -3181,10 +3275,73 @@ class ColorControlPanel:
             # Remove empty settings hashes
             if not self.processed_files[settings_hash]:
                 del self.processed_files[settings_hash]
-        
         # Save the cleaned up processed files list
         self.config["processed_files"] = self.processed_files
         config_manager.save_config(self.config, self.config_path)
+    
+    def load_favorites(self):
+        """
+        Load favorite wallpapers from the configuration.
+        """
+        # Initialize favorites list if not in config
+        if "favorites" not in self.config:
+            self.config["favorites"] = []
+            config_manager.save_config(self.config, self.config_path)
+        
+        # Load favorites from config
+        self.favorites = self.config.get("favorites", [])
+        logger.debug(f"Loaded {len(self.favorites)} favorites from config")
+    
+    def add_to_favorites(self, image_path):
+        """
+        Add an image to the favorites list.
+        
+        Args:
+            image_path: Path to the image to add to favorites
+        """
+        # Ensure the path is absolute
+        image_path = os.path.abspath(image_path)
+        
+        # Check if already in favorites
+        if image_path in self.favorites:
+            logger.debug(f"Image already in favorites: {image_path}")
+            return False
+        
+        # Add to favorites
+        self.favorites.append(image_path)
+        
+        # Save to configuration
+        self.config["favorites"] = self.favorites
+        config_manager.save_config(self.config, self.config_path)
+        
+        logger.debug(f"Added image to favorites: {image_path}")
+        return True
+    
+    def remove_from_favorites(self, image_path):
+        """
+        Remove an image from the favorites list.
+        
+        Args:
+            image_path: Path to the image to remove from favorites
+        """
+        # Ensure the path is absolute
+        image_path = os.path.abspath(image_path)
+        
+        # Check if in favorites
+        if image_path not in self.favorites:
+            logger.debug(f"Image not in favorites: {image_path}")
+            return False
+        
+        # Remove from favorites
+        self.favorites.remove(image_path)
+        
+        # Save to configuration
+        self.config["favorites"] = self.favorites
+        config_manager.save_config(self.config, self.config_path)
+        
+        logger.debug(f"Removed image from favorites: {image_path}")
+        return True
+        
         
     def apply_wallpaper_source(self):
         """
@@ -3341,6 +3498,96 @@ class ColorControlPanel:
                 )
                 self._safe_enable_ui()
                 return
+            elif selected_source == "favorites_only":
+                # Use only favorite wallpapers
+                logger.debug(f"[{operation_id}] Using favorites only method")
+                
+                # Reload favorites to ensure we have the latest
+                self.load_favorites()
+                
+                if not self.favorites:
+                    logger.warning(f"[{operation_id}] No favorites found")
+                    messagebox.showwarning(
+                        "No Favorites",
+                        "No favorite wallpapers found. Please add some favorites first."
+                    )
+                    self._safe_enable_ui()
+                    return
+                
+                # Create a temporary directory for favorites symlinks
+                favorites_symlink_dir = os.path.expanduser("~/Pictures/llm_baby_monster_favorites")
+                
+                # Remove existing directory if it exists
+                if os.path.exists(favorites_symlink_dir):
+                    try:
+                        shutil.rmtree(favorites_symlink_dir)
+                    except Exception as e:
+                        logger.error(f"[{operation_id}] Error removing existing favorites directory: {e}")
+                
+                # Create the directory
+                try:
+                    os.makedirs(favorites_symlink_dir, exist_ok=True)
+                except Exception as e:
+                    logger.error(f"[{operation_id}] Error creating favorites directory: {e}")
+                    messagebox.showerror(
+                        "Error",
+                        f"Failed to create favorites directory: {e}"
+                    )
+                    self._safe_enable_ui()
+                    return
+                
+                # Create symlinks to favorite wallpapers
+                valid_favorites = []
+                for favorite in self.favorites:
+                    if os.path.exists(favorite):
+                        try:
+                            symlink_path = os.path.join(favorites_symlink_dir, os.path.basename(favorite))
+                            os.symlink(favorite, symlink_path)
+                            valid_favorites.append(favorite)
+                        except Exception as e:
+                            logger.error(f"[{operation_id}] Error creating symlink for {favorite}: {e}")
+                
+                if not valid_favorites:
+                    logger.warning(f"[{operation_id}] No valid favorites found")
+                    messagebox.showwarning(
+                        "No Valid Favorites",
+                        "None of your favorite wallpapers could be found. Please add some valid favorites."
+                    )
+                    self._safe_enable_ui()
+                    return
+                
+                # Update the slideshow config.ini to use the favorites directory
+                try:
+                    # Define paths
+                    slideshow_config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                                        "wallpaper_slideshow", "config.ini")
+                    
+                    logger.info(f"[{operation_id}] Updating slideshow config.ini to use favorites directory: {favorites_symlink_dir}")
+                    
+                    # Read the existing config
+                    config = configparser.ConfigParser()
+                    config.read(slideshow_config_path)
+                    
+                    # Update the image_directory setting
+                    if 'General' not in config:
+                        config['General'] = {}
+                    
+                    # Check if the directory has changed
+                    old_dir = config['General'].get('image_directory', '')
+                    if old_dir != favorites_symlink_dir:
+                        config['General']['image_directory'] = favorites_symlink_dir
+                        
+                        # Write the updated config
+                        with open(slideshow_config_path, 'w') as f:
+                            config.write(f)
+                        
+                        logger.info(f"[{operation_id}] Updated slideshow config.ini: image_directory changed from '{old_dir}' to '{favorites_symlink_dir}'")
+                except Exception as e:
+                    logger.error(f"[{operation_id}] Error updating slideshow config.ini: {e}")
+                    # Don't fail the whole operation if this part fails
+                
+                self.status_var.set(f"Using {len(valid_favorites)} favorite wallpapers")
+                
             elif selected_source == "direct_color_selection":
                 # Get selected colors from checkboxes
                 logger.debug(f"[{operation_id}] Using direct color selection method")

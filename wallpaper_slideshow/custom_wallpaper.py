@@ -8,6 +8,7 @@ import signal
 import glob
 import configparser
 import importlib.util
+import json
 from pathlib import Path
 
 # --- Configuration ---
@@ -18,6 +19,7 @@ DEFAULT_CONFIG = {
     "image_directory": os.path.expanduser("~/Pictures/Wallpapers"),
     "interval": 300,
     "shuffle": False,
+    "use_favorites_only": False,
     "supported_extensions": ['.jpg', '.jpeg', '.png', '.bmp', '.gif', '.webp'],
     "pid_file": os.path.expanduser("~/.config/custom_wallpaper_slideshow.pid"),
     "log_file": ""
@@ -41,6 +43,9 @@ def load_config():
                 
                 if 'shuffle' in parser['General']:
                     config['shuffle'] = parser.getboolean('General', 'shuffle')
+                
+                if 'use_favorites_only' in parser['General']:
+                    config['use_favorites_only'] = parser.getboolean('General', 'use_favorites_only')
             
             if 'Advanced' in parser:
                 if 'supported_extensions' in parser['Advanced']:
@@ -70,6 +75,8 @@ SUPPORTED_EXTENSIONS = config['supported_extensions']
 PID_FILE = Path(config['pid_file'])
 LOG_FILE = config['log_file']
 SHUFFLE_IMAGES = config['shuffle']
+USE_FAVORITES_ONLY = config['use_favorites_only']
+FAVORITES_FILE = os.path.expanduser("~/.wallpaper_favorites/favorites.json")
 
 # --- Global State ---
 image_files = []
@@ -96,6 +103,19 @@ def log(message):
         except Exception as e:
             print(f"Error writing to log file: {e}")
 
+def load_favorites():
+    """Load the list of favorite wallpapers"""
+    favorites = []
+    if os.path.exists(FAVORITES_FILE):
+        try:
+            with open(FAVORITES_FILE, 'r') as f:
+                data = json.load(f)
+                favorites = data.get("favorites", [])
+            log(f"Loaded {len(favorites)} favorites from {FAVORITES_FILE}")
+        except Exception as e:
+            log(f"Error loading favorites: {e}")
+    return favorites
+
 def get_image_files():
     global image_files, current_index
     log(f"Scanning for images in: {IMAGE_DIR}")
@@ -114,8 +134,26 @@ def get_image_files():
         log("No image files found.")
     else:
         # Deduplicate in case of case-insensitive filesystem and mixed case extensions
-        image_files = sorted(list(set(str(Path(f).resolve()) for f in found_files)))
-        log(f"Found {len(image_files)} images.")
+        all_images = sorted(list(set(str(Path(f).resolve()) for f in found_files)))
+        
+        # Filter for favorites if configured to do so
+        if USE_FAVORITES_ONLY:
+            favorites = load_favorites()
+            if favorites:
+                # Filter images to only include favorites
+                image_files = [img for img in all_images if img in favorites]
+                log(f"Using favorites only: {len(image_files)} of {len(all_images)} images.")
+                
+                # If no favorites match the available images, fall back to all images
+                if not image_files:
+                    log("No favorites found in image directory. Using all images instead.")
+                    image_files = all_images
+            else:
+                log("No favorites defined. Using all images.")
+                image_files = all_images
+        else:
+            image_files = all_images
+            log(f"Found {len(image_files)} images.")
         
         # Shuffle images if configured to do so
         if SHUFFLE_IMAGES:
@@ -276,6 +314,7 @@ if __name__ == "__main__":
     log(f"Image directory: {IMAGE_DIR}")
     log(f"Interval: {SLIDESHOW_INTERVAL} seconds")
     log(f"Shuffle mode: {'Enabled' if SHUFFLE_IMAGES else 'Disabled'}")
+    log(f"Favorites only mode: {'Enabled' if USE_FAVORITES_ONLY else 'Disabled'}")
     log(f"To control: ")
     log(f"  Next:     kill -USR1 {program_pid}")
     log(f"  Previous: kill -USR2 {program_pid}")

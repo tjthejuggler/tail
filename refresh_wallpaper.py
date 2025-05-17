@@ -11,6 +11,7 @@ import glob
 import random
 from pathlib import Path
 from datetime import datetime, timedelta
+import importlib.util
 
 logging.basicConfig(
     level=logging.INFO,
@@ -26,6 +27,43 @@ TARGET_DIR = os.path.join(BASE_DIR, "llm_baby_monster")
 CONFIG_PATH = "/home/twain/Projects/tail/wallpaper_color_manager_new/config.json"
 CURRENT_COLOR_FILE = "/home/twain/Projects/tail/current_wallpaper_color.txt"
 LBM_DIRS_PATH = "/home/twain/Pictures/lbm_dirs"
+
+def load_favorites_module():
+    """Dynamically load the wallpaper_favorites module."""
+    try:
+        # Get the path to the wallpaper_favorites.py script
+        favorites_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                     "wallpaper_slideshow", "wallpaper_favorites.py")
+        
+        # Check if the script exists
+        if not os.path.exists(favorites_path):
+            logger.error(f"Wallpaper favorites script not found: {favorites_path}")
+            return None
+        
+        # Load the module
+        spec = importlib.util.spec_from_file_location("wallpaper_favorites", favorites_path)
+        favorites_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(favorites_module)
+        
+        return favorites_module
+    except Exception as e:
+        logger.error(f"Error loading wallpaper favorites module: {e}")
+        return None
+
+def create_symlinks_from_favorites():
+    """Create symlinks in the target directory for all favorite wallpapers."""
+    logger.info("Creating symlinks from favorite wallpapers")
+    try:
+        # Load the favorites module
+        favorites_module = load_favorites_module()
+        if not favorites_module:
+            return False
+        
+        # Create symlinks from favorites
+        return favorites_module.create_symlinks_from_favorites(TARGET_DIR)
+    except Exception as e:
+        logger.error(f"Error creating symlinks from favorites: {e}")
+        return False
 
 def load_config():
     """Load configuration from file."""
@@ -421,7 +459,7 @@ def create_symlinks_from_recent_folders(days_back=7):
         logger.error(f"Error creating symlinks from recent folders: {e}")
         return False
 
-def update_wallpaper_folder(color=None, latest_folder=None, days_back=None, source_colors_str=None):
+def update_wallpaper_folder(color=None, latest_folder=None, days_back=None, source_colors_str=None, use_favorites=False):
     """
     Update the wallpaper folder with images from the specified source.
     
@@ -430,11 +468,12 @@ def update_wallpaper_folder(color=None, latest_folder=None, days_back=None, sour
         latest_folder: Path to the latest folder to use
         days_back: Number of days to look back for folders
         source_colors_str: Comma-separated string of color names to use as sources
+        use_favorites: Whether to use favorite wallpapers
         
     Returns:
         tuple: (success, changed, previous_color)
     """
-    logger.info(f"Updating wallpaper folder: color={color}, latest_folder={latest_folder}, days_back={days_back}, source_colors_str={source_colors_str}")
+    logger.info(f"Updating wallpaper folder: color={color}, latest_folder={latest_folder}, days_back={days_back}, source_colors_str={source_colors_str}, use_favorites={use_favorites}")
     
     prev_color = get_current_color()
     config = load_config()
@@ -456,9 +495,14 @@ def update_wallpaper_folder(color=None, latest_folder=None, days_back=None, sour
         return success, current_selection_primary_color != prev_color, prev_color
 
     # If no specific source is provided via arguments, check the config
-    if not color and latest_folder is None and days_back is None and config:
+    if not color and latest_folder is None and days_back is None and not use_favorites and config:
         wallpaper_source = config.get("wallpaper_source")
         logger.info(f"Using wallpaper source from config: {wallpaper_source}")
+        
+        # Check if wallpaper_source is "slideshow_favorites"
+        if wallpaper_source == "slideshow_favorites":
+            logger.info("Using slideshow favorites from config")
+            use_favorites = True
         
         if wallpaper_source == "direct_color_selection" and "direct_color_selection" in config:
             selected_colors_cfg = config.get("direct_color_selection", [])
@@ -532,7 +576,20 @@ def update_wallpaper_folder(color=None, latest_folder=None, days_back=None, sour
             return False, False, prev_color
     
     # Update based on the determined source
-    if latest_folder:
+    if use_favorites:
+        # Clear the target directory first
+        if not clear_target_directory():
+            return False, False, prev_color
+        
+        # Create symlinks from favorites
+        success = create_symlinks_from_favorites()
+        
+        # Save "favorites" as the current color
+        if success:
+            save_current_color("favorites")
+        
+        return success, "favorites" != prev_color, prev_color
+    elif latest_folder:
         success = create_symlinks_from_folder(latest_folder)
         # For latest_folder, we don't have a specific 'color' to save, so don't update current_color.txt
         # The 'changed' status will depend on whether TARGET_DIR content actually changed, which is hard to track here.
@@ -803,6 +860,7 @@ if __name__ == "__main__":
     force_refresh = '--force-refresh' in args
     skip_refresh = '--no-refresh' in args
     most_recent_only = '--most-recent-only' in args
+    use_favorites = '--use-favorites' in args
     source_colors_arg = None
 
     latest_folder = None
@@ -901,7 +959,7 @@ if __name__ == "__main__":
                 color_arg = arg_val
                 break
                 
-    success, changed, prev_color = update_wallpaper_folder(color_arg, latest_folder, days_back, source_colors_str=source_colors_arg)
+    success, changed, prev_color = update_wallpaper_folder(color_arg, latest_folder, days_back, source_colors_str=source_colors_arg, use_favorites=use_favorites)
 
     weekly_count = get_weekly_habit_count()
     current_color = get_color_from_count(weekly_count)
@@ -913,7 +971,9 @@ if __name__ == "__main__":
 
     if success:
         actual_color = color_arg or current_color
-        if latest_folder:
+        if use_favorites:
+            print(f"Wallpaper directory updated with favorite images")
+        elif latest_folder:
             print(f"Wallpaper directory updated with images from: {os.path.basename(latest_folder)}")
         elif days_back is not None:
             print(f"Wallpaper directory updated with images from the last {days_back} days")

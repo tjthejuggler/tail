@@ -37,6 +37,16 @@ from PyQt5.QtWidgets import (QApplication, QSystemTrayIcon, QMenu, QAction,
                             QTreeView, QHeaderView, QToolBar, QComboBox, QLineEdit,
                             QTabWidget, QFormLayout, QGroupBox, QCheckBox, QSpinBox,
                             QDialogButtonBox, QFileSystemModel)
+
+# Import the FavoritesTab class
+try:
+    from favorites_tab import FavoritesTab
+except ImportError:
+    # Try with full path
+    import sys
+    import os
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+    from favorites_tab import FavoritesTab
 from PyQt5.QtGui import QIcon, QPixmap, QImageReader
 from PyQt5.QtCore import Qt, QTimer, QSize, QDir, QModelIndex, pyqtSignal, QObject
 
@@ -51,6 +61,8 @@ logger = logging.getLogger(__name__)
 # Constants
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 NOTES_DIR = os.path.expanduser("~/.wallpaper_notes")
+FAVORITES_DIR = os.path.expanduser("~/.wallpaper_favorites")
+FAVORITES_FILE = os.path.join(FAVORITES_DIR, "favorites.json")
 CONTROL_SCRIPT = os.path.join(SCRIPT_DIR, "control_slideshow.sh")
 COLOR_CONTROL_PANEL = os.path.join(os.path.dirname(SCRIPT_DIR), "wallpaper_color_manager_new/color_control_panel.py")
 GET_CURRENT_WALLPAPER = os.path.join(os.path.dirname(SCRIPT_DIR), "get_current_wallpaper.py")
@@ -63,6 +75,7 @@ CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.ini")
 SET_WALLPAPER_SCRIPT = os.path.join(SCRIPT_DIR, "set_specific_wallpaper.py")
 CUSTOM_WALLPAPER_SCRIPT = os.path.join(SCRIPT_DIR, "custom_wallpaper.py")
 RESTART_SCRIPT = os.path.join(SCRIPT_DIR, "restart_slideshow.sh")
+ADD_TO_FAVORITES_SCRIPT = os.path.join(SCRIPT_DIR, "kde_shortcuts/add_to_favorites.sh")
 
 # Load supported image extensions from config
 SUPPORTED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp"]
@@ -1192,10 +1205,12 @@ class WallpaperMainWindow(QMainWindow):
         self.history_tab = HistoryTab(self)
         self.notes_tab = NotesTab(self)
         self.settings_tab = SettingsTab(self)
+        self.favorites_tab = FavoritesTab(self)
         
         # Add tabs to tab widget
         self.tab_widget.addTab(self.history_tab, "History")
         self.tab_widget.addTab(self.notes_tab, "Image Notes")
+        self.tab_widget.addTab(self.favorites_tab, "Favorites")
         self.tab_widget.addTab(self.settings_tab, "Settings")
         
         # Connect signals
@@ -1334,6 +1349,16 @@ class WallpaperTrayApp:
         
         self.menu.addSeparator()
         
+        # Favorite current wallpaper action
+        favorite_action = QAction("Favorite Current Wallpaper", self.menu)
+        favorite_action.triggered.connect(self.favorite_current_wallpaper)
+        self.menu.addAction(favorite_action)
+        
+        # View favorites action
+        view_favorites_action = QAction("View Favorites", self.menu)
+        view_favorites_action.triggered.connect(self.view_favorites)
+        self.menu.addAction(view_favorites_action)
+        
         # Color control panel action
         color_action = QAction("Color Control Panel", self.menu)
         color_action.triggered.connect(self.open_color_control_panel)
@@ -1390,6 +1415,8 @@ class WallpaperTrayApp:
             self.main_window.notes_tab.refresh_current_wallpaper()
             # Refresh the history tab
             self.main_window.history_tab.load_history()
+            # Refresh the favorites tab
+            self.main_window.favorites_tab.load_favorites()
         except Exception as e:
             logger.error(f"Error refreshing main window: {e}")
     
@@ -1428,6 +1455,149 @@ class WallpaperTrayApp:
         except Exception as e:
             logger.error(f"Error toggling pause/resume: {e}")
             self.tray_icon.showMessage("Error", f"Failed to toggle pause/resume: {str(e)}")
+    
+    def favorite_current_wallpaper(self):
+        """Add the current wallpaper to favorites"""
+        try:
+            # Use the add_to_favorites script
+            if os.path.exists(ADD_TO_FAVORITES_SCRIPT):
+                subprocess.run([ADD_TO_FAVORITES_SCRIPT], check=True)
+                logger.info("Added current wallpaper to favorites using script")
+                
+                # Refresh favorites tab if main window is open
+                if hasattr(self, 'main_window') and self.main_window.isVisible():
+                    self.main_window.favorites_tab.load_favorites()
+                
+                return
+            
+            # Fallback to manual method if script doesn't exist
+            # Create favorites directory if it doesn't exist
+            os.makedirs(FAVORITES_DIR, exist_ok=True)
+            
+            # Get current wallpaper
+            wallpaper_path = self.get_current_wallpaper_path()
+            
+            if not wallpaper_path:
+                logger.error("Could not determine current wallpaper")
+                self.tray_icon.showMessage("Error", "Could not determine current wallpaper")
+                return
+            
+            # Check if favorites file exists, create if not
+            if not os.path.exists(FAVORITES_FILE):
+                with open(FAVORITES_FILE, 'w') as f:
+                    json.dump({"favorites": []}, f, indent=2)
+                logger.info(f"Created new favorites file at {FAVORITES_FILE}")
+            
+            # Load favorites
+            try:
+                with open(FAVORITES_FILE, 'r') as f:
+                    data = json.load(f)
+                    favorites = data.get("favorites", [])
+                
+                # Check if already in favorites
+                if wallpaper_path in favorites:
+                    logger.info(f"Wallpaper {wallpaper_path} is already in favorites")
+                    self.tray_icon.showMessage("Wallpaper Favorites", f"{os.path.basename(wallpaper_path)} is already in favorites")
+                    return
+                
+                # Add to favorites
+                favorites.append(wallpaper_path)
+                
+                # Save favorites
+                with open(FAVORITES_FILE, 'w') as f:
+                    json.dump({"favorites": favorites}, f, indent=2)
+                
+                logger.info(f"Added {wallpaper_path} to favorites")
+                self.tray_icon.showMessage("Wallpaper Favorites", f"Added {os.path.basename(wallpaper_path)} to favorites")
+                
+                # Refresh favorites tab if main window is open
+                if hasattr(self, 'main_window') and self.main_window.isVisible():
+                    self.main_window.favorites_tab.load_favorites()
+                
+            except Exception as e:
+                logger.error(f"Error adding to favorites: {e}")
+                self.tray_icon.showMessage("Error", f"Failed to add to favorites: {str(e)}")
+                
+        except Exception as e:
+            logger.error(f"Error in favorite_current_wallpaper: {e}")
+            self.tray_icon.showMessage("Error", f"Failed to add current wallpaper to favorites: {str(e)}")
+    
+    def view_favorites(self):
+        """Show the favorites tab in the main window"""
+        try:
+            # Show the main window
+            self.main_window.show()
+            self.main_window.setWindowState(self.main_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive)
+            self.main_window.raise_()
+            self.main_window.activateWindow()
+            
+            # Force processing of events to ensure window activation
+            self.app.processEvents()
+            
+            # Select the favorites tab
+            for i in range(self.main_window.tab_widget.count()):
+                if self.main_window.tab_widget.tabText(i) == "Favorites":
+                    self.main_window.tab_widget.setCurrentIndex(i)
+                    break
+            
+            # Refresh the favorites tab
+            self.main_window.favorites_tab.load_favorites()
+            
+            logger.info("Opened favorites tab")
+        except Exception as e:
+            logger.error(f"Error opening favorites tab: {e}")
+            self.tray_icon.showMessage("Error", f"Failed to open favorites tab: {str(e)}")
+    
+    def get_current_wallpaper_path(self):
+        """Get the path to the current wallpaper"""
+        # First try to get from tracking file
+        if os.path.exists(CURRENT_WALLPAPER_FILE):
+            try:
+                with open(CURRENT_WALLPAPER_FILE, 'r') as f:
+                    wallpaper_path = f.read().strip()
+                
+                if wallpaper_path and os.path.exists(wallpaper_path):
+                    logger.debug(f"Got current wallpaper from tracking file: {wallpaper_path}")
+                    return wallpaper_path
+            except Exception as e:
+                logger.error(f"Error reading current wallpaper file: {e}")
+        
+        # If tracking file didn't work, try the tracking module
+        try:
+            if os.path.exists(TRACK_CURRENT_WALLPAPER):
+                # Import the module dynamically
+                spec = importlib.util.spec_from_file_location("track_current_wallpaper", TRACK_CURRENT_WALLPAPER)
+                tracker = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(tracker)
+                
+                # Get the current wallpaper
+                wallpaper_path = tracker.get_current_wallpaper()
+                if wallpaper_path:
+                    logger.debug(f"Got current wallpaper from tracking module: {wallpaper_path}")
+                    return wallpaper_path
+        except Exception as e:
+            logger.error(f"Error using tracking module: {e}")
+        
+        # If tracking system didn't work, fall back to the old method
+        try:
+            result = subprocess.run(
+                ["python3", GET_CURRENT_WALLPAPER, "--verbose"],
+                capture_output=True,
+                text=True,
+                check=False
+            )
+            
+            if result.returncode == 0:
+                for line in result.stdout.splitlines():
+                    if "Full path:" in line:
+                        wallpaper_path = line.split("Full path:")[1].strip()
+                        if wallpaper_path and os.path.exists(wallpaper_path):
+                            logger.debug(f"Got current wallpaper from get_current_wallpaper.py: {wallpaper_path}")
+                            return wallpaper_path
+        except Exception as e:
+            logger.error(f"Error running get_current_wallpaper.py: {e}")
+        
+        return None
     
     def open_color_control_panel(self):
         """Open the color control panel"""

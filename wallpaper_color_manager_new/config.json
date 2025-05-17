@@ -15923,7 +15923,7 @@
       }
     }
   },
-  "wallpaper_source": "latest",
+  "wallpaper_source": "latest_by_date",
   "direct_color_selection": [
     "green"
   ],
@@ -15942,6 +15942,7 @@
   "latest_by_date_settings": {
     "days_back": 5
   },
-  "latest_folder": "/home/twain/Pictures/lbm_dirs/lbm-5-10-25",
-  "last_directories_after_date": "5-16-25"
+  "latest_folder": "/home/twain/Pictures/lbm_dirs/lbm-5-16-25",
+  "last_directories_after_date": "5-16-25",
+  "favorites": []
 }
