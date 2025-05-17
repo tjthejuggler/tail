@@ -86,11 +86,17 @@ open_notes_for_current_wallpaper() {
     echo "$WALLPAPER_PATH" > "$NOTES_DIR/open_image.tmp"
     chmod 644 "$NOTES_DIR/open_image.tmp"
     
+    # Create a temporary file to store the wallpaper path
+    mkdir -p "$NOTES_DIR"
+    echo "$WALLPAPER_PATH" > "$NOTES_DIR/open_image.tmp"
+    chmod 644 "$NOTES_DIR/open_image.tmp"
+    
     # Check if tray app is running
     if is_tray_app_running; then
+        echo "Tray app is running, sending signal to open notes"
+        
         # Send SIGUSR1 signal to the tray app to open notes
         pkill -USR1 -f "python3.*wallpaper_tray.py"
-        echo "Sent signal to existing tray app to open notes"
         
         # Wait a moment to see if the tray app responds
         sleep 1

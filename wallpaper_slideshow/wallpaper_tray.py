@@ -1275,6 +1275,11 @@ class WallpaperTrayApp:
         self.status_timer.timeout.connect(self.check_slideshow_status)
         self.status_timer.start(30000)  # Check every 30 seconds
         
+        # Add a timer to check for favorites refresh files
+        self.favorites_refresh_timer = QTimer()
+        self.favorites_refresh_timer.timeout.connect(self.check_favorites_refresh)
+        self.favorites_refresh_timer.start(1000)  # Check every second
+        
         # Initial check if slideshow is running and start it if not
         QTimer.singleShot(1000, self.check_and_start_slideshow)
         
@@ -1283,6 +1288,9 @@ class WallpaperTrayApp:
         
         # Set up signal handler for SIGUSR1 (used by open_notes_for_wallpaper.py)
         signal.signal(signal.SIGUSR1, self.handle_sigusr1)
+        
+        # Set up signal handler for SIGUSR2 (used as an alternative to refresh favorites)
+        signal.signal(signal.SIGUSR2, self.handle_sigusr2)
         
         # Create notes directory if it doesn't exist
         os.makedirs(NOTES_DIR, exist_ok=True)
@@ -1464,9 +1472,20 @@ class WallpaperTrayApp:
                 subprocess.run([ADD_TO_FAVORITES_SCRIPT], check=True)
                 logger.info("Added current wallpaper to favorites using script")
                 
-                # Refresh favorites tab if main window is open
-                if hasattr(self, 'main_window') and self.main_window.isVisible():
+                # Always refresh favorites tab, even if main window is not visible
+                if hasattr(self, 'main_window'):
+                    # Force an immediate refresh
                     self.main_window.favorites_tab.load_favorites()
+                    self.main_window.favorites_tab.populate_favorites_list()
+                    
+                    # Show notification
+                    self.tray_icon.showMessage("Wallpaper Favorites", "Current wallpaper added to favorites")
+                    
+                    # If main window is visible and favorites tab is active, show status message
+                    if self.main_window.isVisible():
+                        current_tab = self.main_window.tab_widget.currentWidget()
+                        if current_tab == self.main_window.favorites_tab:
+                            self.main_window.statusBar().showMessage("Favorites list refreshed", 3000)
                 
                 return
             
@@ -1829,11 +1848,14 @@ class WallpaperTrayApp:
         return wallpaper_path
     
     def handle_sigusr1(self, signum, frame):
-        """Handle SIGUSR1 signal (used to open notes for a specific image)"""
+        """Handle SIGUSR1 signal (used to open notes for a specific image or refresh favorites)"""
         logger.info("Received SIGUSR1 signal")
         
         # Since this is called from a signal handler (different thread context),
         # we need to be careful about thread safety
+        
+        # Force a check for favorites refresh files
+        QTimer.singleShot(100, self.check_favorites_refresh)
         
         # Check for temporary file with image path
         temp_file = os.path.join(NOTES_DIR, "open_image.tmp")
@@ -1885,6 +1907,61 @@ class WallpaperTrayApp:
                     logger.error(f"Error removing temporary file: {e}")
         except Exception as e:
             logger.error(f"Error in _handle_sigusr1_in_main_thread: {e}")
+            
+    def _refresh_favorites_in_main_thread(self):
+        """Refresh the favorites tab in the main thread"""
+        try:
+            logger.info("Refreshing favorites tab from signal handler")
+            
+            # Check if main window exists
+            if hasattr(self, 'main_window'):
+                # Refresh the favorites tab
+                self.main_window.favorites_tab.load_favorites()
+                self.main_window.favorites_tab.populate_favorites_list()
+                
+                # If the main window is visible and the favorites tab is active, show a status message
+                if self.main_window.isVisible():
+                    current_tab = self.main_window.tab_widget.currentWidget()
+                    if current_tab == self.main_window.favorites_tab:
+                        self.main_window.statusBar().showMessage("Favorites list refreshed", 3000)
+                
+                logger.info("Favorites tab refreshed successfully")
+            else:
+                logger.warning("Main window not available, cannot refresh favorites tab")
+        except Exception as e:
+            logger.error(f"Error refreshing favorites tab: {e}")
+            
+    def check_favorites_refresh(self):
+        """Check for files indicating that favorites need to be refreshed"""
+        try:
+            # Look for any refresh_favorites files in the favorites directory
+            if os.path.exists(FAVORITES_DIR):
+                refresh_files = [f for f in os.listdir(FAVORITES_DIR) if f.startswith("refresh_favorites_")]
+                
+                if refresh_files:
+                    logger.info(f"Found {len(refresh_files)} refresh files: {refresh_files}")
+                    
+                    # Remove all refresh files
+                    for file in refresh_files:
+                        try:
+                            os.remove(os.path.join(FAVORITES_DIR, file))
+                        except Exception as e:
+                            logger.error(f"Error removing refresh file {file}: {e}")
+                    
+                    # Refresh the favorites tab
+                    self._refresh_favorites_in_main_thread()
+                    
+                    # Show a notification
+                    self.tray_icon.showMessage("Favorites Updated", "Favorites list has been refreshed")
+        except Exception as e:
+            logger.error(f"Error checking for favorites refresh files: {e}")
+    def handle_sigusr2(self, signum, frame):
+        """Handle SIGUSR2 signal (used as an alternative to refresh favorites)"""
+        logger.info("Received SIGUSR2 signal")
+        
+        # Force a refresh of favorites
+        QTimer.singleShot(100, self._refresh_favorites_in_main_thread)
+        
     def run(self):
         """Run the application"""
         return self.app.exec_()

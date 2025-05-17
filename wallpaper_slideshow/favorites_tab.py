@@ -35,7 +35,7 @@ FAVORITES_DIR = os.path.expanduser("~/.wallpaper_favorites")
 FAVORITES_FILE = os.path.join(FAVORITES_DIR, "favorites.json")
 SET_WALLPAPER_SCRIPT = os.path.join(SCRIPT_DIR, "set_specific_wallpaper.py")
 CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.ini")
-CURRENT_WALLPAPER_FILE = os.path.expanduser("~/Projects/tail/current-wallpaper")
+CURRENT_WALLPAPER_FILE = os.path.expanduser("~/.current_wallpaper")
 
 # Load supported image extensions from config
 SUPPORTED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp"]
