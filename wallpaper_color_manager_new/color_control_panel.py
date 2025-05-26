@@ -42,10 +42,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Import utility modules
 from utils import config_manager, color_analysis, file_operations
 
-# Setup logging
+# Setup logging - disable file logging to prevent log file buildup
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]  # Only log to console, not files
 )
 logger = logging.getLogger(__name__)
 
@@ -3705,10 +3706,10 @@ class ColorControlPanel:
                     )
                     return
                 
-                # Use the most recent folder (first in the list)
-                latest_folder = recent_folders[0]
-                folder_name = os.path.basename(latest_folder)
-                logger.debug(f"[{operation_id}] Using latest folder by date: {latest_folder}")
+                # Use ALL folders from the last X days, not just the most recent one
+                logger.debug(f"[{operation_id}] Using {len(recent_folders)} folders from the last {days_back} days")
+                folder_names = [os.path.basename(folder) for folder in recent_folders]
+                logger.debug(f"[{operation_id}] Folders: {', '.join(folder_names)}")
                 
                 # Now that we have all the information, disable the UI
                 logger.debug(f"[{operation_id}] Disabling UI")
@@ -3719,15 +3720,16 @@ class ColorControlPanel:
                     logger.error(f"[{operation_id}] Error disabling UI: {e}")
                     logger.error(traceback.format_exc())
                 
-                self.status_var.set(f"Using latest folder by date: {folder_name}")
+                self.status_var.set(f"Using {len(recent_folders)} folders from the last {days_back} days")
                 
                 # Update the configuration without refreshing plasma
                 try:
-                    # Save the folder to the configuration
-                    self.config["latest_folder"] = latest_folder
+                    # Save the folders to the configuration
+                    self.config["latest_folders"] = recent_folders
+                    self.config["latest_by_date_settings"]["days_back"] = days_back
                     config_manager.save_config(self.config, self.config_path)
                     
-                    # Run the script with days_back parameter instead of latest_folder
+                    # Run the script with days_back parameter to process ALL folders from the last X days
                     cmd = ["python3", self.refresh_script_path, "--days-back", str(days_back), "--no-refresh"]
                     logger.debug(f"[{operation_id}] Command: {' '.join(cmd)}")
                     
@@ -3748,7 +3750,12 @@ class ColorControlPanel:
                     self._safe_enable_ui()
                     
                     # Show success message
-                    status_message = f"Success: Using latest folder by date: {folder_name}"
+                    if len(recent_folders) == 1:
+                        folder_name = os.path.basename(recent_folders[0])
+                        status_message = f"Success: Using folder from the last {days_back} days: {folder_name}"
+                    else:
+                        status_message = f"Success: Using {len(recent_folders)} folders from the last {days_back} days"
+                    
                     logger.debug(status_message)
                     self.status_var.set(status_message)
                     
@@ -3770,15 +3777,29 @@ class ColorControlPanel:
                     self.status_var.set("Changes applied successfully. Restarting slideshow...")
                     
                     # Use the _restart_slideshow method to restart the slideshow
-                    self._restart_slideshow(callback=lambda: self.status_var.set(f"Slideshow restarted successfully. Using folder: {folder_name}"))
+                    if len(recent_folders) == 1:
+                        folder_name = os.path.basename(recent_folders[0])
+                        self._restart_slideshow(callback=lambda: self.status_var.set(f"Slideshow restarted successfully. Using folder: {folder_name}"))
+                    else:
+                        self._restart_slideshow(callback=lambda: self.status_var.set(f"Slideshow restarted successfully. Using {len(recent_folders)} folders from last {days_back} days"))
                     
                     # Show success message
-                    messagebox.showinfo(
-                        "Success",
-                        f"Wallpaper source updated to use folder: {folder_name}\n\n"
-                        "The wallpaper slideshow is being restarted in a separate process.\n"
-                        "Your desktop wallpaper should update momentarily."
-                    )
+                    if len(recent_folders) == 1:
+                        folder_name = os.path.basename(recent_folders[0])
+                        messagebox.showinfo(
+                            "Success",
+                            f"Wallpaper source updated to use folder: {folder_name}\n\n"
+                            "The wallpaper slideshow is being restarted in a separate process.\n"
+                            "Your desktop wallpaper should update momentarily."
+                        )
+                    else:
+                        messagebox.showinfo(
+                            "Success",
+                            f"Wallpaper source updated to use {len(recent_folders)} folders from the last {days_back} days:\n\n"
+                            f"{', '.join(folder_names[:3])}{'...' if len(folder_names) > 3 else ''}\n\n"
+                            "The wallpaper slideshow is being restarted in a separate process.\n"
+                            "Your desktop wallpaper should update momentarily."
+                        )
                     
                     return
                     
@@ -4815,35 +4836,17 @@ def main():
             print(f"Error refreshing plasma: {e}")
             return 1
     
-    # Set up a file handler to log to a file as well
+    # File logging disabled to prevent log file buildup
+    # Only console logging is used now
+    
+    # Log system information to console only
     try:
-        log_dir = os.path.dirname(os.path.abspath(__file__))
-        log_file = os.path.join(log_dir, "color_control_panel.log")
-        
-        # Create a rotating file handler to avoid huge log files
-        # Keep 3 backup files of 5MB each
-        from logging.handlers import RotatingFileHandler
-        file_handler = RotatingFileHandler(
-            log_file,
-            mode='a',  # Append mode to preserve previous logs
-            maxBytes=5*1024*1024,  # 5MB
-            backupCount=3
-        )
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-        logging.getLogger().addHandler(file_handler)
-        
-        logger.debug(f"Logging to file: {log_file}")
-        logger.debug(f"Log rotation enabled: 5MB max size, 3 backup files")
-        
-        # Log system information
         import platform
         logger.debug(f"Platform: {platform.platform()}")
         logger.debug(f"Python version: {platform.python_version()}")
         logger.debug(f"Tkinter version: {tk.TkVersion}")
-        
     except Exception as e:
-        logger.error(f"Failed to set up file logging: {e}", exc_info=True)
+        logger.error(f"Failed to log system information: {e}")
     
     try:
         # Create Tkinter root

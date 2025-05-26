@@ -181,6 +181,22 @@ If the control panel is not working, check:
 2. That the configuration file exists and is valid
 3. That the sample images directory exists and contains images
 
+## Recent Bug Fixes
+
+### Version 1.1 (Latest)
+
+**Fixed Issues:**
+1. **"Last X days" wallpaper source bug**: Previously, when selecting "Use images from folders in /home/twain/Pictures/lbm_dirs with format (lbm-M-D-YY) within the last X days", the system was only using the most recent folder instead of all folders from the specified time period. This has been fixed to properly include all folders within the specified number of days.
+
+2. **Log file buildup**: Removed automatic file logging that was creating and filling up log files unnecessarily. The application now only logs to the console, preventing disk space issues from accumulated log files.
+
+**Technical Details:**
+- Modified `create_symlinks_from_recent_folders()` in `refresh_wallpaper.py` to process all folders within the specified date range, not just the most recent one
+- Enhanced logging to show progress when processing multiple folders
+- Added handling for duplicate filenames when creating symlinks from multiple folders
+- Disabled file logging in `color_control_panel.py` to prevent log file accumulation
+- Updated UI messages to accurately reflect when multiple folders are being used
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.

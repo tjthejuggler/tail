@@ -432,9 +432,13 @@ def create_symlinks_from_recent_folders(days_back=7):
             logger.warning(f"No folders found within the last {days_back} days")
             return False
         
+        logger.info(f"Found {len(recent_folders)} folders within the last {days_back} days")
+        
         # Create symlinks from each folder
         total_count = 0
-        for folder in recent_folders:
+        for folder_idx, folder in enumerate(recent_folders):
+            logger.info(f"Processing folder {folder_idx + 1}/{len(recent_folders)}: {os.path.basename(folder)}")
+            
             # Get all image files in the folder
             image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
             image_files = []
@@ -443,7 +447,10 @@ def create_symlinks_from_recent_folders(days_back=7):
                 image_files.extend(glob.glob(os.path.join(folder, f"*{ext}")))
                 image_files.extend(glob.glob(os.path.join(folder, f"*{ext.upper()}")))
             
+            logger.info(f"Found {len(image_files)} images in folder {os.path.basename(folder)}")
+            
             # Create symlinks for each image file
+            folder_count = 0
             for image_path in image_files:
                 filename = os.path.basename(image_path)
                 symlink_path = os.path.join(TARGET_DIR, filename)
@@ -452,11 +459,36 @@ def create_symlinks_from_recent_folders(days_back=7):
                 if not os.path.exists(symlink_path):
                     os.symlink(image_path, symlink_path)
                     total_count += 1
+                    folder_count += 1
+                else:
+                    # If symlink already exists, check if it points to the same file
+                    try:
+                        existing_target = os.readlink(symlink_path)
+                        if existing_target != image_path:
+                            # Different target, create a unique name
+                            base_name, ext = os.path.splitext(filename)
+                            counter = 1
+                            while True:
+                                new_filename = f"{base_name}_{counter}{ext}"
+                                new_symlink_path = os.path.join(TARGET_DIR, new_filename)
+                                if not os.path.exists(new_symlink_path):
+                                    os.symlink(image_path, new_symlink_path)
+                                    total_count += 1
+                                    folder_count += 1
+                                    break
+                                counter += 1
+                    except OSError:
+                        # Error reading symlink, skip this file
+                        logger.warning(f"Could not read existing symlink: {symlink_path}")
+            
+            logger.info(f"Created {folder_count} symlinks from folder {os.path.basename(folder)}")
         
-        logger.info(f"Created {total_count} symlinks from {len(recent_folders)} folders")
+        logger.info(f"Created a total of {total_count} symlinks from {len(recent_folders)} folders")
         return total_count > 0
     except Exception as e:
         logger.error(f"Error creating symlinks from recent folders: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         return False
 
 def update_wallpaper_folder(color=None, latest_folder=None, days_back=None, source_colors_str=None, use_favorites=False):
