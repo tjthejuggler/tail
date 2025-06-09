@@ -15,6 +15,10 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 
+#something to do with icon and sizing of py_widget
+export QT_QPA_PLATFORM=xcb
+export QT_X11_NO_MITSHM=1
+
 # Source virtual environment
 source /home/twain/Projects/py_habits_widget/py_habits_widget/bin/activate
 
